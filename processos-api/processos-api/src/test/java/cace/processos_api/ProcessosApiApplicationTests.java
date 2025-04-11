@@ -1,10 +1,10 @@
-package tech.buildrun.api;
+package cace.processos_api;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class ApiApplicationTests {
+class ProcessosApiApplicationTests {
 
 	@Test
 	void contextLoads() {
