@@ -28,11 +28,11 @@ public class Processo {
     private Long id;
 
 
-    @Column(nullable = false , unique = true)
+    @Column(nullable = false , unique = true , updatable = false)
     private String numeroCompleto;
 
 
-    @Column(nullable = false , unique = true)
+    @Column(nullable = false , unique = true , updatable = false)
     private String numeroCurto;
 
 
@@ -78,6 +78,13 @@ public class Processo {
     public void preUpdate() {
         this.dataAtualizacao = LocalDateTime.now();
         System.out.println("Processo atualizado ... " + "na data : " + dataAtualizacao);
+    }
+
+    public void setNumeroCompleto(String numeroCompleto) {
+        this.numeroCompleto = numeroCompleto;
+        if (numeroCompleto != null && numeroCompleto.length() >= 9) {
+            this.numeroCurto = numeroCompleto.substring(0, 9);
+        }
     }
 
     
