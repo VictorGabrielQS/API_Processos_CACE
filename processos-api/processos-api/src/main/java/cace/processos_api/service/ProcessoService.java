@@ -47,6 +47,7 @@ public class ProcessoService {
         processo.setResponsavel(processoDTO.getResponsavel());
         processo.setDescricao(processoDTO.getDescricao());
         processo.setTipoCertidao(processoDTO.getCertidao());
+        processo.setUrlProcessoProjudi(processoDTO.getUrlProcessoProjudi());
 
         Processo savedProcesso = processoRepository.save(processo);
         return convertToDTO(savedProcesso);
@@ -229,6 +230,7 @@ public class ProcessoService {
                 processo.getResponsavel(),
                 processo.getDescricao(),
                 processo.getTipoCertidao(),
+                processo.getUrlProcessoProjudi(),
                 ProcessoDTO.formatarData(processo.getDataCriacao()),
                 ProcessoDTO.formatarData(processo.getDataAtualizacao())
         );

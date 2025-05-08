@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 @Service
 public class PoloPassivoService extends PoloService {
     private final PoloPassivoRepository poloPassivoRepository;
+    public PoloDetalhadoDTO getDetalhadoByIdid;
 
     public PoloPassivoService(PoloPassivoRepository poloPassivoRepository , PoloRepository poloRepository){
         super(poloRepository);
@@ -51,10 +52,25 @@ public class PoloPassivoService extends PoloService {
 
     //Detalhadamente :
 
+
+    public List<PoloDetalhadoDTO> getTodosPolosDetalhados() {
+        List<PoloPassivo> polos = poloPassivoRepository.findAll(); // ou o equivalente no seu projeto
+        return polos.stream()
+                .map(this::convertToDetalhadoDTO)
+                .collect(Collectors.toList());
+    }
+
     public PoloDetalhadoDTO getDetalhadoByCpfCnpj(String cpfCnpj) {
         PoloPassivo polo = poloPassivoRepository.findByCpfCnpj(cpfCnpj)
                 .orElseThrow(() -> new UserNotFoundException("Polo Passivo não encontrado com CPF/CNPJ: " + cpfCnpj));
         return convertToDetalhadoDTO(polo);
+    }
+
+    public PoloDetalhadoDTO getDetalhadoById(Long id) {
+        PoloPassivo polo = poloPassivoRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("Polo Ativo não encontrado com esse Id: " + id));
+        return convertToDetalhadoDTO(polo);
+
     }
 
 
@@ -77,4 +93,6 @@ public class PoloPassivoService extends PoloService {
         polo.setAntecedenteCriminal(dto.getAntecedenteCriminal());
         polo.setDescricao(dto.getDescricao());
     }
+
+
 }

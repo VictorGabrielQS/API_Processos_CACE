@@ -20,10 +20,13 @@ public class ProcessoController {
     }
 
 
+
+
     //Criar Processo :
 
     // Rota para Criar Processo
     @PostMapping
+    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     public ResponseEntity<ProcessoDTO> createProcesso(@RequestBody ProcessoDTO processoDTO){
         ProcessoDTO createdProcesso = processoService.createProcesso(processoDTO);
         return  new ResponseEntity<>(createdProcesso , HttpStatus.CREATED);
@@ -35,6 +38,7 @@ public class ProcessoController {
 
 
     // Rota para Buscar Todos os Processos
+    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     @GetMapping
     public ResponseEntity<List<ProcessoDTO>> getAllProcessos(){
         List<ProcessoDTO> processos = processoService.getAllProcessos();
@@ -45,7 +49,7 @@ public class ProcessoController {
     @GetMapping("/por-curto/{numeroCurto}")
     public ResponseEntity<ProcessoDTO> getProcessoByNumeroCurto(@PathVariable String numeroCurto){
         ProcessoDTO processo = processoService.getProcessoByNumeroCurto(numeroCurto);
-        return ResponseEntity.ok(processo);
+        return processo != null ? ResponseEntity.ok(processo) : ResponseEntity.notFound().build();
     }
 
 

@@ -23,6 +23,7 @@ public class ProcessoDTO {
     private String responsavel;
     private String descricao;
     private String certidao;
+    private String urlProcessoProjudi;
 
     private String dataCriacao;  // Alterado para String
     private String dataAtualizacao; // Alterado para String
@@ -49,6 +50,7 @@ public class ProcessoDTO {
                 processo.getResponsavel(),
                 processo.getDescricao(),
                 processo.getTipoCertidao(),
+                processo.getUrlProcessoProjudi(),
                 formatarData(processo.getDataCriacao()),
                 formatarData(processo.getDataAtualizacao())
         );

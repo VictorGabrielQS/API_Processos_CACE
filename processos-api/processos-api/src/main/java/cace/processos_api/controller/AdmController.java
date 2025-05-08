@@ -57,6 +57,7 @@ public class AdmController {
 
     //Processos :
 
+
     // Rota para deletar Processo por número curto
     @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     @DeleteMapping("/delete-processo-curto/{numeroCurto}")
@@ -149,31 +150,37 @@ public class AdmController {
 
 
     //1. Buscar Processos por Responsavel
-    @GetMapping("/buscar-porResponsavel/{responsavel}")
-    public ResponseEntity<List<ProcessoDTO>> getProcessosByResponsavel(@PathVariable String responsavel){
+    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+    @GetMapping("/buscar-porResponsavel")
+    public ResponseEntity<List<ProcessoDTO>> getProcessosByResponsavel(@RequestParam String responsavel) {
         List<ProcessoDTO> processos = processoService.getProcessoByResponsavel(responsavel);
         return ResponseEntity.ok(processos);
     }
 
-    //1. Buscar Processos por Serventia
-    @GetMapping("/buscar-porServentia/{serventia}")
-    public ResponseEntity<List<ProcessoDTO>> getProcessosByServentia(@PathVariable String serventia){
+
+
+    // Buscar Processos por Serventia
+    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+    @GetMapping("/buscar-porServentia")
+    public ResponseEntity<List<ProcessoDTO>> getProcessosByServentia(@RequestParam String serventia) {
         List<ProcessoDTO> processos = processoService.getProcessoByServentia(serventia);
         return ResponseEntity.ok(processos);
     }
 
 
-    //1. Buscar Processos por Tipo Certidao
-    @GetMapping("/buscar-porCertidao/{tipoCertidao}")
-    public ResponseEntity<List<ProcessoDTO>> getProcessosByTipoCertidao(@PathVariable String tipoCertidao){
+    // Buscar Processos por Tipo de Certidão
+    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+    @GetMapping("/buscar-porCertidao")
+    public ResponseEntity<List<ProcessoDTO>> getProcessosByTipoCertidao(@RequestParam String tipoCertidao) {
         List<ProcessoDTO> processos = processoService.getProcessoByTipoCertidao(tipoCertidao);
         return ResponseEntity.ok(processos);
     }
 
 
-    //1. Buscar Processos por Situação/Status
-    @GetMapping("/buscar-porStatus/{status}")
-    public ResponseEntity<List<ProcessoDTO>> getProcessosByStatus(@PathVariable String status){
+    // Buscar Processos por Situação/Status
+    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+    @GetMapping("/buscar-porStatus")
+    public ResponseEntity<List<ProcessoDTO>> getProcessosByStatus(@RequestParam String status) {
         List<ProcessoDTO> processos = processoService.getProcessoByStatus(status);
         return ResponseEntity.ok(processos);
     }
@@ -181,6 +188,7 @@ public class AdmController {
 
 
     //1. Buscar Processos criados em um Periodo
+    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     @GetMapping("/buscar-porPeriodo")
     public ResponseEntity<List<ProcessoDTO>>  getProcessosByPeriodo( @RequestParam("dataInicio") String dataInicio, @RequestParam("dataFim") String dataFim){
         List<ProcessoDTO> processos = processoService.getProcessoByPeriodo(dataInicio , dataFim);
@@ -192,9 +200,28 @@ public class AdmController {
 
     //Polo ativo detalhado
 
-    @GetMapping("/polo-ativo/detalhado/{cpfCnpj}")
-    public ResponseEntity<PoloDetalhadoDTO> getDetalhadoAtivo(@PathVariable String cpfCnpj) {
+    // Buscar Polo Ativo detalhado por CPF/CNPJ
+    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+    @GetMapping("/polo-ativo/detalhado/byCpfCnpj")
+    public ResponseEntity<PoloDetalhadoDTO> getDetalhadoAtivoByCpfCnpj(@RequestParam String cpfCnpj) {
         return ResponseEntity.ok(poloAtivoService.getDetalhadoByCpfCnpj(cpfCnpj));
+    }
+
+
+    // Buscar Todos Polo Ativo detalhados
+    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+    @GetMapping("/polo-ativo/detalhado/todos")
+    public ResponseEntity<List<PoloDetalhadoDTO>> getAllPoloAtivoDetalhado() {
+        List<PoloDetalhadoDTO> polosDetalhados = poloAtivoService.getTodosPolosDetalhados();
+        return ResponseEntity.ok(polosDetalhados);
+    }
+
+
+    // Buscar Polo Ativo detalhado por Id
+    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+    @GetMapping("/polo-ativo/detalhado/byId")
+    public ResponseEntity<PoloDetalhadoDTO> getDetalhadoAtivoById(@RequestParam Long id) {
+        return ResponseEntity.ok(poloAtivoService.getDetalhadoById(id));
     }
 
 
@@ -205,12 +232,31 @@ public class AdmController {
     }
 
 
-    //Polo Passivo detalhado
+    //Polo Passivo
 
-    @GetMapping("/polo-passivo/detalhado/{cpfCnpj}")
-    public ResponseEntity<PoloDetalhadoDTO> getDetalhadoPassivo(@PathVariable String cpfCnpj) {
+    // Buscar Todos Polo Passivo detalhados
+    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+    @GetMapping("/polo-passivo/detalhado/todos")
+    public ResponseEntity<List<PoloDetalhadoDTO>> getAllPoloPassivoDetalhado() {
+        List<PoloDetalhadoDTO> poloDetalhadoDTOS = poloPassivoService.getTodosPolosDetalhados();
+        return ResponseEntity.ok(poloDetalhadoDTOS);
+    }
+
+
+
+    // Buscar Polo Passivo detalhado por CPF/CNPJ
+    @GetMapping("/polo-passivo/detalhado/byCpfCnpj")
+    public ResponseEntity<PoloDetalhadoDTO> getDetalhadoPassivoByCpfCnpj(@RequestParam String cpfCnpj) {
         return ResponseEntity.ok(poloPassivoService.getDetalhadoByCpfCnpj(cpfCnpj));
     }
+
+
+    // Buscar Polo Passivo detalhado por Id
+    @GetMapping("/polo-passivo/detalhado/byId")
+    public ResponseEntity<PoloDetalhadoDTO> getDetalhadoPassivoById(@RequestParam Long id) {
+        return ResponseEntity.ok(poloPassivoService.getDetalhadoById(id));
+    }
+
 
 
     @PutMapping("/detalhado-passivo/{id}")

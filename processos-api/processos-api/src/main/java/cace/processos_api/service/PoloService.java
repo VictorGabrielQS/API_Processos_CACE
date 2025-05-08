@@ -107,6 +107,20 @@ public PoloDTO updatePolo(String cpfCnpj , PoloDTO poloDTO) {
 }
 
 
+public PoloDTO updatePoloId(Long id , PoloDTO poloDTO) {
+        Polo polo = poloRepository.findById(id) // busca o polo existente pelo id
+                .orElseThrow(() -> new ResourceNotFoundException("Polo não encontrado com esse id : " + id));
+
+
+        // Atualiza os campos com os dados do DTO recebido
+        polo.setNome(poloDTO.getNome());
+        polo.setCpfCnpj(poloDTO.getCpfCnpj());
+
+        Polo updatePolo = poloRepository.save(polo);
+        return convertToDTO(updatePolo);
+    }
+
+
 
 // =======================
 // EXCLUIR POLO POR CPF/CNPJ

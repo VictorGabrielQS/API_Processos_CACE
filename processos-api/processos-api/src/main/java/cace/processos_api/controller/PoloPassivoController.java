@@ -4,6 +4,7 @@ import cace.processos_api.dto.PoloDTO;
 import cace.processos_api.service.PoloPassivoService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,6 +25,7 @@ public class PoloPassivoController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     public ResponseEntity<List<PoloDTO>> getAllPolosPassivos(){
         List<PoloDTO> polos = poloPassivoService.getAllPolosPassivos();
         return ResponseEntity.ok(polos);
@@ -44,9 +46,18 @@ public class PoloPassivoController {
 
 
 
-    @PutMapping("/{cpfCnpj}")
-    public ResponseEntity<PoloDTO> updatePoloPassivo(@PathVariable String cpfCnpj , @RequestBody PoloDTO poloDTO ){
+    @PutMapping("updateByCpfCnpj/{cpfCnpj}")
+    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+    public ResponseEntity<PoloDTO> updatePoloPassivoCpfCnpj(@PathVariable String cpfCnpj , @RequestBody PoloDTO poloDTO ){
         PoloDTO updatedPolo = poloPassivoService.updatePolo(cpfCnpj , poloDTO);
+        return ResponseEntity.ok(updatedPolo);
+    }
+
+
+    @PutMapping("updateById/{id}")
+    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+    public ResponseEntity<PoloDTO> updatePoloPassivoId(@PathVariable Long id , @RequestBody PoloDTO poloDTO ){
+        PoloDTO updatedPolo = poloPassivoService.updatePoloId(id , poloDTO);
         return ResponseEntity.ok(updatedPolo);
     }
 

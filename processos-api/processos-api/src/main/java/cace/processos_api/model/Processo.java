@@ -65,6 +65,9 @@ public class Processo {
     @Column(nullable = false)
     private String tipoCertidao;
 
+    @Column(nullable = true)
+    private String urlProcessoProjudi;
+
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime dataCriacao = LocalDateTime.now();

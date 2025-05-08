@@ -62,9 +62,19 @@ public class PoloAtivoService extends PoloService {
 
 
     public PoloDetalhadoDTO getDetalhadoByCpfCnpj(String cpfCnpj) {
-        PoloAtivo polo = poloAtivoRepository.findByCpfCnpj(cpfCnpj)
+        PoloAtivo poloAtivo = poloAtivoRepository.findByCpfCnpj(cpfCnpj)
                 .orElseThrow(() -> new UserNotFoundException("Polo Ativo não encontrado com CPF/CNPJ: " + cpfCnpj));
+        return convertToDetalhadoDTO(poloAtivo);
+    }
+
+
+    public PoloDetalhadoDTO getDetalhadoById(Long id) {
+
+        PoloAtivo polo = poloAtivoRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("Polo Ativo não encontrado com esse Id: " + id));
         return convertToDetalhadoDTO(polo);
+
+
     }
 
 
@@ -90,6 +100,10 @@ public class PoloAtivoService extends PoloService {
         return convertToDetalhadoDTO(atualizado);
     }
 
-
-
+    public List<PoloDetalhadoDTO> getTodosPolosDetalhados() {
+        List<PoloAtivo> polos = poloAtivoRepository.findAll(); // ou o equivalente no seu projeto
+        return polos.stream()
+                .map(this::convertToDetalhadoDTO)
+                .collect(Collectors.toList());
+    }
 }
