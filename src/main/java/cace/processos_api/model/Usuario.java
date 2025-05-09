@@ -10,12 +10,12 @@ import java.util.Collection;
 import java.util.Collections;
 
 @Entity
-@Table(name = "usuarios")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Table(name = "usuarios")
 public class Usuario implements UserDetails {
 
     @Id
