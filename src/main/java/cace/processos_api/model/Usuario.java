@@ -25,7 +25,7 @@ public class Usuario implements UserDetails {
     private Long id;
 
 
-    @Column(nullable = false)
+    @Column(nullable = false , name = "nivel_acesso")
     private int nivelAcesso;
 
 

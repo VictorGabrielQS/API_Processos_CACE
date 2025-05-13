@@ -38,7 +38,7 @@ public class AdmController {
 
 
     //Deletar usuario do sistema
-    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+    @PreAuthorize("hasRole('NIVEL_2')")
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> deletarUsuario (@PathVariable Long id){
         Optional<Usuario> usuarioOptional = usuarioRepository.findById(id);
