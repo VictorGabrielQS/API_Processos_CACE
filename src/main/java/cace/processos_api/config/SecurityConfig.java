@@ -22,7 +22,6 @@ import org.springframework.web.cors.CorsConfigurationSource;
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-@EnableMethodSecurity(prePostEnabled = true) // Para Spring Boot 3
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
