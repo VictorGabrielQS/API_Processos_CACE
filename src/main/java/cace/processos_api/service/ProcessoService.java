@@ -193,16 +193,15 @@ public class ProcessoService {
         return ProcessoDTO.fromEntity(processo);
     }
 
-    public ProcessoDTO updateResponsavel(String numeroCurto, String novoResponsavel) {
-        Processo processo = processoRepository.findByNumeroCurto(numeroCurto)
-                .orElseThrow(() -> new ResourceNotFoundException("Processo não encontrado : " + numeroCurto));
+    public ProcessoDTO updateResponsavel(Long id, String novoResponsavel) {
+        Processo processo = processoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Processo não encontrado com id : " + id));
 
         processo.setResponsavel(novoResponsavel);
         processoRepository.save(processo);
 
         return ProcessoDTO.fromEntity(processo);
     }
-
 
 
     // Métodos para deletar

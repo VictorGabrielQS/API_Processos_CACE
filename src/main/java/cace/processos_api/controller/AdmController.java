@@ -30,6 +30,7 @@ public class AdmController {
     //Usuarios :
 
     //Retorna todos os usuarios cadastrados no sistema
+    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     @GetMapping
     public ResponseEntity<List<Usuario>> listarUsuarios (){
         return ResponseEntity.ok(usuarioRepository.findAll());
@@ -37,6 +38,7 @@ public class AdmController {
 
 
     //Deletar usuario do sistema
+    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> deletarUsuario (@PathVariable Long id){
         Optional<Usuario> usuarioOptional = usuarioRepository.findById(id);
@@ -51,6 +53,26 @@ public class AdmController {
                     .body(new ApiResponseException("Usuário não encontrado", null)); // Se não encontrar o usuario
         }
 
+    }
+
+
+    //Trocar o nível do usuário:
+    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+    @PutMapping("/nivel/{id}")
+    public ResponseEntity<?> atualizarNivelAcesso(@PathVariable Long id, @RequestParam int novoNivel) {
+        Optional<Usuario> usuarioOptional = usuarioRepository.findById(id);
+
+        if (usuarioOptional.isPresent()) {
+            Usuario usuario = usuarioOptional.get();
+            usuario.setNivelAcesso(novoNivel); // 👈 Altera o nível
+            usuarioRepository.save(usuario);
+
+            return ResponseEntity.ok()
+                    .body(new ApiResponseException("Nível de acesso atualizado com sucesso!", usuario));
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ApiResponseException("Usuário não encontrado", null));
+        }
     }
 
 
@@ -90,8 +112,8 @@ public class AdmController {
     // Rota para atualizar Responsavel de um Processo
     @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     @PutMapping("/responsavel/{numeroCurto}/{novoResponsavel}")
-    public ResponseEntity<ProcessoDTO> updateResponsavel(@PathVariable String numeroCurto, @PathVariable String novoResponsavel){
-        ProcessoDTO processo = processoService.updateResponsavel(numeroCurto, novoResponsavel);
+    public ResponseEntity<ProcessoDTO> updateResponsavel(@PathVariable Long id, @PathVariable String novoResponsavel){
+        ProcessoDTO processo = processoService.updateResponsavel(id , novoResponsavel);
         return ResponseEntity.ok(processo);
     }
 
@@ -225,6 +247,7 @@ public class AdmController {
     }
 
 
+    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     @PutMapping("/detalhado-ativo/{id}")
     public ResponseEntity<PoloDetalhadoDTO> atualizarPoloAtivo(@PathVariable Long id, @RequestBody PoloDetalhadoDTO dto) {
         PoloDetalhadoDTO atualizado = poloAtivoService.updatePoloAtivo(id, dto);

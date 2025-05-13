@@ -2,6 +2,7 @@ package cace.processos_api.config;
 
 
 import cace.processos_api.security.JwtAuthenticationFilter;
+import cace.processos_api.security.RequestRateLimitFilter;
 import cace.processos_api.security.UsuarioDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -25,6 +26,8 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final UsuarioDetailsService usuarioDetailsService;
     private  final CorsConfigurationSource corsConfigurationSource;
+    private final RequestRateLimitFilter requestRateLimitFilter;
+
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -33,6 +36,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/admin/**").hasRole("NIVEL_2")
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/polos-ativos/**", "/api/polos-passivos/**").permitAll()
                         .requestMatchers("/api/processos").permitAll()
@@ -40,10 +44,12 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .userDetailsService(usuarioDetailsService)
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(requestRateLimitFilter, JwtAuthenticationFilter.class);
 
         return http.build();
     }
+
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {

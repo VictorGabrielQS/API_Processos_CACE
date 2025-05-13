@@ -4,10 +4,12 @@ package cace.processos_api.model;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 @Entity
 @Getter
@@ -23,6 +25,10 @@ public class Usuario implements UserDetails {
     private Long id;
 
 
+    @Column(nullable = false)
+    private int nivelAcesso;
+
+
     @Column(nullable = false , unique = true)
     private String username;
 
@@ -31,11 +37,10 @@ public class Usuario implements UserDetails {
     private String password;
 
 
-
-    // Implementação dos métodos do UserDetails
+    // getters para Spring Security
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.emptyList(); // Sem roles/autoridades por enquanto
+        return List.of(new SimpleGrantedAuthority("NIVEL_" + this.nivelAcesso));
     }
 
 

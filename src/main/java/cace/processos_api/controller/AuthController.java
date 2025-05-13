@@ -35,7 +35,7 @@ public class AuthController {
     public ResponseEntity<?> registrarUsuario (@RequestBody RegisterRequest request) {
 
         if (request.getUsername() == null || request.getUsername().isEmpty() ||
-            request.getPassword() == null || request.getPassword().isEmpty()
+                request.getPassword() == null || request.getPassword().isEmpty()
         ){
 
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -45,7 +45,9 @@ public class AuthController {
         var usuario = Usuario.builder()
                 .username(request.getUsername())
                 .password(passwordEncoder.encode(request.getPassword()))
+                .nivelAcesso(1) // ✅ Definido como nível 1 por padrão
                 .build();
+
         usuarioRepository.save(usuario);
 
         var jwtToken = jwtService.generateToken(usuario);
@@ -57,6 +59,7 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new ApiResponseException("Usuario registrado com sucesso ! " , authResponse));
     }
+
 
 
     //Authentica o usuario e gera o token JWT

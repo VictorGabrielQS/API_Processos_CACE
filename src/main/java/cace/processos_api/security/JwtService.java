@@ -1,5 +1,6 @@
 package cace.processos_api.security;
 
+import cace.processos_api.model.Usuario;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -35,8 +36,12 @@ public class JwtService {
     }
 
     public String generateToken(UserDetails userDetails) {
-        return generateToken(new HashMap<>(), userDetails);
+        Usuario usuario = (Usuario) userDetails;
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("nivelAcesso", usuario.getNivelAcesso());
+        return generateToken(claims, userDetails);
     }
+
 
     public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
         return Jwts.builder()
