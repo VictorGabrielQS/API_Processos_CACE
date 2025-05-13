@@ -30,7 +30,7 @@ public class AdmController {
     //Usuarios :
 
     //Retorna todos os usuarios cadastrados no sistema
-    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+    //@PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     @GetMapping
     public ResponseEntity<List<Usuario>> listarUsuarios (){
         return ResponseEntity.ok(usuarioRepository.findAll());
