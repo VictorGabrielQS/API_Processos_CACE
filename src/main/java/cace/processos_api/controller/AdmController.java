@@ -5,6 +5,7 @@ import cace.processos_api.dto.ProcessoDTO;
 import cace.processos_api.exception.ApiResponseException;
 import cace.processos_api.model.Usuario;
 import cace.processos_api.repository.UsuarioRepository;
+import cace.processos_api.security.AuthUtil;
 import cace.processos_api.service.PoloAtivoService;
 import cace.processos_api.service.PoloPassivoService;
 import cace.processos_api.service.ProcessoService;
@@ -30,9 +31,10 @@ public class AdmController {
     //Usuarios :
 
     //Retorna todos os usuarios cadastrados no sistema
-    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+
     @GetMapping
     public ResponseEntity<List<Usuario>> listarUsuarios (){
+        AuthUtil.validarAcesso(3); // Apenas usuários com nível 3 podem acessar
         return ResponseEntity.ok(usuarioRepository.findAll());
     }
 
@@ -56,7 +58,7 @@ public class AdmController {
 
 
     //Trocar o nível do usuário:
-    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+
     @PutMapping("/nivel/{id}")
     public ResponseEntity<?> atualizarNivelAcesso(@PathVariable Long id, @RequestParam int novoNivel) {
         Optional<Usuario> usuarioOptional = usuarioRepository.findById(id);
@@ -80,7 +82,7 @@ public class AdmController {
 
 
     // Rota para deletar Processo por número curto
-    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+
     @DeleteMapping("/delete-processo-curto/{numeroCurto}")
     public ResponseEntity<Void> deleteProcessoNumeroCurto(@PathVariable String numeroCurto){
         processoService.deleteProcessoByNumeroCurto(numeroCurto);
@@ -90,7 +92,7 @@ public class AdmController {
 
 
     // Rota para deletar Processo por número curto/completo
-    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+
     @DeleteMapping("/delete-processo-completo/{numeroCompleto}")
     public ResponseEntity<Void> deleteProcessoNumeroCompleto(@PathVariable String numeroCompleto){
         processoService.deleteProcessoByNumeroCompleto(numeroCompleto);
@@ -100,7 +102,7 @@ public class AdmController {
 
 
     // Rota para atualizar status de um Processo
-    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+
     @PutMapping("/status/{numeroCurto}/{novoStatus}")
     public ResponseEntity<ProcessoDTO> updateStatus(@PathVariable String numeroCurto, @PathVariable String novoStatus){
         ProcessoDTO processo = processoService.updateStatus(numeroCurto, novoStatus);
@@ -109,7 +111,7 @@ public class AdmController {
 
 
     // Rota para atualizar Responsavel de um Processo
-    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+
     @PutMapping("/responsavel/{numeroCurto}/{novoResponsavel}")
     public ResponseEntity<ProcessoDTO> updateResponsavel(@PathVariable Long id, @PathVariable String novoResponsavel){
         ProcessoDTO processo = processoService.updateResponsavel(id , novoResponsavel);
@@ -124,7 +126,7 @@ public class AdmController {
 
 
     // Rota deleta polo passivo por cpf/cnpj
-    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+
     @DeleteMapping("/delete-poloPassivoCpfCnpj/{cpfCnpj}")
     public ResponseEntity<Void> deletePoloPassivo(@PathVariable String cpfCnpj ){
         poloPassivoService.deletePolo(cpfCnpj);
@@ -133,7 +135,7 @@ public class AdmController {
 
 
     // Rota deleta polo passivo por id
-    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+
     @DeleteMapping("/delete-poloPassivoId/{id}")
     public ResponseEntity<Void> deletePoloPassivo(@PathVariable Long id ){
         poloPassivoService.deletePoloId(id);
@@ -147,7 +149,7 @@ public class AdmController {
 
 
     // Rota deleta polo Ativo por cpf/cnpj
-    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+
     @DeleteMapping("/delete-poloAtivoCpfCnpj/{cpfCnpj}")
     public ResponseEntity<Void> deletePoloAtivo(@PathVariable String cpfCnpj){
         poloAtivoService.deletePolo(cpfCnpj);
@@ -155,7 +157,7 @@ public class AdmController {
     }
 
     // Rota deleta polo Ativo por id
-    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+
     @DeleteMapping("/delete-poloAtivoId/{id}")
     public  ResponseEntity<Void> deletePoloAtivoId(@PathVariable Long id ){
         poloAtivoService.deletePoloId(id);
@@ -171,7 +173,7 @@ public class AdmController {
 
 
     //1. Buscar Processos por Responsavel
-    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+
     @GetMapping("/buscar-porResponsavel")
     public ResponseEntity<List<ProcessoDTO>> getProcessosByResponsavel(@RequestParam String responsavel) {
         List<ProcessoDTO> processos = processoService.getProcessoByResponsavel(responsavel);
@@ -181,7 +183,7 @@ public class AdmController {
 
 
     // Buscar Processos por Serventia
-    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+
     @GetMapping("/buscar-porServentia")
     public ResponseEntity<List<ProcessoDTO>> getProcessosByServentia(@RequestParam String serventia) {
         List<ProcessoDTO> processos = processoService.getProcessoByServentia(serventia);
@@ -190,7 +192,7 @@ public class AdmController {
 
 
     // Buscar Processos por Tipo de Certidão
-    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+
     @GetMapping("/buscar-porCertidao")
     public ResponseEntity<List<ProcessoDTO>> getProcessosByTipoCertidao(@RequestParam String tipoCertidao) {
         List<ProcessoDTO> processos = processoService.getProcessoByTipoCertidao(tipoCertidao);
@@ -199,7 +201,7 @@ public class AdmController {
 
 
     // Buscar Processos por Situação/Status
-    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+
     @GetMapping("/buscar-porStatus")
     public ResponseEntity<List<ProcessoDTO>> getProcessosByStatus(@RequestParam String status) {
         List<ProcessoDTO> processos = processoService.getProcessoByStatus(status);
@@ -209,7 +211,7 @@ public class AdmController {
 
 
     //1. Buscar Processos criados em um Periodo
-    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+
     @GetMapping("/buscar-porPeriodo")
     public ResponseEntity<List<ProcessoDTO>>  getProcessosByPeriodo( @RequestParam("dataInicio") String dataInicio, @RequestParam("dataFim") String dataFim){
         List<ProcessoDTO> processos = processoService.getProcessoByPeriodo(dataInicio , dataFim);
@@ -222,7 +224,7 @@ public class AdmController {
     //Polo ativo detalhado
 
     // Buscar Polo Ativo detalhado por CPF/CNPJ
-    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+
     @GetMapping("/polo-ativo/detalhado/byCpfCnpj")
     public ResponseEntity<PoloDetalhadoDTO> getDetalhadoAtivoByCpfCnpj(@RequestParam String cpfCnpj) {
         return ResponseEntity.ok(poloAtivoService.getDetalhadoByCpfCnpj(cpfCnpj));
@@ -230,7 +232,7 @@ public class AdmController {
 
 
     // Buscar Todos Polo Ativo detalhados
-    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+
     @GetMapping("/polo-ativo/detalhado/todos")
     public ResponseEntity<List<PoloDetalhadoDTO>> getAllPoloAtivoDetalhado() {
         List<PoloDetalhadoDTO> polosDetalhados = poloAtivoService.getTodosPolosDetalhados();
@@ -239,14 +241,14 @@ public class AdmController {
 
 
     // Buscar Polo Ativo detalhado por Id
-    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+
     @GetMapping("/polo-ativo/detalhado/byId")
     public ResponseEntity<PoloDetalhadoDTO> getDetalhadoAtivoById(@RequestParam Long id) {
         return ResponseEntity.ok(poloAtivoService.getDetalhadoById(id));
     }
 
 
-    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+
     @PutMapping("/detalhado-ativo/{id}")
     public ResponseEntity<PoloDetalhadoDTO> atualizarPoloAtivo(@PathVariable Long id, @RequestBody PoloDetalhadoDTO dto) {
         PoloDetalhadoDTO atualizado = poloAtivoService.updatePoloAtivo(id, dto);
@@ -257,7 +259,7 @@ public class AdmController {
     //Polo Passivo
 
     // Buscar Todos Polo Passivo detalhados
-    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+
     @GetMapping("/polo-passivo/detalhado/todos")
     public ResponseEntity<List<PoloDetalhadoDTO>> getAllPoloPassivoDetalhado() {
         List<PoloDetalhadoDTO> poloDetalhadoDTOS = poloPassivoService.getTodosPolosDetalhados();
