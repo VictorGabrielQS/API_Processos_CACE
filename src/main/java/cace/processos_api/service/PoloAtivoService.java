@@ -7,6 +7,7 @@ import cace.processos_api.exception.UserNotFoundException;
 import cace.processos_api.model.PoloAtivo;
 import cace.processos_api.repository.PoloAtivoRepository;
 import cace.processos_api.repository.PoloRepository;
+import cace.processos_api.util.CpfCnpjUtil;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -40,8 +41,9 @@ public class PoloAtivoService extends PoloService {
 
     //Filtra polo ativo por cpf/cnpj
     public PoloDTO getPoloAtivoByCpfCnpj(String cpfCnpj){
-        String limpo = cpfCnpj.replaceAll("[^\\d]", ""); // ✅ limpa direto aqui
-        PoloAtivo poloAtivo = poloAtivoRepository.findByCpfCnpj(limpo)
+        String cpfCnpjLimpo = CpfCnpjUtil.limpar(cpfCnpj);
+
+        PoloAtivo poloAtivo = poloAtivoRepository.findByCpfCnpj(cpfCnpjLimpo)
                 .orElseThrow(() -> new UserNotFoundException("Polo Ativo não encontrado com CPF/CNPJ: " + cpfCnpj));
         return convertToDTO(poloAtivo);
     }

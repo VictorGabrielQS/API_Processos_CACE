@@ -7,6 +7,7 @@ import cace.processos_api.model.PoloAtivo;
 import cace.processos_api.model.PoloPassivo;
 import cace.processos_api.repository.PoloPassivoRepository;
 import cace.processos_api.repository.PoloRepository;
+import cace.processos_api.util.CpfCnpjUtil;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -35,7 +36,10 @@ public class PoloPassivoService extends PoloService {
 
     //Filtra polo Passivo por cpf/cnpj
     public PoloDTO getPoloPassivoByCpfCnpj(String cpfCnpj){
-        PoloPassivo poloPassivo = poloPassivoRepository.findByCpfCnpj(cpfCnpj)
+
+        String cpfCnpjLimpo = CpfCnpjUtil.limpar(cpfCnpj);
+
+        PoloPassivo poloPassivo = poloPassivoRepository.findByCpfCnpj(cpfCnpjLimpo)
                 .orElseThrow(() -> new UserNotFoundException("Polo Passivo não encontrado com CPF/CNPJ: " + cpfCnpj));
         return  convertToDTO(poloPassivo);
     }
