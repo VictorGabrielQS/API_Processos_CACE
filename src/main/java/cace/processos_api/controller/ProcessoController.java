@@ -3,6 +3,7 @@ package cace.processos_api.controller;
 import cace.processos_api.dto.PoloDTO;
 import cace.processos_api.dto.ProcessoDTO;
 import cace.processos_api.service.ProcessoService;
+import cace.processos_api.util.AuthUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -26,8 +27,8 @@ public class ProcessoController {
 
     // Rota para Criar Processo
     @PostMapping
-    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     public ResponseEntity<ProcessoDTO> createProcesso(@RequestBody ProcessoDTO processoDTO){
+        AuthUtil.validarAcesso(1); // Apenas usuários com nível 1 podem acessar
         ProcessoDTO createdProcesso = processoService.createProcesso(processoDTO);
         return  new ResponseEntity<>(createdProcesso , HttpStatus.CREATED);
     }
@@ -38,12 +39,14 @@ public class ProcessoController {
 
 
     // Rota para Buscar Todos os Processos
-    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     @GetMapping
     public ResponseEntity<List<ProcessoDTO>> getAllProcessos(){
+        AuthUtil.validarAcesso(1); // Apenas usuários com nível 1 podem acessar
         List<ProcessoDTO> processos = processoService.getAllProcessos();
         return ResponseEntity.ok(processos);
     }
+
+
 
     // Rota para Buscar Processos por número curto
     @GetMapping("/por-curto/{numeroCurto}")
@@ -59,6 +62,7 @@ public class ProcessoController {
         ProcessoDTO processo = processoService.getProcessoByNumeroCompleto(numeroCompleto);
         return ResponseEntity.ok(processo);
     }
+
 
 
     // Rota para Buscar Todos os Processos com um determinado PoloAtivo pelo cpf/cnpj
@@ -93,18 +97,18 @@ public class ProcessoController {
     //Atualizar Processo :
 
     // Rota para atualizar Processo por número curto
-    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     @PutMapping("/por-curto/{numeroCurto}")
     public ResponseEntity<ProcessoDTO> updateProcessoNumeroCurto(@PathVariable String numeroCurto , @RequestBody ProcessoDTO processoDTO){
+        AuthUtil.validarAcesso(1); // Apenas usuários com nível 1 podem acessar
         ProcessoDTO updateProcesso = processoService.updateProcessoByNumeroCurto(numeroCurto , processoDTO);
         return ResponseEntity.ok(updateProcesso);
     }
 
 
     // Rota para atualizar Processo por número completo
-    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     @PutMapping("/por-completo/{numeroCompleto}")
     public ResponseEntity<ProcessoDTO> updateProcessoNumeroCompleto(@PathVariable String numeroCompleto , @RequestBody ProcessoDTO processoDTO){
+        AuthUtil.validarAcesso(1); // Apenas usuários com nível 1 podem acessar
         ProcessoDTO updateProcesso = processoService.updateProcessoByNumeroCompleto(numeroCompleto , processoDTO);
         return ResponseEntity.ok(updateProcesso);
     }

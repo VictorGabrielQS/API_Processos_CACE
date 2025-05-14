@@ -2,6 +2,7 @@ package cace.processos_api.controller;
 
 import cace.processos_api.dto.PoloDTO;
 import cace.processos_api.service.PoloAtivoService;
+import cace.processos_api.util.AuthUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,13 +21,14 @@ public class PoloAtivoController {
 
     @PostMapping
     public ResponseEntity<PoloDTO> createPoloAtivo (@RequestBody PoloDTO poloDTO){
+        AuthUtil.validarAcesso(1); // Apenas usuários com nível 1 podem acessar
         PoloDTO createdPolo = poloAtivoService.createPoloAtivo(poloDTO);
         return new ResponseEntity<>(createdPolo , HttpStatus.CREATED);
     }
 
     @GetMapping
-    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     public  ResponseEntity<List<PoloDTO>> getAllPolosAtivos(){
+        AuthUtil.validarAcesso(1); // Apenas usuários com nível 1 podem acessar
         List<PoloDTO> polos = poloAtivoService.getAllPolosAtivos();
         return ResponseEntity.ok(polos);
     }
@@ -45,8 +47,8 @@ public class PoloAtivoController {
 
 
     @PutMapping("updateByCpfCnpj/{cpfCnpj}")
-    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     public ResponseEntity<PoloDTO> updatePoloAtivoCpfCnpj(@PathVariable String cpfCnpj , @RequestBody PoloDTO poloDTO ){
+           AuthUtil.validarAcesso(1); // Apenas usuários com nível 1 podem acessar
            PoloDTO updatedPolo = poloAtivoService.updatePolo(cpfCnpj , poloDTO);
            return  ResponseEntity.ok(updatedPolo);
     }
@@ -54,8 +56,8 @@ public class PoloAtivoController {
 
 
     @PutMapping("updateById/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     public ResponseEntity<PoloDTO> updatePoloAtivoId(@PathVariable Long id , @RequestBody PoloDTO poloDTO ){
+        AuthUtil.validarAcesso(1); // Apenas usuários com nível 1 podem acessar
         PoloDTO updatedPolo = poloAtivoService.updatePoloId(id , poloDTO);
         return  ResponseEntity.ok(updatedPolo);
     }

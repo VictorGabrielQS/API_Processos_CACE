@@ -8,6 +8,7 @@ import cace.processos_api.model.Processo;
 import cace.processos_api.repository.PoloAtivoRepository;
 import cace.processos_api.repository.PoloPassivoRepository;
 import cace.processos_api.repository.ProcessoRepository;
+import cace.processos_api.util.NumeroProcessoUtil;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Field;
@@ -31,15 +32,17 @@ public class ProcessoService {
     }
 
     public ProcessoDTO createProcesso(ProcessoDTO processoDTO) {
-        PoloAtivo poloAtivo = poloAtivoRepository.findByCpfCnpj(processoDTO.getPoloAtivoCpfCnpj())
+        PoloAtivo poloAtivo = poloAtivoRepository.findByCpfCnpj(
+                        processoDTO.getPoloAtivoCpfCnpj().replaceAll("[^\\d]", ""))
                 .orElseThrow(() -> new ResourceNotFoundException("Polo Ativo não encontrado com cpf/cnpj: " + processoDTO.getPoloAtivoCpfCnpj()));
 
-        PoloPassivo poloPassivo = poloPassivoRepository.findByCpfCnpj(processoDTO.getPoloPassivoCpfCnpj())
+        PoloPassivo poloPassivo = poloPassivoRepository.findByCpfCnpj(
+                        processoDTO.getPoloPassivoCpfCnpj().replaceAll("[^\\d]", ""))
                 .orElseThrow(() -> new ResourceNotFoundException("Polo Passivo não encontrado com cpf/cnpj: " + processoDTO.getPoloPassivoCpfCnpj()));
 
         Processo processo = new Processo();
-        processo.setNumeroCompleto(processoDTO.getNumeroCompleto());
-        processo.setNumeroCurto(processoDTO.getNumeroCurto());
+        processo.setNumeroCompleto(NumeroProcessoUtil.limparCompleto(processoDTO.getNumeroCompleto()));
+        processo.setNumeroCurto(NumeroProcessoUtil.limparCurto(processoDTO.getNumeroCurto()));
         processo.setPoloAtivo(poloAtivo);
         processo.setPoloPassivo(poloPassivo);
         processo.setServentia(processoDTO.getServentia());
@@ -69,14 +72,18 @@ public class ProcessoService {
     }
 
     public  ProcessoDTO getProcessoByNumeroCurto(String numeroCurto){
-        Processo processo = processoRepository.findByNumeroCurto(numeroCurto)
+        String numeroLimpo = NumeroProcessoUtil.limparCurto(numeroCurto);
+
+        Processo processo = processoRepository.findByNumeroCurto(numeroLimpo)
                 .orElseThrow(() -> new ResourceNotFoundException("Processo não encontrado com esse numero Curto : " + numeroCurto));
         return convertToDTO(processo);
 
     }
 
     public  ProcessoDTO getProcessoByNumeroCompleto(String numeroCompleto){
-        Processo processo = processoRepository.findByNumeroCompleto(numeroCompleto)
+        String numeroLimpo = NumeroProcessoUtil.limparCompleto(numeroCompleto);
+
+        Processo processo = processoRepository.findByNumeroCompleto(numeroLimpo)
                 .orElseThrow(() -> new ResourceNotFoundException("Processo não encontrado com esse numero Completo : " + numeroCompleto));
         return convertToDTO(processo);
 

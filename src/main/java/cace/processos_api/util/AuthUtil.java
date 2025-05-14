@@ -1,4 +1,4 @@
-package cace.processos_api.security;
+package cace.processos_api.util;
 
 import cace.processos_api.exception.AccessDeniedException;
 import cace.processos_api.model.Usuario;
@@ -15,6 +15,16 @@ public class AuthUtil {
 
 
     public  static  void validarAcesso(int... niveisPermitidos){
+
+
+        /*                DESCRIÇÃO DOS NÍVEIS DE ACESSO
+
+        Nivel 1 - acesso total ✅
+
+        Nivel 2 - acesso de usuario , possui limitações , não tem acesso as opções de ADM  👤
+
+        */
+
 
         Usuario usuario = getUsuarioLogado();
         boolean permitido = Arrays.stream(niveisPermitidos)
