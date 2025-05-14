@@ -61,7 +61,7 @@ public class AdmController {
     //Trocar o nível do usuário:
     @PutMapping("/nivel/{id}")
     public ResponseEntity<?> atualizarNivelAcesso(@PathVariable Long id, @RequestParam int novoNivel) {
-        AuthUtil.validarAcesso(1); // Apenas usuários com nível 1 podem acessar
+        AuthUtil.validarAcesso(1,2); // Apenas usuários com nível 1 podem acessar
         Optional<Usuario> usuarioOptional = usuarioRepository.findById(id);
 
         if (usuarioOptional.isPresent()) {
