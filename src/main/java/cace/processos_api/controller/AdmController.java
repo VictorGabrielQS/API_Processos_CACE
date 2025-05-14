@@ -30,7 +30,7 @@ public class AdmController {
     //Usuarios :
 
     //Retorna todos os usuarios cadastrados no sistema
-    //@PreAuthorize("hasAuthority('SCOPE_ADMIN')")
+    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     @GetMapping
     public ResponseEntity<List<Usuario>> listarUsuarios (){
         return ResponseEntity.ok(usuarioRepository.findAll());
@@ -38,7 +38,6 @@ public class AdmController {
 
 
     //Deletar usuario do sistema
-    @PreAuthorize("hasRole('NIVEL_2')")
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> deletarUsuario (@PathVariable Long id){
         Optional<Usuario> usuarioOptional = usuarioRepository.findById(id);
