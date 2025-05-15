@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
-
+@Component
 public class RateLimitingFilter implements Filter {
 
     @Autowired
@@ -31,7 +31,7 @@ public class RateLimitingFilter implements Filter {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
 
         try {
-            Long userId = authUtil.getUsuarioLogado().getId(); // Pega o ID do usuário logado
+            Long userId = authUtil.getUsuarioLogado().getId();
             Usuario usuario = usuarioRepository.findById(userId).orElse(null);
 
             if (usuario != null) {
@@ -41,16 +41,16 @@ public class RateLimitingFilter implements Filter {
                     chain.doFilter(request, response);
                 } else {
                     HttpServletResponse httpResponse = (HttpServletResponse) response;
-                    httpResponse.setStatus(429); // Too Many Requests
+                    httpResponse.setStatus(429);
                     httpResponse.getWriter().write("Limite de requisições excedido. Tente novamente mais tarde.");
                     return;
                 }
             } else {
-                chain.doFilter(request, response); // Usuário não autenticado? Deixa passar ou bloqueia como preferir
+                chain.doFilter(request, response);
             }
 
         } catch (Exception e) {
-            chain.doFilter(request, response); // Deixa passar em caso de erro
+            chain.doFilter(request, response);
         }
     }
 }
