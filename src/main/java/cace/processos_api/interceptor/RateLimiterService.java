@@ -1,5 +1,6 @@
 package cace.processos_api.interceptor;
 
+import cace.processos_api.model.Usuario;
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.Refill;
@@ -13,43 +14,28 @@ import java.util.concurrent.ConcurrentHashMap;
 public class RateLimiterService {
 
     private final Map<Long, Bucket> buckets = new ConcurrentHashMap<>();
-    private final Map<Long, Boolean> downgraded = new ConcurrentHashMap<>();
 
-
-    public Bucket resolveBucket(Long userId, int nivel) {
-        return buckets.computeIfAbsent(userId, id -> createBucket(nivel));
+    public Bucket resolveBucket(Usuario usuario) {
+        return buckets.computeIfAbsent(usuario.getId(), id -> createBucket(usuario));
     }
 
-    private  Bucket createBucket(int nivel){
-        if (nivel == 2 ){
-
-            // Primeira etapa: 5 requisições por segundo
+    private Bucket createBucket(Usuario usuario) {
+        if (usuario.getNivelAcesso() == 1) {
             return Bucket.builder()
-                    .addLimit(Bandwidth.classic(5 , Refill.greedy(5, Duration.ofSeconds(1))))
+                    .addLimit(Bandwidth.classic(Long.MAX_VALUE, Refill.greedy(Long.MAX_VALUE, Duration.ofSeconds(1))))
+                    .build();
+        } else if (usuario.getNivelAcesso() == 2) {
+            Bandwidth fastLimit = Bandwidth.simple(5, Duration.ofSeconds(1));
+            Bandwidth slowLimit = Bandwidth.simple(1, Duration.ofSeconds(1)).withInitialTokens(1);
+            return Bucket.builder()
+                    .addLimit(fastLimit)
+                    .addLimit(slowLimit)
+                    .build();
+        } else {
+            // Default: bloqueia tudo
+            return Bucket.builder()
+                    .addLimit(Bandwidth.simple(0, Duration.ofSeconds(1)))
                     .build();
         }
-        else {
-            // Nível 1: sem limite
-            return Bucket.builder()
-                    .addLimit(Bandwidth.classic(Long.MAX_VALUE, Refill.intervally(Long.MAX_VALUE, Duration.ofSeconds(1))))
-                    .build();
-        }
     }
-
-
-    public void downgradeToSloweRate(Long userId) {
-        // Troca para 1 requisição por segundo
-        Bucket slowBucket = Bucket.builder()
-                .addLimit(Bandwidth.classic(1, Refill.greedy(1, Duration.ofSeconds(1))))
-                .build();
-        buckets.put(userId, slowBucket);
-        downgraded.put(userId, true);
-
-    }
-
-
-    public boolean isDowngraded(Long userId) {
-        return downgraded.getOrDefault(userId, false);
-    }
-
 }
