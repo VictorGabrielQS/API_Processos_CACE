@@ -12,8 +12,6 @@ public class AuthUtil {
     }
 
 
-
-
     public  static  void validarAcesso(int... niveisPermitidos){
 
 

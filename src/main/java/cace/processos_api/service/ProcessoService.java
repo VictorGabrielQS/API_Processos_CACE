@@ -72,18 +72,18 @@ public class ProcessoService {
     }
 
     public  ProcessoDTO getProcessoByNumeroCurto(String numeroCurto){
-        String numeroLimpo = NumeroProcessoUtil.limparCurto(numeroCurto);
+        String numeroCurtoLimpo = NumeroProcessoUtil.limparCurto(numeroCurto);
 
-        Processo processo = processoRepository.findByNumeroCurto(numeroLimpo)
+        Processo processo = processoRepository.findByNumeroCurto(numeroCurtoLimpo)
                 .orElseThrow(() -> new ResourceNotFoundException("Processo não encontrado com esse numero Curto : " + numeroCurto));
         return convertToDTO(processo);
 
     }
 
     public  ProcessoDTO getProcessoByNumeroCompleto(String numeroCompleto){
-        String numeroLimpo = NumeroProcessoUtil.limparCompleto(numeroCompleto);
+        String numeroCompletoLimpo = NumeroProcessoUtil.limparCompleto(numeroCompleto);
 
-        Processo processo = processoRepository.findByNumeroCompleto(numeroLimpo)
+        Processo processo = processoRepository.findByNumeroCompleto(numeroCompletoLimpo)
                 .orElseThrow(() -> new ResourceNotFoundException("Processo não encontrado com esse numero Completo : " + numeroCompleto));
         return convertToDTO(processo);
 
@@ -224,11 +224,12 @@ public class ProcessoService {
         processoRepository.delete(processo);
     }
 
+    // Converte antes de retornar o resultado
     private ProcessoDTO convertToDTO(Processo processo) {
         return new ProcessoDTO(
                 processo.getId(),
-                processo.getNumeroCompleto(),
-                processo.getNumeroCurto(),
+                NumeroProcessoUtil.formatarNumeroCompleto(processo.getNumeroCompleto()), // formatado
+                NumeroProcessoUtil.formatarNumeroCurto(processo.getNumeroCurto()),       // formatado
                 processo.getPoloAtivo().getCpfCnpj(),
                 processo.getPoloPassivo().getCpfCnpj(),
                 processo.getServentia(),
