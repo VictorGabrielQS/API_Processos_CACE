@@ -21,10 +21,13 @@ public class RateLimiterService {
 
     private Bucket createBucket(Usuario usuario) {
         if (usuario.getNivelAcesso() == 1) {
+            // Admin: 1000 requisições por minuto
+            Bandwidth adminLimit = Bandwidth.classic(1000, Refill.greedy(1000, Duration.ofMinutes(1)));
             return Bucket.builder()
-                    .addLimit(Bandwidth.classic(Long.MAX_VALUE, Refill.greedy(Long.MAX_VALUE, Duration.ofSeconds(1))))
+                    .addLimit(adminLimit)
                     .build();
-        } else if (usuario.getNivelAcesso() == 2) {
+        }
+        else if (usuario.getNivelAcesso() == 2) {
             Bandwidth fastLimit = Bandwidth.simple(5, Duration.ofSeconds(1));
             Bandwidth slowLimit = Bandwidth.simple(1, Duration.ofSeconds(1)).withInitialTokens(1);
             return Bucket.builder()
