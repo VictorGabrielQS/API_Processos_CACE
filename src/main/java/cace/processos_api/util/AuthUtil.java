@@ -3,9 +3,11 @@ package cace.processos_api.util;
 import cace.processos_api.exception.AccessDeniedException;
 import cace.processos_api.model.Usuario;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 
+@Component
 public class AuthUtil {
     public static Usuario getUsuarioLogado(){
         return (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
