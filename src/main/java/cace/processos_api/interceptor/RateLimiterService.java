@@ -3,7 +3,6 @@ package cace.processos_api.interceptor;
 import cace.processos_api.model.Usuario;
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
-import io.github.bucket4j.Refill;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
@@ -20,10 +19,10 @@ public class RateLimiterService {
     }
 
     private Bucket createBucket(Usuario usuario) {
+
         if (usuario.getNivelAcesso() == 1) {
-            // 1000 req/hora
-            Bandwidth limit = Bandwidth.classic(1000, Refill.greedy(1000, Duration.ofHours(1)));
-            return Bucket.builder().addLimit(limit).build();
+            //Sem limites para o nivel 1
+            return null;
         } else if (usuario.getNivelAcesso() == 2) {
             // 5 req/segundo e 1 req/segundo (limitadores compostos)
             Bandwidth fastLimit = Bandwidth.simple(5, Duration.ofSeconds(1));
@@ -33,6 +32,7 @@ public class RateLimiterService {
             // Bloqueia tudo
             return Bucket.builder().addLimit(Bandwidth.simple(0, Duration.ofSeconds(1))).build();
         }
+
     }
 
 }

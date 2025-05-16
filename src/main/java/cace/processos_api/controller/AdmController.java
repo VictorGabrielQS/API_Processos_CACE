@@ -41,12 +41,19 @@ public class AdmController {
     //Deletar usuario do sistema
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> deletarUsuario (@PathVariable Long id){
+
         AuthUtil.validarAcesso(1); // Apenas usuários com nível 1 podem acessar
 
         Optional<Usuario> usuarioOptional = usuarioRepository.findById(id);
 
         if (usuarioOptional.isPresent()){
             Usuario usuarioDeletado = usuarioOptional.get();
+
+            if ("admin".equalsIgnoreCase(usuarioDeletado.getUsername())){
+                return  ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(new ApiResponseException("Não é permitido Deletar o usuário administrador (admin).", null));
+            }
+
             usuarioRepository.deleteById(id);
             return ResponseEntity.ok()
                     .body(new ApiResponseException("Usuário deletado com Sucesso : " , usuarioDeletado)); // Retorna o usuario deletado

@@ -40,15 +40,18 @@ public class RateLimitingFilter implements Filter {
             Usuario usuario = usuarioRepository.findById(userId).orElse(null);
 
 
+
             if (usuario != null) {
                 Bucket bucket = rateLimiterService.resolveBucket(usuario);
+                long tokensAntes = bucket.getAvailableTokens();
 
                 if (bucket.tryConsume(1)) {
-                    logger.info("Requisição PERMITIDA | Usuário: {} | Nível: {} | IP: {} | Path: {} | Tokens restantes: {}",
+                    logger.info("Requisição PERMITIDA | Usuário: {} | Nível: {} | IP: {} | Path: {} | Tokens antes: {} | Tokens depois: {}",
                             usuario.getUsername(),
                             usuario.getNivelAcesso(),
                             request.getRemoteAddr(),
                             path,
+                            tokensAntes,
                             bucket.getAvailableTokens());
                     chain.doFilter(request, response);
                 } else {

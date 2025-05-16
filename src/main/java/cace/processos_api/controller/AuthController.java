@@ -16,8 +16,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -45,7 +43,7 @@ public class AuthController {
         var usuario = Usuario.builder()
                 .username(request.getUsername())
                 .password(passwordEncoder.encode(request.getPassword()))
-                .nivelAcesso(1) // ✅ Definido como nível 1 por padrão
+                .nivelAcesso(2) // ✅ Definido como nível 2 por padrão
                 .build();
 
         usuarioRepository.save(usuario);
