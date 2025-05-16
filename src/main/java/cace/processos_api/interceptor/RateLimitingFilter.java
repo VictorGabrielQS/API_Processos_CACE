@@ -44,15 +44,17 @@ public class RateLimitingFilter implements Filter {
                 Bucket bucket = rateLimiterService.resolveBucket(usuario);
 
                 if (bucket.tryConsume(1)) {
-                    logger.info("Requisição PERMITIDA | Usuário: {} | IP: {} | Path: {} | Tokens restantes: {}",
+                    logger.info("Requisição PERMITIDA | Usuário: {} | Nível: {} | IP: {} | Path: {} | Tokens restantes: {}",
                             usuario.getUsername(),
+                            usuario.getNivelAcesso(),
                             request.getRemoteAddr(),
                             path,
                             bucket.getAvailableTokens());
                     chain.doFilter(request, response);
                 } else {
-                    logger.warn("LIMITE EXCEDIDO | Usuário: {} | IP: {} | Path: {}",
+                    logger.warn("LIMITE EXCEDIDO | Usuário: {} | Nível: {} | IP: {} | Path: {}",
                             usuario.getUsername(),
+                            usuario.getNivelAcesso(),
                             request.getRemoteAddr(),
                             path);
                     HttpServletResponse httpResponse = (HttpServletResponse) response;

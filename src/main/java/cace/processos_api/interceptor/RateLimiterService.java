@@ -21,24 +21,18 @@ public class RateLimiterService {
 
     private Bucket createBucket(Usuario usuario) {
         if (usuario.getNivelAcesso() == 1) {
-            // Admin: 1000 requisições por minuto
-            Bandwidth adminLimit = Bandwidth.classic(1000, Refill.greedy(1000, Duration.ofMinutes(1)));
-            return Bucket.builder()
-                    .addLimit(adminLimit)
-                    .build();
-        }
-        else if (usuario.getNivelAcesso() == 2) {
+            // 1000 req/hora
+            Bandwidth limit = Bandwidth.classic(1000, Refill.greedy(1000, Duration.ofHours(1)));
+            return Bucket.builder().addLimit(limit).build();
+        } else if (usuario.getNivelAcesso() == 2) {
+            // 5 req/segundo e 1 req/segundo (limitadores compostos)
             Bandwidth fastLimit = Bandwidth.simple(5, Duration.ofSeconds(1));
             Bandwidth slowLimit = Bandwidth.simple(1, Duration.ofSeconds(1)).withInitialTokens(1);
-            return Bucket.builder()
-                    .addLimit(fastLimit)
-                    .addLimit(slowLimit)
-                    .build();
+            return Bucket.builder().addLimit(fastLimit).addLimit(slowLimit).build();
         } else {
-            // Default: bloqueia tudo
-            return Bucket.builder()
-                    .addLimit(Bandwidth.simple(0, Duration.ofSeconds(1)))
-                    .build();
+            // Bloqueia tudo
+            return Bucket.builder().addLimit(Bandwidth.simple(0, Duration.ofSeconds(1))).build();
         }
     }
+
 }
