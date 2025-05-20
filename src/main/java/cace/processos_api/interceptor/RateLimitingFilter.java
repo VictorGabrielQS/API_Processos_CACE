@@ -39,10 +39,20 @@ public class RateLimitingFilter implements Filter {
             Long userId = authUtil.getUsuarioLogado().getId();
             Usuario usuario = usuarioRepository.findById(userId).orElse(null);
 
-
-
             if (usuario != null) {
                 Bucket bucket = rateLimiterService.resolveBucket(usuario);
+
+                // Se o bucket for null, significa que não há limite para esse usuário (nível 1)
+                if (bucket == null) {
+                    logger.info("Requisição SEM limite | Usuário: {} | Nível: {} | IP: {} | Path: {}",
+                            usuario.getUsername(),
+                            usuario.getNivelAcesso(),
+                            request.getRemoteAddr(),
+                            path);
+                    chain.doFilter(request, response);
+                    return;
+                }
+
                 long tokensAntes = bucket.getAvailableTokens();
 
                 if (bucket.tryConsume(1)) {
@@ -75,3 +85,4 @@ public class RateLimitingFilter implements Filter {
         }
     }
 }
+

@@ -19,20 +19,18 @@ public class RateLimiterService {
     }
 
     private Bucket createBucket(Usuario usuario) {
-
-        if (usuario.getNivelAcesso() == 1) {
-            //Sem limites para o nivel 1
-            return null;
-        } else if (usuario.getNivelAcesso() == 2) {
-            // 5 req/segundo e 1 req/segundo (limitadores compostos)
-            Bandwidth fastLimit = Bandwidth.simple(5, Duration.ofSeconds(1));
-            Bandwidth slowLimit = Bandwidth.simple(1, Duration.ofSeconds(1)).withInitialTokens(1);
-            return Bucket.builder().addLimit(fastLimit).addLimit(slowLimit).build();
-        } else {
-            // Bloqueia tudo
-            return Bucket.builder().addLimit(Bandwidth.simple(0, Duration.ofSeconds(1))).build();
+        switch (usuario.getNivelAcesso()) {
+            case 1:
+                // Sem limites para o nível 1 - retorna null para indicar isso
+                return null;
+            case 2:
+                // 5 req/segundo e 1 req/segundo (limitadores compostos)
+                Bandwidth fastLimit = Bandwidth.simple(5, Duration.ofSeconds(1));
+                Bandwidth slowLimit = Bandwidth.simple(1, Duration.ofSeconds(1)).withInitialTokens(1);
+                return Bucket.builder().addLimit(fastLimit).addLimit(slowLimit).build();
+            default:
+                // Bloqueia todas as requisições para outros níveis
+                return Bucket.builder().addLimit(Bandwidth.simple(0, Duration.ofSeconds(1))).build();
         }
-
     }
-
 }
