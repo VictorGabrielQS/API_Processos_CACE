@@ -72,9 +72,9 @@ public class ProcessoService {
     }
 
     public  ProcessoDTO getProcessoByNumeroCurto(String numeroCurto){
-        String numeroCurtoLimpo = NumeroProcessoUtil.limparCurto(numeroCurto);
+    //    String numeroCurtoLimpo = NumeroProcessoUtil.limparCurto(numeroCurto);
 
-        Processo processo = processoRepository.findByNumeroCurto(numeroCurtoLimpo)
+        Processo processo = processoRepository.findByNumeroCurto(numeroCurto)
                 .orElseThrow(() -> new ResourceNotFoundException("Processo não encontrado com esse numero Curto : " + numeroCurto));
         return convertToDTO(processo);
 
