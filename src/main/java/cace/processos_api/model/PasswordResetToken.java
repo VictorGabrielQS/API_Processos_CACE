@@ -1,7 +1,6 @@
-package cace.processos_api.dto_user;
+package cace.processos_api.model;
 
 
-import cace.processos_api.model.Usuario;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

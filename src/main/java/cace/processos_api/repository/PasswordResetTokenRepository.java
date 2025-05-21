@@ -1,6 +1,6 @@
 package cace.processos_api.repository;
 
-import cace.processos_api.dto_user.PasswordResetToken;
+import cace.processos_api.model.PasswordResetToken;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

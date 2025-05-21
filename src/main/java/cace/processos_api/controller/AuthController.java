@@ -1,8 +1,13 @@
 package cace.processos_api.controller;
 
 
-import cace.processos_api.dto_user.*;
+import cace.processos_api.dto.AuthRequest;
+import cace.processos_api.dto.AuthResponse;
+import cace.processos_api.dto.ForgotPasswordRequest;
 import cace.processos_api.exception.ApiResponseException;
+import cace.processos_api.model.PasswordResetToken;
+import cace.processos_api.model.RegisterRequest;
+import cace.processos_api.model.ResetPasswordRequest;
 import cace.processos_api.model.Usuario;
 import cace.processos_api.repository.PasswordResetTokenRepository;
 import cace.processos_api.repository.UsuarioRepository;
