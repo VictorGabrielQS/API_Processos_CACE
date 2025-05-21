@@ -132,7 +132,7 @@ public class AuthController {
     //3. Implemente um “endpoint de teste”
     @GetMapping("/email-teste")
     public ResponseEntity<String> emailTeste() {
-        emailService.sendResetToken("seu-email-de-teste@dominio.com", "token-de-teste-123");
+        emailService.sendResetToken("victor.git24@gmail.com", "token-de-teste-123");
         return ResponseEntity.ok("E-mail de teste enviado!");
     }
 
