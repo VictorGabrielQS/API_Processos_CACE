@@ -23,6 +23,9 @@ public class AuthUtil {
 
         Nivel 2 - acesso de usuario , possui limitações , não tem acesso as opções de ADM  👤
 
+        Nivel 3 - sem acesso a nada , cadastro inicial até o usuario trocar a senha
+
+
         */
 
 

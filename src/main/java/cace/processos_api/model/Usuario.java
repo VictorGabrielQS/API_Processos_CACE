@@ -21,6 +21,7 @@ import java.util.List;
 @Table(name = "usuarios")
 public class Usuario implements UserDetails {
 
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -36,6 +37,12 @@ public class Usuario implements UserDetails {
 
     @Column(nullable = false)
     private String password;
+
+
+    @Column(nullable = false , name = "cpf_user" , unique = true)
+    private String cpf;
+
+    private String email;
 
 
     // getters para Spring Security

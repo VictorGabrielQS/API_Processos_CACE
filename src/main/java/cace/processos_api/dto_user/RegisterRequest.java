@@ -1,4 +1,4 @@
-package cace.processos_api.dto;
+package cace.processos_api.dto_user;
 
 import lombok.*;
 
@@ -9,4 +9,5 @@ import lombok.*;
 public class RegisterRequest {
     private String username;
     private String password;
+    private String cpf;
 }

@@ -5,7 +5,7 @@ import lombok.*;
 @Getter
 @Setter
 @NoArgsConstructor
-public class ApiResponseException {
+public class ApiResponseException extends RuntimeException {
     private String mensagem;
     private Object data;
 

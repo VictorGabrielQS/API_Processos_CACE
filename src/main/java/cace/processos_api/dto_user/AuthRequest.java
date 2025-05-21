@@ -1,4 +1,4 @@
-package cace.processos_api.dto;
+package cace.processos_api.dto_user;
 
 import lombok.*;
 

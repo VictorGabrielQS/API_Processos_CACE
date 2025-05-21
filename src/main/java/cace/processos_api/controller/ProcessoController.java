@@ -1,12 +1,11 @@
 package cace.processos_api.controller;
 
-import cace.processos_api.dto.PoloDTO;
+
 import cace.processos_api.dto.ProcessoDTO;
 import cace.processos_api.service.ProcessoService;
 import cace.processos_api.util.AuthUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
