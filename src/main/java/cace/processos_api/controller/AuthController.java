@@ -53,7 +53,8 @@ public class AuthController {
         var usuario = Usuario.builder()
                 .username(request.getUsername())
                 .password(passwordEncoder.encode(request.getPassword()))
-                .nivelAcesso(3) // ✅ Definido como nível 3 por padrão
+                .cpf(request.getCpf())
+                .nivelAcesso(2) // ✅ Definido como nível 3 por padrão
                 .build();
 
         usuarioRepository.save(usuario);

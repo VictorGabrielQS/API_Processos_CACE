@@ -39,7 +39,7 @@ public class Usuario implements UserDetails {
     private String password;
 
 
-    @Column(nullable = false , name = "cpf_user" , unique = true)
+    @Column(nullable = false , unique = true)
     private String cpf;
 
     private String email;
