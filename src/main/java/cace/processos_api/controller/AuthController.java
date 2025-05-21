@@ -54,6 +54,7 @@ public class AuthController {
                 .username(request.getUsername())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .cpf(request.getCpf())
+                .email(request.getEmail())
                 .nivelAcesso(2) // ✅ Definido como nível 3 por padrão
                 .build();
 
