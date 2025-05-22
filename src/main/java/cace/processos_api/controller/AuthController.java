@@ -1,13 +1,10 @@
 package cace.processos_api.controller;
 
 
-import cace.processos_api.dto.AuthRequest;
-import cace.processos_api.dto.AuthResponse;
-import cace.processos_api.dto.ForgotPasswordRequest;
+import cace.processos_api.dto.*;
 import cace.processos_api.exception.ApiResponse;
 import cace.processos_api.exception.ApiResponseException;
 import cace.processos_api.model.PasswordResetToken;
-import cace.processos_api.dto.RegisterRequest;
 import cace.processos_api.model.ResetPasswordRequest;
 import cace.processos_api.model.Usuario;
 import cace.processos_api.repository.PasswordResetTokenRepository;
@@ -146,11 +143,10 @@ public class AuthController {
     }
 
 
-    //3. Implemente um “endpoint de teste”
-    @GetMapping("/email-teste")
-    public ResponseEntity<String> emailTeste() {
-        emailService.sendResetToken("victor.git24@gmail.com", "token-de-teste-123");
-        return ResponseEntity.ok("E-mail de teste enviado!");
+    @PostMapping("/email-teste")
+    public ResponseEntity<String> emailTeste(@RequestBody EmailRequest request) {
+        emailService.sendResetToken(request.getEmail(), "token-de-teste-123");
+        return ResponseEntity.ok("E-mail de teste enviado para " + request.getEmail() + "!");
     }
 
 
