@@ -1,10 +1,8 @@
-package cace.processos_api.dto;
+package cace.processos_api.model;
 
 
-import cace.processos_api.model.Usuario;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -12,10 +10,10 @@ import java.time.LocalDateTime;
 
 
 @Entity
+@Table(name = "password_reset_tokens")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class PasswordResetToken {
 
 

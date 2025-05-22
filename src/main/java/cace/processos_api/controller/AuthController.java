@@ -5,7 +5,7 @@ import cace.processos_api.dto.AuthRequest;
 import cace.processos_api.dto.AuthResponse;
 import cace.processos_api.dto.ForgotPasswordRequest;
 import cace.processos_api.exception.ApiResponseException;
-import cace.processos_api.dto.PasswordResetToken;
+import cace.processos_api.model.PasswordResetToken;
 import cace.processos_api.dto.RegisterRequest;
 import cace.processos_api.model.ResetPasswordRequest;
 import cace.processos_api.model.Usuario;
