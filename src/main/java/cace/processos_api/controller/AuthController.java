@@ -15,6 +15,7 @@ import cace.processos_api.repository.UsuarioRepository;
 import cace.processos_api.security.JwtService;
 import cace.processos_api.service.EmailService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -36,6 +37,7 @@ public class AuthController {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private PasswordResetTokenRepository passwordResetTokenRepository;
+    @Autowired
     private EmailService emailService;
 
 
