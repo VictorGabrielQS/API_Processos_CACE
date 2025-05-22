@@ -4,6 +4,7 @@ package cace.processos_api.controller;
 import cace.processos_api.dto.AuthRequest;
 import cace.processos_api.dto.AuthResponse;
 import cace.processos_api.dto.ForgotPasswordRequest;
+import cace.processos_api.exception.ApiResponse;
 import cace.processos_api.exception.ApiResponseException;
 import cace.processos_api.model.PasswordResetToken;
 import cace.processos_api.dto.RegisterRequest;
@@ -22,6 +23,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 
@@ -55,7 +57,7 @@ public class AuthController {
                 .password(passwordEncoder.encode(request.getPassword()))
                 .cpf(request.getCpf())
                 .email(request.getEmail())
-                .nivelAcesso(2) // ✅ Definido como nível 3 por padrão
+                .nivelAcesso(3) // ✅ Definido como nível 3 por padrão
                 .build();
 
         usuarioRepository.save(usuario);
@@ -93,8 +95,14 @@ public class AuthController {
     @PostMapping("/forgot-password")
     public ResponseEntity<?> forgotPassword(@RequestBody ForgotPasswordRequest request) {
         String cpf = request.getCpf();
-        Usuario usuario = usuarioRepository.findByCpf(cpf)
-                .orElseThrow(() -> new ApiResponseException("CPF não encontrado", null));
+        Optional<Usuario> usuarioOptional = usuarioRepository.findByCpf(cpf);
+
+        if (usuarioOptional.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ApiResponse("CPF não encontrado", null));
+        }
+
+        Usuario usuario = usuarioOptional.get();
 
         // Gera e salva o token...
         String token = UUID.randomUUID().toString();
@@ -104,15 +112,15 @@ public class AuthController {
         try {
             emailService.sendResetToken(usuario.getEmail(), token);
         } catch (Exception e) {
-            // log e resposta de erro adequado
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ApiResponseException("Erro ao enviar e-mail", null));
+                    .body(new ApiResponse("Erro ao enviar e-mail", null));
         }
 
-        return ResponseEntity.ok(new ApiResponseException(
+        return ResponseEntity.ok(new ApiResponse(
                 "Token enviado para o e-mail associado ao CPF.", null
         ));
     }
+
 
 
 
