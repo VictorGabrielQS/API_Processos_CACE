@@ -31,10 +31,10 @@ public class AuthController {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
-    private PasswordResetTokenRepository passwordResetTokenRepository;
-    private UsuarioDetailsService usuarioDetailsService;
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
+    private  final UsuarioDetailsService usuarioDetailsService;
     @Autowired
-    private EmailService emailService;
+    private final EmailService emailService;
 
 
 
@@ -64,6 +64,7 @@ public class AuthController {
 
         AuthResponse authResponse = AuthResponse.builder()
                 .token(jwtToken)
+                .nivelAcesso(usuario.getNivelAcesso())
                 .build();
 
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -72,10 +73,10 @@ public class AuthController {
 
 
 
+
     //Authentica o usuario e gera o token JWT
     @PostMapping("/authenticate")
-    public ResponseEntity<AuthResponse> autenticarUsuario (@RequestBody AuthRequest request) {
-
+    public ResponseEntity<?> autenticarUsuario (@RequestBody AuthRequest request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getUsername(),
@@ -86,9 +87,16 @@ public class AuthController {
         var usuario = usuarioRepository.findByUsername(request.getUsername())
                 .orElseThrow();
 
+        // ✅ Se nível de acesso for 3, exige troca de senha antes de permitir login normal
+        if (usuario.getNivelAcesso() == 3) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(new ApiResponseException(
+                            "Usuário precisa redefinir a senha antes de acessar o sistema.",
+                            Map.of("nivelAcesso", usuario.getNivelAcesso())
+                    ));
+        }
 
         var jwtToken = jwtService.generateToken(usuario);
-
 
         AuthResponse authResponse = AuthResponse.builder()
                 .token(jwtToken)
@@ -97,6 +105,7 @@ public class AuthController {
 
         return ResponseEntity.ok(authResponse);
     }
+
 
 
 
