@@ -9,4 +9,5 @@ import lombok.*;
 @AllArgsConstructor
 public class AuthResponse {
     private String token;
+    private Integer nivelAcesso;
 }

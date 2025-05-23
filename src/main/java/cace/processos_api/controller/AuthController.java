@@ -2,14 +2,12 @@ package cace.processos_api.controller;
 
 
 import cace.processos_api.dto.*;
-import cace.processos_api.exception.ApiResponse;
 import cace.processos_api.exception.ApiResponseException;
-import cace.processos_api.model.PasswordResetToken;
-import cace.processos_api.model.ResetPasswordRequest;
 import cace.processos_api.model.Usuario;
 import cace.processos_api.repository.PasswordResetTokenRepository;
 import cace.processos_api.repository.UsuarioRepository;
-import cace.processos_api.security.JwtService;
+import cace.processos_api.service.JwtService;
+import cace.processos_api.service.UsuarioDetailsService;
 import cace.processos_api.service.EmailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,12 +15,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.HashMap;
+import java.util.Map;
 
 
 @RestController
@@ -34,6 +32,7 @@ public class AuthController {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private PasswordResetTokenRepository passwordResetTokenRepository;
+    private UsuarioDetailsService usuarioDetailsService;
     @Autowired
     private EmailService emailService;
 
@@ -76,48 +75,54 @@ public class AuthController {
     //Authentica o usuario e gera o token JWT
     @PostMapping("/authenticate")
     public ResponseEntity<AuthResponse> autenticarUsuario (@RequestBody AuthRequest request) {
+
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getUsername(),
                         request.getPassword()
                 )
         );
+
         var usuario = usuarioRepository.findByUsername(request.getUsername())
                 .orElseThrow();
+
+
         var jwtToken = jwtService.generateToken(usuario);
-        return ResponseEntity.ok(AuthResponse.builder().token(jwtToken).build());
+
+
+        AuthResponse authResponse = AuthResponse.builder()
+                .token(jwtToken)
+                .nivelAcesso(usuario.getNivelAcesso())
+                .build();
+
+        return ResponseEntity.ok(authResponse);
     }
 
 
 
     // ✅ 1. Solicitação de redefinição (esqueci a senha)
     @PostMapping("/forgot-password")
-    public ResponseEntity<?> forgotPassword(@RequestBody ForgotPasswordRequest request) {
-        String cpf = request.getCpf();
-        Optional<Usuario> usuarioOptional = usuarioRepository.findByCpf(cpf);
+    public ResponseEntity<String> forgotPassword(@RequestBody EmailRequest request) {
 
-        if (usuarioOptional.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new ApiResponse("CPF não encontrado", null));
-        }
+        var usuario = usuarioRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new RuntimeException("Email não encontrado"));
 
-        Usuario usuario = usuarioOptional.get();
 
-        // Gera e salva o token...
-        String token = UUID.randomUUID().toString();
-        // (salvar em PasswordResetToken...)
+        UserDetails userDetails = usuarioDetailsService.loadUserByUsername(usuario.getUsername());
 
-        // ENVIA o token por e-mail:
-        try {
-            emailService.sendResetToken(usuario.getEmail(), token);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ApiResponse("Erro ao enviar e-mail", null));
-        }
 
-        return ResponseEntity.ok(new ApiResponse(
-                "Token enviado para o e-mail associado ao CPF.", null
-        ));
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("reset", true); // claim personalizado
+
+
+        String token = jwtService.generateResetToken(claims, userDetails);
+
+
+        String url = "https://seusite.com/redefinir-senha?token=" + token;
+        emailService.sendResetToken(request.getEmail(), url);
+
+        return ResponseEntity.ok("Link de redefinição enviado.");
+
     }
 
 
@@ -125,22 +130,28 @@ public class AuthController {
 
     // ✅ 2. Redefinir senha com token
     @PostMapping("/reset-password")
-    public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest request) {
-        PasswordResetToken token = passwordResetTokenRepository.findByToken(request.getToken())
-                .orElse(null);
+    public ResponseEntity<String> resetPassword(@RequestBody ResetPasswordRequest request) {
 
-        if (token == null || token.getExpirationDate().isBefore(LocalDateTime.now())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ApiResponseException("Token inválido ou expirado", null));
+    String token = request.getToken();
+
+        String username = jwtService.extractUsername(token);
+        UserDetails userDetails = usuarioDetailsService.loadUserByUsername(username); // 🔁 Carrega os detalhes do usuário
+
+        if (!jwtService.isTokenValid(token, userDetails)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Token inválido ou expirado");
         }
 
-        Usuario usuario = token.getUsuario();
-        usuario.setPassword(passwordEncoder.encode(request.getNewPassword()));
-        usuarioRepository.save(usuario);
-        passwordResetTokenRepository.delete(token);
+        var usuario = usuarioRepository.findByUsername(username).orElseThrow();
 
-        return ResponseEntity.ok(new ApiResponseException("Senha redefinida com sucesso.", null));
+        usuario.setPassword(passwordEncoder.encode(request.getNovaSenha()));
+        usuario.setNivelAcesso(2);
+        usuarioRepository.save(usuario);
+
+        return ResponseEntity.ok("Senha alterada com sucesso.");
+
     }
+
+
 
 
     @PostMapping("/email-teste")

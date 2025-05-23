@@ -1,4 +1,4 @@
-package cace.processos_api.security;
+package cace.processos_api.service;
 
 
 import cace.processos_api.repository.UsuarioRepository;

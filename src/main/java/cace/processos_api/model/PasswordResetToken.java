@@ -2,18 +2,18 @@ package cace.processos_api.model;
 
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 
 @Entity
 @Table(name = "password_reset_tokens")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class PasswordResetToken {
 
 
@@ -22,14 +22,20 @@ public class PasswordResetToken {
     private Long id;
 
 
+    @Column(nullable = false, unique = true)
     private  String token;
 
 
-    @OneToOne
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "usuario_id", nullable = false)
     private Usuario usuario;
 
 
-    private LocalDateTime expirationDate;
+    @Column(nullable = false)
+    private LocalDateTime expiracao;
 
+    public  boolean isExpired(){
+        return  LocalDateTime.now().isAfter(this.expiracao);
+    }
 
 }

@@ -1,4 +1,4 @@
-package cace.processos_api.security;
+package cace.processos_api.service;
 
 import cace.processos_api.model.Usuario;
 import io.jsonwebtoken.Claims;
@@ -25,6 +25,29 @@ public class JwtService {
 
     @Value("${jwt.expiration}")
     private long jwtExpiration;
+
+
+    @Value("${jwt.reset-secret}")
+    private String resetPasswordSecret;
+
+    @Value("${jwt.reset-expiration}")
+    private long resetExpiration;  // Exemplo: 1800000 (30 minutos em ms)
+
+
+
+    private Key getSignInKey() {
+        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
+        return Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    private Key getSignInKey(String secret) {
+        byte[] keyBytes = Decoders.BASE64.decode(secret);
+        return Keys.hmacShaKeyFor(keyBytes);
+    }
+
+
+
+
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -74,9 +97,20 @@ public class JwtService {
                 .getBody();
     }
 
-    private Key getSignInKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
-        return Keys.hmacShaKeyFor(keyBytes);
+
+    // Método para gerar token de reset de senha
+    public String generateResetToken(Map<String, Object> extraClaims, UserDetails userDetails) {
+        return Jwts.builder()
+                .setClaims(extraClaims)
+                .setSubject(userDetails.getUsername())
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + resetExpiration))  // tempo só do reset
+                .signWith(getSignInKey(resetPasswordSecret), SignatureAlgorithm.HS256)  // chave do reset
+                .compact();
     }
+
+
+
+
 
 }

@@ -2,7 +2,7 @@ package cace.processos_api.config;
 
 
 import cace.processos_api.security.JwtAuthenticationFilter;
-import cace.processos_api.security.UsuarioDetailsService;
+import cace.processos_api.service.UsuarioDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
