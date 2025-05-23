@@ -113,4 +113,41 @@ public class JwtService {
 
 
 
+    public boolean isResetTokenValid(String token, UserDetails userDetails) {
+        final String username = extractUsername(token, resetPasswordSecret);
+        return (username.equals(userDetails.getUsername())) && !isTokenExpired(token, resetPasswordSecret);
+    }
+
+    public String extractUsername(String token, String secret) {
+        return extractClaim(token, Claims::getSubject, secret);
+    }
+
+    public boolean isTokenExpired(String token, String secret) {
+        return extractExpiration(token, secret).before(new Date());
+    }
+
+    public Date extractExpiration(String token, String secret) {
+        return extractClaim(token, Claims::getExpiration, secret);
+    }
+
+    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver, String secret) {
+        final Claims claims = extractAllClaims(token, secret);
+        return claimsResolver.apply(claims);
+    }
+
+    private Claims extractAllClaims(String token, String secret) {
+        return Jwts.parserBuilder()
+                .setSigningKey(getSignInKey(secret))
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+    }
+
+
+
+
+
+
+
+
 }

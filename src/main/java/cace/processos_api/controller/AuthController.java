@@ -1,6 +1,7 @@
 package cace.processos_api.controller;
 
 
+import cace.processos_api.config.WebConfig;
 import cace.processos_api.dto.*;
 import cace.processos_api.exception.ApiResponseException;
 import cace.processos_api.model.Usuario;
@@ -33,9 +34,12 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final PasswordResetTokenRepository passwordResetTokenRepository;
     private  final UsuarioDetailsService usuarioDetailsService;
+
     @Autowired
     private final EmailService emailService;
 
+    @Autowired
+    private final WebConfig webConfig;
 
 
     //Registra usuario
@@ -113,6 +117,8 @@ public class AuthController {
     @PostMapping("/forgot-password")
     public ResponseEntity<String> forgotPassword(@RequestBody EmailRequest request) {
 
+
+
         var usuario = usuarioRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("Email não encontrado"));
 
@@ -127,10 +133,10 @@ public class AuthController {
         String token = jwtService.generateResetToken(claims, userDetails);
 
 
-        String url = "https://seusite.com/redefinir-senha?token=" + token;
+        String url =  webConfig.getFrontendUrl() + "/redefinir-senha?token=" + token;
         emailService.sendResetToken(request.getEmail(), url);
 
-        return ResponseEntity.ok("Link de redefinição enviado.");
+        return ResponseEntity.ok(" Link de Redefinição enviado com sucesso ! .");
 
     }
 
@@ -146,7 +152,7 @@ public class AuthController {
         String username = jwtService.extractUsername(token);
         UserDetails userDetails = usuarioDetailsService.loadUserByUsername(username); // 🔁 Carrega os detalhes do usuário
 
-        if (!jwtService.isTokenValid(token, userDetails)) {
+        if (!jwtService.isResetTokenValid(token, userDetails)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Token inválido ou expirado");
         }
 
