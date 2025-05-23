@@ -147,10 +147,10 @@ public class AuthController {
     @PostMapping("/reset-password")
     public ResponseEntity<String> resetPassword(@RequestBody ResetPasswordRequest request) {
 
-    String token = request.getToken();
+        String token = request.getToken();
 
-        String username = jwtService.extractUsername(token);
-        UserDetails userDetails = usuarioDetailsService.loadUserByUsername(username); // 🔁 Carrega os detalhes do usuário
+        String username = jwtService.extractResetUsername(token);
+        UserDetails userDetails = usuarioDetailsService.loadUserByUsername(username);
 
         if (!jwtService.isResetTokenValid(token, userDetails)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Token inválido ou expirado");
@@ -163,9 +163,7 @@ public class AuthController {
         usuarioRepository.save(usuario);
 
         return ResponseEntity.ok("Senha alterada com sucesso.");
-
     }
-
 
 
 
