@@ -78,6 +78,40 @@ public class AuthController {
 
 
 
+    //Authentica o usuario e gera o token JWT
+    @PostMapping("/authenticate")
+    public ResponseEntity<?> autenticarUsuario (@RequestBody AuthRequest request) {
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        request.getUsername(),
+                        request.getPassword()
+                )
+        );
+
+        var usuario = usuarioRepository.findByUsername(request.getUsername())
+                .orElseThrow();
+
+        // ✅ Se nível de acesso for 3, exige troca de senha antes de permitir login normal
+        if (usuario.getNivelAcesso() == 3) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(new ApiResponseException(
+                            "Usuário precisa redefinir a senha antes de acessar o sistema.",
+                            Map.of("nivelAcesso", usuario.getNivelAcesso())
+                    ));
+        }
+
+        var jwtToken = jwtService.generateToken(usuario);
+
+        AuthResponse authResponse = AuthResponse.builder()
+                .token(jwtToken)
+                .nivelAcesso(usuario.getNivelAcesso())
+                .build();
+
+        return ResponseEntity.ok(authResponse);
+    }
+
+
+
 
     // ✅ 1. Solicitação de redefinição (esqueci a senha)
     @PostMapping("/forgot-password")
@@ -96,7 +130,7 @@ public class AuthController {
         claims.put("reset", true); // claim personalizado
 
 
-        String token = jwtService.generateToken(usuario);
+        String token = jwtService.generateResetToken(claims, userDetails);
 
 
         String url =  webConfig.getFrontendUrl() + "/redefinir-senha?token=" + token;
