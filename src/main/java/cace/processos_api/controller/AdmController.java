@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -83,6 +84,43 @@ public class AdmController {
                     .body(new ApiResponseException("Usuário não encontrado", null));
         }
     }
+
+
+
+    //Troca email de um usuario
+    @PutMapping("/email/{id}")
+    public ResponseEntity<?> atualizarEmail(@PathVariable Long id, @RequestBody Map<String, String> body) {
+        AuthUtil.validarAcesso(1); // Apenas nível 1 (devs) podem acessar
+
+        Optional<Usuario> usuarioOptional = usuarioRepository.findById(id);
+
+        if (usuarioOptional.isPresent()) {
+            Usuario usuario = usuarioOptional.get();
+
+            String novoEmail = body.get("novoEmail");
+
+            if (novoEmail == null || novoEmail.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(new ApiResponseException("O novo e-mail não pode estar vazio.", null));
+            }
+
+            // Regex simples para validar formato de e-mail
+            if (!novoEmail.matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$")) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(new ApiResponseException("Formato de e-mail inválido.", null));
+            }
+
+            usuario.setEmail(novoEmail);
+            usuarioRepository.save(usuario);
+
+            return ResponseEntity.ok()
+                    .body(new ApiResponseException("E-mail atualizado com sucesso!", usuario));
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ApiResponseException("Usuário não encontrado", null));
+        }
+    }
+
 
 
 
