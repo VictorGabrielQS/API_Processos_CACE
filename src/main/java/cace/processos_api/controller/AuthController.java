@@ -187,7 +187,17 @@ public class AuthController {
         var usuario = usuarioRepository.findByUsername(username).orElseThrow();
 
         usuario.setPassword(passwordEncoder.encode(request.getNovaSenha()));
-        usuario.setNivelAcesso(2); // Atualiza acesso após redefinir
+
+        if ("senha".equalsIgnoreCase(usuario.getUsername())){
+            usuario.setNivelAcesso(3);
+
+        }else {
+            usuario.setNivelAcesso(2); // Atualiza acesso após redefinir
+
+        }
+
+
+
         usuarioRepository.save(usuario);
 
         return ResponseEntity.ok("Senha alterada com sucesso.");
