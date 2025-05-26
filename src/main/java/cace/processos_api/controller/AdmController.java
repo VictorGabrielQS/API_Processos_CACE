@@ -89,37 +89,53 @@ public class AdmController {
 
     //Troca email de um usuario
     @PutMapping("/email/{id}")
-    public ResponseEntity<?> atualizarEmail(@PathVariable Long id, @RequestBody Map<String, String> body) {
-        AuthUtil.validarAcesso(1); // Apenas nível 1 (devs) podem acessar
+    public ResponseEntity<?> atualizarEmail(
 
-        Optional<Usuario> usuarioOptional = usuarioRepository.findById(id);
+            @PathVariable Long id,
+            @RequestBody Map<String, String> body) {
 
-        if (usuarioOptional.isPresent()) {
-            Usuario usuario = usuarioOptional.get();
+        // Verifica se o usuário autenticado tem permissão (nível 1 ou 2)
+        AuthUtil.validarAcesso(1, 2);
 
-            String novoEmail = body.get("novoEmail");
+        // Recupera o novo e-mail do corpo da requisição
+        String novoEmail = body.get("novoEmail");
 
-            if (novoEmail == null || novoEmail.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body(new ApiResponseException("O novo e-mail não pode estar vazio.", null));
-            }
-
-            // Regex simples para validar formato de e-mail
-            if (!novoEmail.matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$")) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body(new ApiResponseException("Formato de e-mail inválido.", null));
-            }
-
-            usuario.setEmail(novoEmail);
-            usuarioRepository.save(usuario);
-
-            return ResponseEntity.ok()
-                    .body(new ApiResponseException("E-mail atualizado com sucesso!", usuario));
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new ApiResponseException("Usuário não encontrado", null));
+        // Valida se o novo e-mail foi fornecido
+        if (novoEmail == null || novoEmail.isBlank()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponseException("O campo 'novoEmail' é obrigatório.", null));
         }
+
+        // Valida o formato do e-mail
+        if (!novoEmail.matches("^[\\w\\.-]+@[\\w\\.-]+\\.\\w{2,}$")) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponseException("Formato de e-mail inválido.", null));
+        }
+
+        // Verifica se o e-mail já está em uso
+        if (usuarioRepository.findByEmail(novoEmail).isPresent()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(new ApiResponseException("Este e-mail já está em uso por outro usuário.", null));
+        }
+
+        // Busca o usuário pelo ID
+        Optional<Usuario> usuarioOptional = usuarioRepository.findById(id);
+        if (usuarioOptional.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ApiResponseException("Usuário não encontrado.", null));
+        }
+
+        // Atualiza o e-mail do usuário
+        Usuario usuario = usuarioOptional.get();
+        usuario.setEmail(novoEmail);
+        usuarioRepository.save(usuario);
+
+        return ResponseEntity.ok()
+                .body(new ApiResponseException("E-mail atualizado com sucesso!", usuario));
+
     }
+
+
 
 
 
