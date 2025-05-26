@@ -1,5 +1,6 @@
 package cace.processos_api.service;
 
+import cace.processos_api.model.Usuario;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -29,19 +30,31 @@ public class JwtService {
     private String resetPasswordSecret;
 
     @Value("${jwt.reset-expiration}")
-    private long resetExpiration;  // Exemplo: 1800000 (30 minutos em ms)
+    private long resetExpiration;
 
 
-    // --- Métodos para token normal ---
-
+    // --- Chave de assinatura do token normal ---
     private Key getSignInKey() {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
+    // --- Chave de assinatura para reset ---
+    private Key getSignInKey(String secret) {
+        byte[] keyBytes = Decoders.BASE64.decode(secret);
+        return Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    // --- Geração de token a partir de Usuario ---
+    public String generateToken(Usuario usuario) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("nivelAcesso", usuario.getNivelAcesso());
+        return generateToken(claims, (UserDetails) usuario); // cast explícito
+    }
+
+    // --- Geração de token padrão ---
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
-        // Pode adicionar claims extras aqui se quiser
         return generateToken(claims, userDetails);
     }
 
@@ -55,6 +68,7 @@ public class JwtService {
                 .compact();
     }
 
+    // --- Extração de dados do token normal ---
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject, secretKey);
     }
@@ -73,11 +87,6 @@ public class JwtService {
                 .getBody();
     }
 
-    private Key getSignInKey(String secret) {
-        byte[] keyBytes = Decoders.BASE64.decode(secret);
-        return Keys.hmacShaKeyFor(keyBytes);
-    }
-
     public boolean isTokenValid(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername())) && !isTokenExpired(token, secretKey);
@@ -91,17 +100,14 @@ public class JwtService {
         return extractClaim(token, Claims::getExpiration, secret);
     }
 
-
-
-    // --- Métodos para token de reset de senha ---
-
+    // --- Geração e validação de token de reset de senha ---
     public String generateResetToken(Map<String, Object> extraClaims, UserDetails userDetails) {
         return Jwts.builder()
                 .setClaims(extraClaims)
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + resetExpiration))  // tempo só do reset
-                .signWith(getSignInKey(resetPasswordSecret), SignatureAlgorithm.HS256)  // chave do reset
+                .setExpiration(new Date(System.currentTimeMillis() + resetExpiration))
+                .signWith(getSignInKey(resetPasswordSecret), SignatureAlgorithm.HS256)
                 .compact();
     }
 
@@ -113,5 +119,4 @@ public class JwtService {
         final String username = extractResetUsername(token);
         return (username.equals(userDetails.getUsername())) && !isTokenExpired(token, resetPasswordSecret);
     }
-
 }
