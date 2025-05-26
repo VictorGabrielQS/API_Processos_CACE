@@ -46,12 +46,19 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<?> registrarUsuario (@RequestBody RegisterRequest request) {
 
+        // Verifica se username ou senha estão vazios
         if (request.getUsername() == null || request.getUsername().isEmpty() ||
-                request.getPassword() == null || request.getPassword().isEmpty()
-        ){
-
+                request.getPassword() == null || request.getPassword().isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ApiResponseException("Usuário ou senha não podem ser vazios ! " , null));
+                    .body(new ApiResponseException("Usuário ou senha não podem ser vazios!", null));
+        }
+
+        // Expressão regular: apenas letras e números
+        String regex = "^[a-zA-Z0-9]+$";
+
+        if (!request.getUsername().matches(regex) || !request.getPassword().matches(regex)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponseException("Usuário e senha não podem conter caracteres especiais!", null));
         }
 
         var usuario = Usuario.builder()
@@ -59,7 +66,7 @@ public class AuthController {
                 .password(passwordEncoder.encode(request.getPassword()))
                 .cpf(request.getCpf())
                 .email(request.getEmail())
-                .nivelAcesso(3) // ✅ Definido como nível 3 por padrão
+                .nivelAcesso(3) // padrão
                 .build();
 
         usuarioRepository.save(usuario);
@@ -72,8 +79,9 @@ public class AuthController {
                 .build();
 
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new ApiResponseException("Usuario registrado com sucesso ! " , authResponse));
+                .body(new ApiResponseException("Usuário registrado com sucesso!", authResponse));
     }
+
 
 
 
@@ -156,10 +164,21 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Token inválido ou expirado");
         }
 
+        // Expressão regular: apenas letras e números
+        String regex = "^[a-zA-Z0-9]+$";
+        if (request.getNovaSenha() == null || request.getNovaSenha().isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("A nova senha não pode estar vazia.");
+        }
+
+        if (!request.getNovaSenha().matches(regex)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("A nova senha não pode conter caracteres especiais.");
+        }
+
         var usuario = usuarioRepository.findByUsername(username).orElseThrow();
 
         usuario.setPassword(passwordEncoder.encode(request.getNovaSenha()));
-        usuario.setNivelAcesso(2);
+        usuario.setNivelAcesso(2); // Atualiza acesso após redefinir
         usuarioRepository.save(usuario);
 
         return ResponseEntity.ok("Senha alterada com sucesso.");
@@ -167,6 +186,8 @@ public class AuthController {
 
 
 
+
+    //Envio de envio de email teste
     @PostMapping("/email-teste")
     public ResponseEntity<String> emailTeste(@RequestBody EmailRequest request) {
         emailService.sendResetToken(request.getEmail(), "token-de-teste-123");
