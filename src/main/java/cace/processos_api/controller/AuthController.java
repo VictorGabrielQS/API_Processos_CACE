@@ -10,6 +10,7 @@ import cace.processos_api.repository.UsuarioRepository;
 import cace.processos_api.service.JwtService;
 import cace.processos_api.service.UsuarioDetailsService;
 import cace.processos_api.service.EmailService;
+import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -141,8 +142,16 @@ public class AuthController {
         String token = jwtService.generateResetToken(claims, userDetails);
 
 
-        String url =  webConfig.getFrontendUrl() + "/redefinir-senha?token=" + token;
-        emailService.sendResetToken(request.getEmail(), url);
+        String url = webConfig.getFrontendUrl() + "/redefinir-senha?token=" + token;
+
+        try {
+            emailService.sendResetToken(request.getEmail(), url);
+        } catch (MessagingException e) {
+            // Aqui você pode logar ou lançar uma exceção customizada
+            e.printStackTrace();
+            throw new RuntimeException("Falha ao enviar e-mail de redefinição de senha.");
+        }
+
 
         return ResponseEntity.ok(" Link de Redefinição enviado com sucesso ! .");
 
@@ -190,9 +199,17 @@ public class AuthController {
     //Envio de envio de email teste
     @PostMapping("/email-teste")
     public ResponseEntity<String> emailTeste(@RequestBody EmailRequest request) {
-        emailService.sendResetToken(request.getEmail(), "token-de-teste-123");
-        return ResponseEntity.ok("E-mail de teste enviado para " + request.getEmail() + "!");
+        try {
+            String urlTeste = "https://sua-url.com/redefinir-senha?token=token-de-teste-123";
+            emailService.sendResetToken(request.getEmail(), urlTeste);
+            return ResponseEntity.ok("E-mail de teste enviado para " + request.getEmail() + "!");
+        } catch (MessagingException e) {
+            e.printStackTrace(); // ou log.error("Erro ao enviar e-mail", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Falha ao enviar e-mail para " + request.getEmail());
+        }
     }
+
 
 
 }
