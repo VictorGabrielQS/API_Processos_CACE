@@ -199,7 +199,7 @@ public class AuthController {
 
     // ✅ 3. Redefinir senha primeiro Acesso
     @PostMapping("/first-access")
-    public ResponseEntity<?> firstAccess(@RequestBody FirstAccessRequest request) {
+    public ResponseEntity<?> firstAccess(@RequestBody FirstAccessRequest request) my{
         String token = request.getToken();
         String senhaAtual = request.getSenhaAtual();
         String novaSenha = request.getNovaSenha();
@@ -232,13 +232,26 @@ public class AuthController {
                     .body("A nova senha não pode conter caracteres especiais.");
         }
 
-        // Atualiza senha e nível de acesso
+
+        if (usuario.getNivelAcesso() != 3) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("O usuário não possui nível 3 para acesso.");
+        }
+
+        // Atualiza a senha
         usuario.setPassword(passwordEncoder.encode(novaSenha));
-        usuario.setNivelAcesso(2); // Libera o usuário para o sistema
 
+         // Se for um usuário de teste, mantém nível 3
+        if ("senha".equalsIgnoreCase(usuario.getUsername())) {
+            usuarioRepository.save(usuario);
+            return ResponseEntity.ok("Usuário de teste detectado. Senha atualizada, mas nível mantido.");
+        }
+
+        // Caso contrário, libera o acesso (nível 2)
+        usuario.setNivelAcesso(2);
         usuarioRepository.save(usuario);
-
         return ResponseEntity.ok("Senha redefinida com sucesso. Acesso liberado.");
+
     }
 
 
