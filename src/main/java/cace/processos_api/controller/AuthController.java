@@ -199,7 +199,7 @@ public class AuthController {
 
     // ✅ 3. Redefinir senha primeiro Acesso
     @PostMapping("/first-access")
-    public ResponseEntity<?> firstAccess(@RequestBody FirstAccessRequest request) my{
+    public ResponseEntity<?> firstAccess(@RequestBody FirstAccessRequest request){
         String token = request.getToken();
         String senhaAtual = request.getSenhaAtual();
         String novaSenha = request.getNovaSenha();
