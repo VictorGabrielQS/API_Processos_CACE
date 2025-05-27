@@ -20,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -198,69 +199,50 @@ public class AuthController {
 
     // ✅ 3. Redefinir senha primeiro Acesso
     @PostMapping("/first-access")
-    public ResponseEntity<String> resetPasswordFirstAccess(@RequestBody FirstAccessRequest request) {
+    public ResponseEntity<?> firstAccess(@RequestBody FirstAccessRequest request) {
+        String token = request.getToken();
+        String senhaAtual = request.getSenhaAtual();
+        String novaSenha = request.getNovaSenha();
 
-        try {
-            AuthUtil.validarAcesso(3); // Apenas usuários com nível 3 podem acessar
+        // Extrai o username do token JWT
+        String username = jwtService.extractUsername(token);
+        UserDetails userDetails = usuarioDetailsService.loadUserByUsername(username);
 
-            String token = request.getToken();
-            String senhaAtual = request.getSenhaAtual();
-            String novaSenha = request.getNovaSenha();
-
-            if (token == null || token.isBlank()) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Token não pode estar vazio.");
-            }
-
-            // Extrai o username do token JWT
-            String username = jwtService.extractUsername(token);
-            if (username == null || username.isBlank()) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Token inválido: usuário não encontrado.");
-            }
-
-            UserDetails userDetails = usuarioDetailsService.loadUserByUsername(username);
-
-            if (!jwtService.isTokenValid(token, userDetails)) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Token inválido ou expirado.");
-            }
-
-            var usuario = usuarioRepository.findByUsername(username)
-                    .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado."));
-
-            // Verifica a senha atual
-            if (!passwordEncoder.matches(senhaAtual, usuario.getPassword())) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Senha atual incorreta.");
-            }
-
-            System.out.println("Token recebido: " + token);
-
-
-            // Valida a nova senha: apenas letras e números
-            String regex = "^[a-zA-Z0-9]+$";
-
-            if (novaSenha == null || novaSenha.isBlank()) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("A nova senha não pode estar vazia.");
-            }
-
-            if (!novaSenha.matches(regex)) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body("A nova senha não pode conter caracteres especiais.");
-            }
-
-            // Atualiza a senha e nível de acesso
-            usuario.setPassword(passwordEncoder.encode(novaSenha));
-            usuario.setNivelAcesso(2); // Acesso liberado após troca
-
-            usuarioRepository.save(usuario);
-
-            return ResponseEntity.ok("Senha redefinida com sucesso. Acesso liberado.");
-
-        } catch (UserNotFoundException ex) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Erro interno: " + e.getMessage());
+        if (!jwtService.isTokenValid(token, userDetails)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Token inválido ou expirado.");
         }
+
+        var usuario = usuarioRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
+
+        // Verifica se senha atual (provisória) está correta
+        if (!passwordEncoder.matches(senhaAtual, usuario.getPassword())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Senha atual incorreta.");
+        }
+
+        // Expressão regular: apenas letras e números
+        String regex = "^[a-zA-Z0-9]+$";
+
+        if (novaSenha == null || novaSenha.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("A nova senha não pode estar vazia.");
+        }
+
+        if (!novaSenha.matches(regex)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("A nova senha não pode conter caracteres especiais.");
+        }
+
+        // Atualiza senha e nível de acesso
+        usuario.setPassword(passwordEncoder.encode(novaSenha));
+        usuario.setNivelAcesso(2); // Libera o usuário para o sistema
+
+        usuarioRepository.save(usuario);
+
+        return ResponseEntity.ok("Senha redefinida com sucesso. Acesso liberado.");
     }
+
+
+
 
 
     //Envio de envio de email teste
