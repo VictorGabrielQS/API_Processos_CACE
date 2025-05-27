@@ -4,6 +4,7 @@ package cace.processos_api.controller;
 import cace.processos_api.config.WebConfig;
 import cace.processos_api.dto.*;
 import cace.processos_api.exception.ApiResponseException;
+import cace.processos_api.exception.UserNotFoundException;
 import cace.processos_api.model.Usuario;
 import cace.processos_api.repository.PasswordResetTokenRepository;
 import cace.processos_api.repository.UsuarioRepository;
@@ -191,6 +192,70 @@ public class AuthController {
         return ResponseEntity.ok("Senha alterada com sucesso.");
     }
 
+
+
+
+    // ✅ 3. Redefinir senha primeiro Acesso
+    @PostMapping("/first-access")
+    public ResponseEntity<String> resetPasswordFirstAccess(@RequestBody FirstAccessRequest request) {
+
+
+        // ao logar se o usuario for nivel 3  ela ira direto
+        // para esse endpoint sera passado o token de login ,
+        // a senha gerada ao cadastrar o usuario no sistema e recebera a nova senha
+
+        String token = request.getToken();
+        String senhaAtual = request.getSenhaAtual();
+        String novaSenha = request.getNovaSenha();
+
+        // Extrai o username do Token JWT
+        String username = jwtService.extractUsername(token);
+        UserDetails userDetails = usuarioDetailsService.loadUserByUsername(username);
+
+        if (!jwtService.isResetTokenValid(token, userDetails)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Token inválido ou expirado");
+        }
+
+        var usuario = usuarioRepository.findByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado"));
+
+        if (!passwordEncoder.matches(senhaAtual, usuario.getPassword())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Senha atual incorreta.");
+        }
+
+
+
+        // Expressão regular: apenas letras e números
+        String regex = "^[a-zA-Z0-9]+$";
+
+        if (novaSenha == null || novaSenha.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("A nova senha não pode estar vazia.");
+        }
+
+
+        if (!novaSenha.matches(regex)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("A nova senha não pode conter caracteres especiais.");
+        }
+
+
+
+        usuario.setPassword(passwordEncoder.encode(novaSenha));
+
+
+        if ("senha".equalsIgnoreCase(usuario.getUsername())){
+            usuario.setNivelAcesso(3);
+
+        }else {
+            usuario.setNivelAcesso(2); // Atualiza acesso após redefinir
+
+        }
+
+        usuarioRepository.save(usuario);
+
+
+        return ResponseEntity.ok("Senha redefinida com sucesso. Acesso liberado.");
+    }
 
 
 
