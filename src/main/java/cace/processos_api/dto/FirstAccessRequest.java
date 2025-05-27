@@ -1,14 +1,10 @@
 package cace.processos_api.dto;
 
+import lombok.Data;
 
-import lombok.Getter;
-import lombok.Setter;
-
-@Getter
-@Setter
+@Data
 public class FirstAccessRequest {
     private String token;
     private String senhaAtual;
     private String novaSenha;
-
 }

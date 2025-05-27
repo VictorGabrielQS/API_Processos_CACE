@@ -11,6 +11,7 @@ import cace.processos_api.repository.UsuarioRepository;
 import cace.processos_api.service.JwtService;
 import cace.processos_api.service.UsuarioDetailsService;
 import cace.processos_api.service.EmailService;
+import cace.processos_api.util.AuthUtil;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -198,6 +199,8 @@ public class AuthController {
     // ✅ 3. Redefinir senha primeiro Acesso
     @PostMapping("/first-access")
     public ResponseEntity<String> resetPasswordFirstAccess(@RequestBody FirstAccessRequest request) {
+
+        AuthUtil.validarAcesso(3); // Apenas usuários com nível 1 podem acessar
 
 
         // ao logar se o usuario for nivel 3  ela ira direto
