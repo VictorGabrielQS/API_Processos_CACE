@@ -9,5 +9,6 @@ import lombok.*;
 @AllArgsConstructor
 public class AuthResponse {
     private String token;
-    private Integer nivelAcesso;
+    private int nivelAcesso;
+    private boolean precisaRedefinirSenha; // nova flag
 }
