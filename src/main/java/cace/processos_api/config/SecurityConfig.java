@@ -34,13 +34,22 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/admin/**").permitAll()
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/polos-ativos/**", "/api/polos-passivos/**").permitAll()
-                        .requestMatchers("/api/processos").permitAll()
+                        .requestMatchers(
+                                "/api/admin/**",
+                                "/api/auth/**",
+                                "/api/polos-ativos/**",
+                                "/api/polos-passivos/**",
+                                "/api/processos",
+                                "/v3/api-docs/**",
+                                "/swagger-ui.html",
+                                "/swagger-ui/**",
+                                "/swagger-resources/**",
+                                "/webjars/**"
+                        ).permitAll()
                         .requestMatchers("/api/processos/**").authenticated()
                         .anyRequest().authenticated()
                 )
+
                 .userDetailsService(usuarioDetailsService)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
