@@ -1,5 +1,7 @@
 package cace.processos_api;
 
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.info.Info;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
@@ -9,6 +11,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication
 @EntityScan(basePackages = "cace.processos_api.model")
+@OpenAPIDefinition(info = @Info(title = "API-Processos" , version = "1" , description = "API que gerencia todos os processos que estão sobre o controle da CACE"))
 @EnableJpaRepositories(basePackages = "cace.processos_api.repository")
 public class ProcessosApiApplication {
 
