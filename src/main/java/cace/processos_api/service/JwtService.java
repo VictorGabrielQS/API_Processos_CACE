@@ -48,7 +48,8 @@ public class JwtService {
     // --- Geração de token a partir de Usuario ---
     public String generateToken(Usuario usuario) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("nivelAcesso", usuario.getNivelAcesso());
+
+        //claims.put("nivelAcesso", usuario.getNivelAcesso());
 
         long expiration = usuario.getNivelAcesso() == 3 ? 5 * 60 * 1000 : jwtExpiration;
 
