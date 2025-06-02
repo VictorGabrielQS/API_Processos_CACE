@@ -49,24 +49,28 @@ public class JwtService {
     public String generateToken(Usuario usuario) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("nivelAcesso", usuario.getNivelAcesso());
-        return generateToken(claims, (UserDetails) usuario); // cast explícito
+
+        long expiration = usuario.getNivelAcesso() == 3 ? 5 * 60 * 1000 : jwtExpiration;
+
+        return generateToken(claims, (UserDetails) usuario, expiration);
     }
 
     // --- Geração de token padrão ---
-    public String generateToken(UserDetails userDetails) {
-        Map<String, Object> claims = new HashMap<>();
-        return generateToken(claims, userDetails);
+    public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
+        return generateToken(extraClaims, userDetails, jwtExpiration);
     }
 
-    public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
+
+    public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails, long expiration) {
         return Jwts.builder()
                 .setClaims(extraClaims)
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + jwtExpiration))
+                .setExpiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
+
 
     // --- Extração de dados do token normal ---
     public String extractUsername(String token) {
