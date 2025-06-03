@@ -59,20 +59,7 @@ public class AdmController {
     }
 
 
-    //Deletar usuario do sistema
-    @Operation(
-            summary = "Deleta um usuário pelo ID.",
-            description = "Requer nível de acesso 1. Não permite deletar o usuário 'admin'.",
-            method = "DELETE",
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "Usuário deletado com sucesso.",
-                            content = @Content(schema = @Schema(implementation = ApiResponseException.class))),
-                    @ApiResponse(responseCode = "403", description = "Tentativa de deletar o usuário 'admin'.",
-                            content = @Content(schema = @Schema(implementation = ApiResponseException.class))),
-                    @ApiResponse(responseCode = "404", description = "Usuário não encontrado.",
-                            content = @Content(schema = @Schema(implementation = ApiResponseException.class)))
-            }
-    )
+    //Deletar usuario do sistema : Customize Toolbar…
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> deletarUsuario (@PathVariable Long id){
 
@@ -99,19 +86,7 @@ public class AdmController {
     }
 
 
-    //Trocar o nível do usuário:
-    @Operation(
-            summary = "Atualiza o nível de acesso de um usuário pelo id.",
-            description = "Requer nível de acesso 1 ou 2. Altera o nível de acesso de um usuário existente.",
-            method = "PUT",
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "Nível de acesso atualizado com sucesso.",
-                            content = @Content(schema = @Schema(implementation = ApiResponseException.class))),
-                    @ApiResponse(responseCode = "404", description = "Usuário não encontrado.",
-                            content = @Content(schema = @Schema(implementation = ApiResponseException.class))),
-                    @ApiResponse(responseCode = "403", description = "Acesso negado por falta de permissão.")
-            }
-    )
+    //Trocar o nível do usuário: Atualiza o nível de acesso de um usuário pelo id.
     @PutMapping("/nivel/{id}")
     public ResponseEntity<?> atualizarNivelAcesso(@PathVariable Long id, @RequestParam int novoNivel) {
         AuthUtil.validarAcesso(1,2); // Apenas usuários com nível 1 podem acessar

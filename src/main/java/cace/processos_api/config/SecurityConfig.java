@@ -35,7 +35,6 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/api/admin/**",
                                 "/api/auth/**",
                                 "/api/polos-ativos/**",
                                 "/api/polos-passivos/**",
@@ -46,7 +45,10 @@ public class SecurityConfig {
                                 "/swagger-resources/**",
                                 "/webjars/**"
                         ).permitAll()
-                        .requestMatchers("/api/processos/**").authenticated()
+                        .requestMatchers(
+                                "/api/processos/**",
+                                "/api/admin/**"
+                        ).authenticated()
                         .anyRequest().authenticated()
                 )
 

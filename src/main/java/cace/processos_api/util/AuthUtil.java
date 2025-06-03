@@ -2,6 +2,7 @@ package cace.processos_api.util;
 
 import cace.processos_api.exception.AccessDeniedException;
 import cace.processos_api.model.Usuario;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
@@ -10,11 +11,12 @@ import java.util.Arrays;
 @Component
 public class AuthUtil {
     public static Usuario getUsuarioLogado(){
-        return (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return (Usuario) authentication.getPrincipal();
     }
 
 
-    public  static  void validarAcesso(int... niveisPermitidos){
+    public  static  void validarAcesso(Integer... nivelRequerido){
 
 
         /*                DESCRIÇÃO DOS NÍVEIS DE ACESSO
@@ -30,11 +32,9 @@ public class AuthUtil {
 
 
         Usuario usuario = getUsuarioLogado();
-        boolean permitido = Arrays.stream(niveisPermitidos)
-                .anyMatch(n -> n == usuario.getNivelAcesso());
-
-        if (!permitido) {
-               throw new AccessDeniedException(" Acesso Negado você não possui nível suficiente ! ");
+        for (Integer nivel : nivelRequerido) {
+            if (usuario.getNivelAcesso() == nivel) return;
         }
+        throw new RuntimeException("Acesso negado: nível de acesso insuficiente.");
     }
 }
