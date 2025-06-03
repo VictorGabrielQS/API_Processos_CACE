@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 
 @RestController
@@ -272,6 +273,36 @@ public class AuthController {
                     .body("Falha ao enviar e-mail para " + request.getEmail());
         }
     }
+
+
+
+
+    // Retorna o Nível do Usuario atraves do seu UserName gerado pelo token JWT
+    @GetMapping("/nivel")
+    public ResponseEntity<?> getNivelUsuario(@RequestHeader("Authorization") String tokenHeader) {
+        // Verifica se o token está presente
+        if (tokenHeader == null || !tokenHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Token JWT inválido");
+        }
+
+        // Extrai o token
+        String token = tokenHeader.substring(7);
+
+        // Extrai o username do token
+        String username = jwtService.extractUsername(token);
+
+        // Busca o usuário pelo username
+        Optional<Usuario> usuarioOptional = usuarioRepository.findByUsername(username);
+
+        if (usuarioOptional.isPresent()) {
+            int nivel = usuarioOptional.get().getNivelAcesso();
+            return ResponseEntity.ok(Map.of("nivelAcesso", nivel));
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuário não encontrado");
+        }
+    }
+
+
 
 
 
