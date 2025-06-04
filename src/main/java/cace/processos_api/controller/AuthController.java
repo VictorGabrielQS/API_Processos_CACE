@@ -13,9 +13,13 @@ import cace.processos_api.service.UsuarioDetailsService;
 import cace.processos_api.service.EmailService;
 import cace.processos_api.util.AuthUtil;
 import jakarta.mail.MessagingException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -92,26 +96,35 @@ public class AuthController {
 
     //Authentica o usuario e gera o token JWT
     @PostMapping("/authenticate")
-    public ResponseEntity<?> autenticarUsuario (@RequestBody AuthRequest request) {
+    public ResponseEntity<?> autenticarUsuario(HttpServletRequest request, HttpServletResponse response,
+                                               @RequestBody AuthRequest authRequest) {
+
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        request.getUsername(),
-                        request.getPassword()
+                        authRequest.getUsername(),
+                        authRequest.getPassword()
                 )
         );
 
-        var usuario = usuarioRepository.findByUsername(request.getUsername())
+        var usuario = usuarioRepository.findByUsername(authRequest.getUsername())
                 .orElseThrow();
 
         var jwtToken = jwtService.generateToken(usuario);
 
-        AuthResponse authResponse = AuthResponse.builder()
-                .token(jwtToken)
-                .nivelAcesso(usuario.getNivelAcesso())
-                .precisaRedefinirSenha(usuario.getNivelAcesso() == 3) // nova flag
+        // Cria o cookie HttpOnly
+        ResponseCookie jwtCookie = ResponseCookie.from("jwt", jwtToken)
+                .httpOnly(true)
+                .secure(false) // true em produção (https)
+                .path("/")
+                .maxAge(24 * 60 * 60) // 1 dia
+                .sameSite("None") // usar "None" se front e back estiverem em domínios diferentes
                 .build();
 
-        return ResponseEntity.ok(authResponse);
+        response.setHeader(HttpHeaders.SET_COOKIE, jwtCookie.toString());
+
+        return ResponseEntity.ok(
+                new ApiResponseException("Login realizado com sucesso!", null)
+        );
     }
 
 
