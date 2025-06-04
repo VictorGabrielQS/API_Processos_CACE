@@ -116,7 +116,7 @@ public class AuthController {
         // Cria o cookie HttpOnly
         ResponseCookie jwtCookie = ResponseCookie.from("jwt", jwtToken)
                 .httpOnly(true)
-                .secure(false) // true em produção (https)
+                .secure(true) // true em produção (https)
                 .path("/")
                 .maxAge(24 * 60 * 60) // 1 dia
                 .sameSite("None") // usar "None" se front e back estiverem em domínios diferentes
