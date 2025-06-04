@@ -45,7 +45,7 @@ public class AuthController {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final PasswordResetTokenRepository passwordResetTokenRepository;
-    private  final UsuarioDetailsService usuarioDetailsService;
+    private final UsuarioDetailsService usuarioDetailsService;
 
     @Autowired
     private final EmailService emailService;
@@ -56,7 +56,7 @@ public class AuthController {
 
     //Registra usuario
     @PostMapping("/register")
-    public ResponseEntity<?> registrarUsuario (@RequestBody RegisterRequest request) {
+    public ResponseEntity<?> registrarUsuario(@RequestBody RegisterRequest request) {
 
         // Verifica se username ou senha estão vazios
         if (request.getUsername() == null || request.getUsername().isEmpty() ||
@@ -95,11 +95,9 @@ public class AuthController {
     }
 
 
-
     //Authentica o usuario e gera o token JWT
     @PostMapping("/authenticate")
-    public ResponseEntity<?> autenticarUsuario(HttpServletRequest request, HttpServletResponse response,
-                                               @RequestBody AuthRequest authRequest) {
+    public ResponseEntity<?> autenticarUsuario(HttpServletRequest request, HttpServletResponse response, @RequestBody AuthRequest authRequest) {
 
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -128,6 +126,25 @@ public class AuthController {
                 new ApiResponseException("Login realizado com sucesso!", null)
         );
     }
+
+
+    // Desautentica o usuário e limpa o cookie JWT
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletResponse response) {
+        // Limpa o cookie JWT
+        ResponseCookie cookie = ResponseCookie.from("jwt", "")
+                .httpOnly(true)
+                .secure(true) // use true se estiver usando HTTPS
+                .path("/")
+                .maxAge(0)
+                .sameSite("Lax")
+                .build();
+
+        response.addHeader("Set-Cookie", cookie.toString());
+
+        return ResponseEntity.ok(new ApiResponseException("Logout realizado com sucesso", null));
+    }
+
 
 
     // ✅ 1. Solicitação de redefinição (esqueci a senha)
@@ -272,6 +289,25 @@ public class AuthController {
     }
 
 
+    // Retorna o Nível do Usuario atraves do seu UserName gerado pelo token JWT
+    @GetMapping("/nivel")
+    public ResponseEntity<?> validarToken(HttpServletRequest request) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new ApiResponseException("Usuário não autenticado", null));
+        }
+
+        Usuario usuario = (Usuario) authentication.getPrincipal();
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("username", usuario.getUsername());
+        response.put("nivelAcesso", usuario.getNivelAcesso());
+        //response.put("precisaRedefinirSenha", usuario.getNivelAcesso() == 3);
+
+        return ResponseEntity.ok(response);
+    }
 
 
 
@@ -292,25 +328,7 @@ public class AuthController {
 
 
 
-    // Retorna o Nível do Usuario atraves do seu UserName gerado pelo token JWT
-    @GetMapping("/nivel")
-    public ResponseEntity<?> validarToken(HttpServletRequest request) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(new ApiResponseException("Usuário não autenticado", null));
-        }
-
-        Usuario usuario = (Usuario) authentication.getPrincipal();
-
-        Map<String, Object> response = new HashMap<>();
-        response.put("username", usuario.getUsername());
-        response.put("nivelAcesso", usuario.getNivelAcesso());
-        //response.put("precisaRedefinirSenha", usuario.getNivelAcesso() == 3);
-
-        return ResponseEntity.ok(response);
-    }
 
 
 
