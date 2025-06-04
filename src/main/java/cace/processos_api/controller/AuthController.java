@@ -23,6 +23,8 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -292,27 +294,22 @@ public class AuthController {
 
     // Retorna o Nível do Usuario atraves do seu UserName gerado pelo token JWT
     @GetMapping("/nivel")
-    public ResponseEntity<?> getNivelUsuario(@RequestHeader("Authorization") String tokenHeader) {
-        // Verifica se o token está presente
-        if (tokenHeader == null || !tokenHeader.startsWith("Bearer ")) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Token JWT inválido");
+    public ResponseEntity<?> validarToken(HttpServletRequest request) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new ApiResponseException("Usuário não autenticado", null));
         }
 
-        // Extrai o token
-        String token = tokenHeader.substring(7);
+        Usuario usuario = (Usuario) authentication.getPrincipal();
 
-        // Extrai o username do token
-        String username = jwtService.extractUsername(token);
+        Map<String, Object> response = new HashMap<>();
+        response.put("username", usuario.getUsername());
+        response.put("nivelAcesso", usuario.getNivelAcesso());
+        //response.put("precisaRedefinirSenha", usuario.getNivelAcesso() == 3);
 
-        // Busca o usuário pelo username
-        Optional<Usuario> usuarioOptional = usuarioRepository.findByUsername(username);
-
-        if (usuarioOptional.isPresent()) {
-            int nivel = usuarioOptional.get().getNivelAcesso();
-            return ResponseEntity.ok(Map.of("nivelAcesso", nivel));
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuário não encontrado");
-        }
+        return ResponseEntity.ok(response);
     }
 
 
