@@ -9,6 +9,7 @@ import cace.processos_api.model.Usuario;
 import cace.processos_api.repository.PasswordResetTokenRepository;
 import cace.processos_api.repository.UsuarioRepository;
 import cace.processos_api.service.JwtService;
+import cace.processos_api.service.TokenBlacklistService;
 import cace.processos_api.service.UsuarioDetailsService;
 import cace.processos_api.service.EmailService;
 import cace.processos_api.util.AuthUtil;
@@ -30,6 +31,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -46,6 +48,7 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final UsuarioDetailsService usuarioDetailsService;
+    private final TokenBlacklistService blacklistService;
 
     @Autowired
     private final EmailService emailService;
@@ -130,20 +133,20 @@ public class AuthController {
 
     // Desautentica o usuário e limpa o cookie JWT
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(HttpServletResponse response) {
+    public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
+        String token = jwtService.extractTokenFromRequest(request);
+
+        // Adiciona o token na blacklist por 1 hora (ou a duração do token)
+        blacklistService.blacklistToken(token, Duration.ofHours(1));
+
         // Limpa o cookie JWT
         ResponseCookie cookie = ResponseCookie.from("jwt", "")
-                .httpOnly(true)
-                .secure(true) // use true se estiver usando HTTPS
-                .path("/")
-                .maxAge(0)
-                .sameSite("Lax")
-                .build();
-
+                .httpOnly(true).secure(true).path("/").maxAge(0).sameSite("Lax").build();
         response.addHeader("Set-Cookie", cookie.toString());
 
-        return ResponseEntity.ok(new ApiResponseException("Logout realizado com sucesso", null));
+        return ResponseEntity.ok("Logout realizado com sucesso");
     }
+
 
 
 

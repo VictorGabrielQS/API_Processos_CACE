@@ -3,6 +3,7 @@ package cace.processos_api.security;
 import cace.processos_api.model.Usuario;
 import cace.processos_api.repository.UsuarioRepository;
 import cace.processos_api.service.JwtService;
+import cace.processos_api.service.TokenBlacklistService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -24,6 +25,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final UsuarioRepository usuarioRepository;
+    private final TokenBlacklistService blacklistService; // injeta aqui
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -48,8 +50,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
+        // ✅ Verifica se o token está na blacklist
+        if (blacklistService.isBlacklisted(jwt)) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("Token inválido: você realizou logout");
+            return;
+        }
+
 
         final String username = jwtService.extractUsername(jwt);
+
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             Optional<Usuario> usuarioOptional = usuarioRepository.findByUsername(username);
