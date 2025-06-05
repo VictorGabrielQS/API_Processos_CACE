@@ -131,9 +131,11 @@ public class AuthController {
     }
 
 
+
     // Desautentica o usuário e limpa o cookie JWT
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
+
         String token = jwtService.extractTokenFromRequest(request);
 
         // Adiciona o token na blacklist por 1 hora (ou a duração do token)
@@ -141,7 +143,7 @@ public class AuthController {
 
         // Limpa o cookie JWT
         ResponseCookie cookie = ResponseCookie.from("jwt", "")
-                .httpOnly(true).secure(true).path("/").maxAge(0).sameSite("Lax").build();
+                .httpOnly(true).secure(true).path("/").maxAge(0).sameSite("None").build();
         response.addHeader("Set-Cookie", cookie.toString());
 
         return ResponseEntity.ok("Logout realizado com sucesso");
