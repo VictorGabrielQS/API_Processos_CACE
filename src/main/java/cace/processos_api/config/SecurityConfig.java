@@ -35,10 +35,8 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
+
                                 "/api/auth/**",
-                                "/api/polos-ativos/**",
-                                "/api/polos-passivos/**",
-                                "/api/processos",
                                 "/v3/api-docs/**",
                                 "/swagger-ui.html",
                                 "/swagger-ui/**",
@@ -47,7 +45,9 @@ public class SecurityConfig {
                         ).permitAll()
                         .requestMatchers(
                                 "/api/processos/**",
-                                "/api/admin/**"
+                                "/api/admin/**",
+                                "/api/polos-ativos/**",
+                                "/api/polos-passivos/**"
                         ).authenticated()
                         .anyRequest().authenticated()
                 )

@@ -138,12 +138,21 @@ public class AuthController {
 
         String token = jwtService.extractTokenFromRequest(request);
 
-        // Adiciona o token na blacklist por 1 hora (ou a duração do token)
-        blacklistService.blacklistToken(token, Duration.ofHours(1));
+        if ( token != null){
+
+            // Adiciona o token na blacklist por 1 hora (ou a duração do token)
+            blacklistService.blacklistToken(token, Duration.ofHours(1));
+
+        }
 
         // Limpa o cookie JWT
         ResponseCookie cookie = ResponseCookie.from("jwt", "")
-                .httpOnly(true).secure(true).path("/").maxAge(0).sameSite("None").build();
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(0)
+                .sameSite("None")
+                .build();
         response.addHeader("Set-Cookie", cookie.toString());
 
         return ResponseEntity.ok("Logout realizado com sucesso");
