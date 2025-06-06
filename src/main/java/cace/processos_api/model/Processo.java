@@ -22,11 +22,11 @@ public class Processo {
 
 
     @Column(nullable = false , unique = true , updatable = false)
-    private String numeroCompleto;
+    private String numeroCompleto; //
 
 
     @Column(nullable = false , unique = true , updatable = false)
-    private String numeroCurto;
+    private String numeroCurto; //
 
 
     @ManyToOne
@@ -40,7 +40,7 @@ public class Processo {
 
 
     @Column(nullable = false)
-    private String serventia;
+    private String serventia; //
 
 
     @Column(nullable = false)
@@ -56,7 +56,7 @@ public class Processo {
 
 
     @Column(nullable = false)
-    private String tipoCertidao;
+    private String tipoCertidao; //
 
     @Column(nullable = true)
     private String urlProcessoProjudi;
