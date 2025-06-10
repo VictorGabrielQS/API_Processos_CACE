@@ -33,6 +33,9 @@ import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 @RestController
 @RequestMapping("/api/auth")
@@ -132,35 +135,45 @@ public class AuthController {
     // Desautentica o usuário e limpa o cookie JWT
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
-        try {
-            String token = jwtService.extractTokenFromRequest(request);
-            if (token != null) {
-                // Adiciona o token na blacklist por 3 hora (ou a duração do token)
-                try {
-                    blacklistService.blacklistToken(token, Duration.ofHours(1));
-                } catch (Exception e) {
-                    // Log but don't block logout if token processing fails
-                    System.out.println("Could not process token for blacklisting: " + e.getMessage());
 
-                }
-            }
-        } catch (Exception e) {
-            // Log but continue to clear cookie
-            System.out.println("Error processing token during logout: " + e.getMessage());
-        } finally {
-            // Limpa o cookie JWT
-            ResponseCookie cookie = ResponseCookie.from("jwt", "")
-                    .httpOnly(true)
-                    .secure(true)
-                    .path("/")
-                    .maxAge(0)
-                    .sameSite("None")
-                    .build();
-            response.addHeader("Set-Cookie", cookie.toString());
-            return ResponseEntity.ok("Logout realizado com sucesso");
+        String token = jwtService.extractTokenFromRequest(request);
+
+        if ( token != null){
+
+            // Adiciona o token na blacklist por 1 hora (ou a duração do token)
+            blacklistService.blacklistToken(token, Duration.ofHours(1));
+
         }
+
+        // Limpa o cookie JWT
+        ResponseCookie cookie = ResponseCookie.from("jwt", "")
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(0)
+                .sameSite("None")
+                .build();
+        response.addHeader("Set-Cookie", cookie.toString());
+
+        return ResponseEntity.ok("Logout realizado com sucesso");
     }
 
+
+    // Limpa a sessão do usuário, removendo o cookie JWT
+    @PostMapping("/clear-session")
+    public ResponseEntity<?> clearSession(HttpServletResponse response) {
+        // Just clear the cookie, no token needed
+        ResponseCookie cookie = ResponseCookie.from("jwt", "")
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(0)
+                .sameSite("None")
+                .build();
+        response.addHeader("Set-Cookie", cookie.toString());
+
+        return ResponseEntity.ok("Session cleared");
+    }
 
 
 
