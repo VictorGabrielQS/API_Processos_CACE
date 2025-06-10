@@ -3,8 +3,7 @@ package cace.processos_api.dto;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-import cace.processos_api.model.Processo;
-import com.fasterxml.jackson.annotation.JsonFormat;
+import cace.processos_api.model.process.Processo;
 import lombok.*;
 
 

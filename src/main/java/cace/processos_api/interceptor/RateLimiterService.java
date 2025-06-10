@@ -1,6 +1,6 @@
 package cace.processos_api.interceptor;
 
-import cace.processos_api.model.Usuario;
+import cace.processos_api.model.process.Usuario;
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
 import org.springframework.stereotype.Component;

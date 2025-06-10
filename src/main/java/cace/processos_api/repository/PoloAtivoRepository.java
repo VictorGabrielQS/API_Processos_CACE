@@ -2,7 +2,7 @@ package cace.processos_api.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import cace.processos_api.model.PoloAtivo;
+import cace.processos_api.model.process.PoloAtivo;
 
 import java.util.Optional;
 

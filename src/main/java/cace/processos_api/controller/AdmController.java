@@ -3,7 +3,7 @@ package cace.processos_api.controller;
 import cace.processos_api.dto.PoloDetalhadoDTO;
 import cace.processos_api.dto.ProcessoDTO;
 import cace.processos_api.exception.ApiResponseException;
-import cace.processos_api.model.Usuario;
+import cace.processos_api.model.process.Usuario;
 import cace.processos_api.repository.UsuarioRepository;
 import cace.processos_api.util.AuthUtil;
 import cace.processos_api.service.PoloAtivoService;

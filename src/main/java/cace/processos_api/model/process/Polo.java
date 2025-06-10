@@ -1,4 +1,4 @@
-package cace.processos_api.model;
+package cace.processos_api.model.process;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

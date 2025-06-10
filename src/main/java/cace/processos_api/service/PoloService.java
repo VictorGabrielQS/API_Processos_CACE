@@ -4,14 +4,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import cace.processos_api.dto.PoloDetalhadoDTO;
-import cace.processos_api.model.PoloAtivo;
-import cace.processos_api.model.PoloPassivo;
+import cace.processos_api.model.process.PoloAtivo;
+import cace.processos_api.model.process.PoloPassivo;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import cace.processos_api.dto.PoloDTO;
 import cace.processos_api.exception.ResourceNotFoundException;
-import cace.processos_api.model.Polo;
+import cace.processos_api.model.process.Polo;
 import cace.processos_api.repository.PoloRepository;
 
 @Service

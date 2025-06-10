@@ -2,11 +2,10 @@ package cace.processos_api.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import cace.processos_api.model.Processo;
+import cace.processos_api.model.process.Processo;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;

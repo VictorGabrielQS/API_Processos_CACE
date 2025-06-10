@@ -2,9 +2,8 @@ package cace.processos_api.service;
 
 import cace.processos_api.dto.PoloDTO;
 import cace.processos_api.dto.PoloDetalhadoDTO;
-import cace.processos_api.exception.ResourceNotFoundException;
 import cace.processos_api.exception.UserNotFoundException;
-import cace.processos_api.model.PoloAtivo;
+import cace.processos_api.model.process.PoloAtivo;
 import cace.processos_api.repository.PoloAtivoRepository;
 import cace.processos_api.repository.PoloRepository;
 import cace.processos_api.util.CpfCnpjUtil;

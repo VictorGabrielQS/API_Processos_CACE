@@ -1,7 +1,4 @@
-package cace.processos_api.model;
-
-
-
+package cace.processos_api.model.process;
 
 import java.time.LocalDate;
 
@@ -13,13 +10,12 @@ import lombok.*;
 @Entity
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "polo_passivo")
-public class PoloPassivo extends Polo {
+@AllArgsConstructor
+@Table(name = "polo_ativo")
+public class PoloAtivo extends Polo {
 
-    
-    @Column(name = "dataNascimento_parte")
+    @Column(name = "dataNascimento_parte" )
     private LocalDate dataNascimentoParte;
 
     @Column(name = "endereco_parte")
@@ -28,8 +24,9 @@ public class PoloPassivo extends Polo {
     @Column(name = "endereco_parte_cep")
     private String enderecoParteCep;
 
-    @Column(name = "filiacao_parte")
+    @Column(name = "filiacao_parte" )
     private String filiacaoParte;
+
 
     @Column(name = "filiacao_parte_cpf" )
     private String filiacaoParteCpf;
@@ -40,6 +37,5 @@ public class PoloPassivo extends Polo {
 
     @Column(name = "descricao")
     private String descricao;
-
 
 }

@@ -1,12 +1,9 @@
 package cace.processos_api.util;
 
-import cace.processos_api.exception.AccessDeniedException;
-import cace.processos_api.model.Usuario;
+import cace.processos_api.model.process.Usuario;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
-
-import java.util.Arrays;
 
 @Component
 public class AuthUtil {

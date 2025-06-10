@@ -1,6 +1,6 @@
 package cace.processos_api.service;
 
-import cace.processos_api.model.Usuario;
+import cace.processos_api.model.process.Usuario;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;

@@ -2,16 +2,15 @@ package cace.processos_api.service;
 
 import cace.processos_api.dto.ProcessoDTO;
 import cace.processos_api.exception.ResourceNotFoundException;
-import cace.processos_api.model.PoloAtivo;
-import cace.processos_api.model.PoloPassivo;
-import cace.processos_api.model.Processo;
+import cace.processos_api.model.process.PoloAtivo;
+import cace.processos_api.model.process.PoloPassivo;
+import cace.processos_api.model.process.Processo;
 import cace.processos_api.repository.PoloAtivoRepository;
 import cace.processos_api.repository.PoloPassivoRepository;
 import cace.processos_api.repository.ProcessoRepository;
 import cace.processos_api.util.NumeroProcessoUtil;
 import org.springframework.stereotype.Service;
 
-import java.lang.reflect.Field;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;

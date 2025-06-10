@@ -1,6 +1,6 @@
 package cace.processos_api.interceptor;
 
-import cace.processos_api.model.Usuario;
+import cace.processos_api.model.process.Usuario;
 import cace.processos_api.repository.UsuarioRepository;
 import cace.processos_api.util.AuthUtil;
 import io.github.bucket4j.Bucket;

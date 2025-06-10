@@ -1,11 +1,10 @@
 package cace.processos_api.repository;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import cace.processos_api.model.Polo;
+import cace.processos_api.model.process.Polo;
 
 public interface PoloRepository extends JpaRepository<Polo , Long> {
 

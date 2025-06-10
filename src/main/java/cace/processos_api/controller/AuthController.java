@@ -4,15 +4,13 @@ package cace.processos_api.controller;
 import cace.processos_api.config.WebConfig;
 import cace.processos_api.dto.*;
 import cace.processos_api.exception.ApiResponseException;
-import cace.processos_api.exception.UserNotFoundException;
-import cace.processos_api.model.Usuario;
+import cace.processos_api.model.process.Usuario;
 import cace.processos_api.repository.PasswordResetTokenRepository;
 import cace.processos_api.repository.UsuarioRepository;
 import cace.processos_api.service.JwtService;
 import cace.processos_api.service.TokenBlacklistService;
 import cace.processos_api.service.UsuarioDetailsService;
 import cace.processos_api.service.EmailService;
-import cace.processos_api.util.AuthUtil;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -34,7 +32,6 @@ import org.springframework.web.bind.annotation.*;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 
 @RestController
@@ -135,27 +132,37 @@ public class AuthController {
     // Desautentica o usuário e limpa o cookie JWT
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
+        try {
+            String token = jwtService.extractTokenFromRequest(request);
+            if (token != null) {
+                // Adiciona o token na blacklist por 3 hora (ou a duração do token)
+                try {
+                    blacklistService.blacklistToken(token, Duration.ofHours(1));
+                } catch (Exception e) {
+                    // Log but don't block logout if token processing fails
+                    return ResponseEntity
+                            .badRequest()
+                            .body("Could not process token for blacklisting: " + e.getMessage());
 
-        String token = jwtService.extractTokenFromRequest(request);
-
-        if ( token != null){
-
-            // Adiciona o token na blacklist por 1 hora (ou a duração do token)
-            blacklistService.blacklistToken(token, Duration.ofHours(1));
-
+                }
+            }
+        } catch (Exception e) {
+            // Log but continue to clear cookie
+            return ResponseEntity
+                    .badRequest()
+                    .body("Error processing token during logout: " + e.getMessage());
+        } finally {
+            // Limpa o cookie JWT
+            ResponseCookie cookie = ResponseCookie.from("jwt", "")
+                    .httpOnly(true)
+                    .secure(true)
+                    .path("/")
+                    .maxAge(0)
+                    .sameSite("None")
+                    .build();
+            response.addHeader("Set-Cookie", cookie.toString());
+            return ResponseEntity.ok("Logout realizado com sucesso");
         }
-
-        // Limpa o cookie JWT
-        ResponseCookie cookie = ResponseCookie.from("jwt", "")
-                .httpOnly(true)
-                .secure(true)
-                .path("/")
-                .maxAge(0)
-                .sameSite("None")
-                .build();
-        response.addHeader("Set-Cookie", cookie.toString());
-
-        return ResponseEntity.ok("Logout realizado com sucesso");
     }
 
 
@@ -338,6 +345,9 @@ public class AuthController {
                     .body("Falha ao enviar e-mail para " + request.getEmail());
         }
     }
+
+
+
 
 
 
