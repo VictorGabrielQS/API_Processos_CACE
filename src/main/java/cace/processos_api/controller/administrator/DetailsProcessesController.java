@@ -17,22 +17,27 @@ import java.util.Optional;
 @RequestMapping("/details-processes")
 public class DetailsProcessesController {
 
+
     @Autowired
     private DetailsProcessesRepository detailsProcessesRepository;
 
+
     @Autowired
     private DetailsProcessesService service;
+
 
     @GetMapping
     public List<DetailsProcessesDTO> listarTodos() {
         return service.listarTodos();
     }
 
+
     @GetMapping("/{id}")
     public DetailsProcessesDTO buscarPorId(@PathVariable Long id) {
         return service.buscarPorId(id)
                 .orElseThrow(() -> new RuntimeException("Detalhe não encontrado com ID: " + id));
     }
+
 
     @PostMapping
     public DetailsProcessesDTO salvar(@RequestBody DetailsProcessesDTO detailsProcessesDTO) {
@@ -49,25 +54,26 @@ public class DetailsProcessesController {
         DetailsProcesses detailsProcesses;
 
         if (optionalEntity.isPresent()) {
-            // Atualiza registro existente
             detailsProcesses = optionalEntity.get();
         } else {
-            // Cria novo registro
             detailsProcesses = new DetailsProcesses();
-            detailsProcesses.setDataHoraCriacao(LocalDateTime.now());
+            LocalDateTime dataHoraCriacao = detailsProcessesDTO.getDataHoraCriacao() != null
+                    ? detailsProcessesDTO.getDataHoraCriacao()
+                    : LocalDateTime.now();
+            detailsProcesses.setDataHoraCriacao(dataHoraCriacao);
         }
 
-        // Preenche dados e atualiza timestamp
+        // Atualiza dados do registro (novo ou existente)
         detailsProcesses.setProcessosVerificar(detailsProcessesDTO.getProcessosVerificar());
         detailsProcesses.setProcessosRenajud(detailsProcessesDTO.getProcessosRenajud());
         detailsProcesses.setProcessosInfojud(detailsProcessesDTO.getProcessosInfojud());
         detailsProcesses.setProcessosErroCertidao(detailsProcessesDTO.getProcessosErroCertidao());
         detailsProcesses.setDataHoraAtualizacao(LocalDateTime.now());
 
-        // Salva e retorna
         DetailsProcesses salvo = detailsProcessesRepository.save(detailsProcesses);
-        return new DetailsProcessesDTO(salvo); // supondo que você tenha um construtor DTO(Entity)
+        return new DetailsProcessesDTO(salvo);
     }
+
 
     @DeleteMapping("/{id}")
     public void deletar(@PathVariable Long id) {
