@@ -1,6 +1,5 @@
 package cace.processos_api.model.administrator;
 
-
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -16,36 +15,31 @@ public class DetailsProcesses {
     private Long id;
 
     @Column(nullable = false)
-    private String processosVerificar;
+    private Integer processosVerificar;   // Quantidade de processos a verificar
 
     @Column(nullable = false)
-    private String processosRenajud;
+    private Integer processosRenajud;     // Quantidade de processos Renajud
 
     @Column(nullable = false)
-    private String processosInfojud;
+    private Integer processosInfojud;     // Quantidade de processos Infojud
 
     @Column(nullable = false)
-    private String processosErroCertidao;
+    private Integer processosErroCertidao; // Quantidade de processos com erro
 
     @Column(nullable = false, updatable = false)
-    private LocalDateTime dataHoraCriacao; // Data e hora da criação
+    private LocalDateTime dataHoraCriacao;
 
     @Column(nullable = false)
-    private LocalDateTime dataHoraAtualizacao; // Data e hora da última atualização
-
+    private LocalDateTime dataHoraAtualizacao;
 
     @PrePersist
     protected void onCreate() {
-        this.dataHoraCriacao = LocalDateTime.now();
-        this.dataHoraAtualizacao = LocalDateTime.now();
+        dataHoraCriacao = LocalDateTime.now();
+        dataHoraAtualizacao = LocalDateTime.now();
     }
-
 
     @PreUpdate
     protected void onUpdate() {
-        this.dataHoraAtualizacao = LocalDateTime.now();
+        dataHoraAtualizacao = LocalDateTime.now();
     }
-
-
-
 }

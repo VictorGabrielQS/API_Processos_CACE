@@ -13,13 +13,11 @@ import java.time.LocalDateTime;
 public class DetailsProcessesDTO {
 
     private Long id;
-    private String processosVerificar;
-    private String processosRenajud;
-    private String processosInfojud;
-    private String processosErroCertidao;
+    private Integer processosVerificar;
+    private Integer processosRenajud;
+    private Integer processosInfojud;
+    private Integer processosErroCertidao;
     private LocalDateTime dataHoraCriacao;
     private LocalDateTime dataHoraAtualizacao;
-
-
 
 }

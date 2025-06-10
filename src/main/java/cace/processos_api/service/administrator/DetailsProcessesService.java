@@ -53,9 +53,23 @@ public class DetailsProcessesService {
 
 
     public DetailsProcessesDTO salvar(DetailsProcessesDTO dto) {
-        DetailsProcesses entity = toEntity(dto);
+        DetailsProcesses entity;
+
+        if(dto.getId() != null) {
+            entity = detailsProcessesRepository.findById(dto.getId())
+                    .orElse(new DetailsProcesses());
+        } else {
+            entity = new DetailsProcesses();
+        }
+
+        entity.setProcessosVerificar(dto.getProcessosVerificar());
+        entity.setProcessosRenajud(dto.getProcessosRenajud());
+        entity.setProcessosInfojud(dto.getProcessosInfojud());
+        entity.setProcessosErroCertidao(dto.getProcessosErroCertidao());
+
         return toDTO(detailsProcessesRepository.save(entity));
     }
+
 
     public void deletar(Long id) {
         detailsProcessesRepository.deleteById(id);
