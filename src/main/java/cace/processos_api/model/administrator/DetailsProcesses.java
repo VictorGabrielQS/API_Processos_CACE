@@ -34,9 +34,12 @@ public class DetailsProcesses {
 
     @PrePersist
     protected void onCreate() {
-        dataHoraCriacao = LocalDateTime.now();
+        if (dataHoraCriacao == null) {
+            dataHoraCriacao = LocalDateTime.now();
+        }
         dataHoraAtualizacao = LocalDateTime.now();
     }
+
 
     @PreUpdate
     protected void onUpdate() {
