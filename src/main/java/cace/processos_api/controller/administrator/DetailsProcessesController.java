@@ -36,51 +36,37 @@ public class DetailsProcessesController {
 
     @PostMapping
     public DetailsProcessesDTO salvar(@RequestBody DetailsProcessesDTO detailsProcessesDTO) {
+        LocalDate dataCriacao = detailsProcessesDTO.getDataHoraCriacao() != null
+                ? detailsProcessesDTO.getDataHoraCriacao().toLocalDate()
+                : LocalDate.now();
 
-        // Extrai a data da criação (considerando a data passada ou a atual se nula)
-        LocalDate dataCriacao = detailsProcessesDTO.getDataHoraCriacao() != null ? detailsProcessesDTO.getDataHoraCriacao().toLocalDate() : LocalDate.now();
-
-        // Define o intervalo do dia (início e fim)
         LocalDateTime startOfDay = dataCriacao.atStartOfDay();
         LocalDateTime endOfDay = dataCriacao.atTime(LocalTime.MAX);
 
-        // Busca registro já existente para o mesmo dia
-        Optional<DetailsProcesses> optionalEntity = detailsProcessesRepository.findByDataHoraCriacaoBetween(startOfDay, endOfDay);
+        Optional<DetailsProcesses> optionalEntity = detailsProcessesRepository
+                .findByDataHoraCriacaoBetween(startOfDay, endOfDay);
 
         DetailsProcesses detailsProcesses;
 
         if (optionalEntity.isPresent()) {
             // Atualiza registro existente
             detailsProcesses = optionalEntity.get();
-
-            detailsProcesses.setProcessosVerificar(detailsProcessesDTO.getProcessosVerificar());
-            detailsProcesses.setProcessosRenajud(detailsProcessesDTO.getProcessosRenajud());
-            detailsProcesses.setProcessosInfojud(detailsProcessesDTO.getProcessosInfojud());
-            detailsProcesses.setProcessosErroCertidao(detailsProcessesDTO.getProcessosErroCertidao());
-
-            // Atualiza timestamp da atualização
-            detailsProcesses.setDataHoraAtualizacao(LocalDateTime.now());
-
         } else {
-
             // Cria novo registro
             detailsProcesses = new DetailsProcesses();
-
-            detailsProcesses.setProcessosVerificar(detailsProcessesDTO.getProcessosVerificar());
-            detailsProcesses.setProcessosRenajud(detailsProcessesDTO.getProcessosRenajud());
-            detailsProcesses.setProcessosInfojud(detailsProcessesDTO.getProcessosInfojud());
-            detailsProcesses.setProcessosErroCertidao(detailsProcessesDTO.getProcessosErroCertidao());
-
-            // Define dataHoraCriacao e dataHoraAtualizacao com o horário atual
-            LocalDateTime now = LocalDateTime.now();
-            detailsProcesses.setDataHoraCriacao(now);
-            detailsProcesses.setDataHoraAtualizacao(now);
+            detailsProcesses.setDataHoraCriacao(LocalDateTime.now());
         }
 
+        // Preenche dados e atualiza timestamp
+        detailsProcesses.setProcessosVerificar(detailsProcessesDTO.getProcessosVerificar());
+        detailsProcesses.setProcessosRenajud(detailsProcessesDTO.getProcessosRenajud());
+        detailsProcesses.setProcessosInfojud(detailsProcessesDTO.getProcessosInfojud());
+        detailsProcesses.setProcessosErroCertidao(detailsProcessesDTO.getProcessosErroCertidao());
+        detailsProcesses.setDataHoraAtualizacao(LocalDateTime.now());
+
+        // Salva e retorna
         DetailsProcesses salvo = detailsProcessesRepository.save(detailsProcesses);
-
-        return service.salvar(detailsProcessesDTO);
-
+        return new DetailsProcessesDTO(salvo); // supondo que você tenha um construtor DTO(Entity)
     }
 
     @DeleteMapping("/{id}")
