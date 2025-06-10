@@ -140,17 +140,13 @@ public class AuthController {
                     blacklistService.blacklistToken(token, Duration.ofHours(1));
                 } catch (Exception e) {
                     // Log but don't block logout if token processing fails
-                    return ResponseEntity
-                            .badRequest()
-                            .body("Could not process token for blacklisting: " + e.getMessage());
+                    System.out.println("Could not process token for blacklisting: " + e.getMessage());
 
                 }
             }
         } catch (Exception e) {
             // Log but continue to clear cookie
-            return ResponseEntity
-                    .badRequest()
-                    .body("Error processing token during logout: " + e.getMessage());
+            System.out.println("Error processing token during logout: " + e.getMessage());
         } finally {
             // Limpa o cookie JWT
             ResponseCookie cookie = ResponseCookie.from("jwt", "")
