@@ -4,10 +4,12 @@ import cace.processos_api.model.administrator.DetailsProcesses;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
+import java.util.List;
+
 
 public interface DetailsProcessesRepository extends JpaRepository<DetailsProcesses, Long> {
 
-    Optional<DetailsProcesses> findByDataHoraCriacaoBetween(LocalDateTime startOfDay, LocalDateTime endOfDay);
+    List<DetailsProcesses> findByDataHoraCriacaoBetween(LocalDateTime start, LocalDateTime end);
 
 }
+

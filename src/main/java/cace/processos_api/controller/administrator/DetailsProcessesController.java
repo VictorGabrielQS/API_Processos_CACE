@@ -48,14 +48,15 @@ public class DetailsProcessesController {
         LocalDateTime startOfDay = dataCriacao.atStartOfDay();
         LocalDateTime endOfDay = dataCriacao.atTime(LocalTime.MAX);
 
-        Optional<DetailsProcesses> optionalEntity = detailsProcessesRepository
-                .findByDataHoraCriacaoBetween(startOfDay, endOfDay);
+        List<DetailsProcesses> listaRegistros = detailsProcessesRepository.findByDataHoraCriacaoBetween(startOfDay, endOfDay);
 
         DetailsProcesses detailsProcesses;
 
-        if (optionalEntity.isPresent()) {
-            detailsProcesses = optionalEntity.get();
+        if (!listaRegistros.isEmpty()) {
+            // Atualiza o primeiro registro encontrado do dia
+            detailsProcesses = listaRegistros.get(0);
         } else {
+            // Cria novo registro
             detailsProcesses = new DetailsProcesses();
             LocalDateTime dataHoraCriacao = detailsProcessesDTO.getDataHoraCriacao() != null
                     ? detailsProcessesDTO.getDataHoraCriacao()
@@ -63,7 +64,7 @@ public class DetailsProcessesController {
             detailsProcesses.setDataHoraCriacao(dataHoraCriacao);
         }
 
-        // Atualiza dados do registro (novo ou existente)
+        // Atualiza dados
         detailsProcesses.setProcessosVerificar(detailsProcessesDTO.getProcessosVerificar());
         detailsProcesses.setProcessosRenajud(detailsProcessesDTO.getProcessosRenajud());
         detailsProcesses.setProcessosInfojud(detailsProcessesDTO.getProcessosInfojud());
@@ -71,8 +72,10 @@ public class DetailsProcessesController {
         detailsProcesses.setDataHoraAtualizacao(LocalDateTime.now());
 
         DetailsProcesses salvo = detailsProcessesRepository.save(detailsProcesses);
+
         return new DetailsProcessesDTO(salvo);
     }
+
 
 
     @DeleteMapping("/{id}")
