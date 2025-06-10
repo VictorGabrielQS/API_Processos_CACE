@@ -26,11 +26,20 @@ public class DetailsProcesses {
     @Column(nullable = false)
     private Integer processosErroCertidao; // Quantidade de processos com erro
 
+    @Column(nullable = false)
+    private Integer processosTotais; // Quantidade total de processos
+
+    @Column(nullable = false)
+    private double percentualErros; // Percentual de erros nos processos
+
     @Column(nullable = false, updatable = false)
     private LocalDateTime dataHoraCriacao;
 
     @Column(nullable = false)
     private LocalDateTime dataHoraAtualizacao;
+
+
+
 
     @PrePersist
     protected void onCreate() {

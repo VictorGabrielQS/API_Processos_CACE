@@ -18,6 +18,8 @@ public class DetailsProcessesDTO {
     private Integer processosRenajud;
     private Integer processosInfojud;
     private Integer processosErroCertidao;
+    private int processosTotais;
+    private double percentualErros;
     private LocalDateTime dataHoraCriacao;
     private LocalDateTime dataHoraAtualizacao;
 

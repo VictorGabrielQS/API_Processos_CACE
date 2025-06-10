@@ -25,6 +25,8 @@ public class DetailsProcessesService {
                 entity.getProcessosRenajud(),
                 entity.getProcessosInfojud(),
                 entity.getProcessosErroCertidao(),
+                entity.getProcessosTotais(),
+                entity.getPercentualErros(),
                 entity.getDataHoraCriacao(),
                 entity.getDataHoraAtualizacao()
         );
