@@ -34,7 +34,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // Skip JWT validation for permitAll endpoints
         String requestPath = request.getRequestURI();
-        if (requestPath.startsWith("/api/auth/")) {
+        if (requestPath.startsWith("/api/auth/") && !requestPath.equals("/api/auth/nivel")) {
             // Skip JWT validation for auth endpoints
             filterChain.doFilter(request, response);
             return;

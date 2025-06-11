@@ -46,7 +46,6 @@ public class AuthController {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
-    private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final UsuarioDetailsService usuarioDetailsService;
     private final TokenBlacklistService blacklistService;
 
