@@ -162,7 +162,6 @@ public class AuthController {
     // Limpa a sessão do usuário, removendo o cookie JWT
     @PostMapping("/clear-session")
     public ResponseEntity<?> clearSession(HttpServletResponse response) {
-        // Just clear the cookie, no token needed
         ResponseCookie cookie = ResponseCookie.from("jwt", "")
                 .httpOnly(true)
                 .secure(true)
