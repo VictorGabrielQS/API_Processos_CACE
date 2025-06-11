@@ -69,6 +69,8 @@ public class DetailsProcessesController {
         detailsProcesses.setProcessosRenajud(detailsProcessesDTO.getProcessosRenajud());
         detailsProcesses.setProcessosInfojud(detailsProcessesDTO.getProcessosInfojud());
         detailsProcesses.setProcessosErroCertidao(detailsProcessesDTO.getProcessosErroCertidao());
+        detailsProcesses.setProcessosTotais(detailsProcessesDTO.getProcessosTotais());
+        detailsProcesses.setPercentualErros(detailsProcessesDTO.getPercentualErros());
         detailsProcesses.setDataHoraAtualizacao(LocalDateTime.now());
 
         DetailsProcesses salvo = detailsProcessesRepository.save(detailsProcesses);
