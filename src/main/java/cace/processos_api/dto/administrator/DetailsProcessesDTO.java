@@ -30,6 +30,8 @@ public class DetailsProcessesDTO {
         this.processosRenajud = entity.getProcessosRenajud();
         this.processosInfojud = entity.getProcessosInfojud();
         this.processosErroCertidao = entity.getProcessosErroCertidao();
+        this.processosTotais = entity.getProcessosTotais();
+        this.percentualErros = entity.getPercentualErros();
         this.dataHoraCriacao = entity.getDataHoraCriacao();
         this.dataHoraAtualizacao = entity.getDataHoraAtualizacao();
     }
