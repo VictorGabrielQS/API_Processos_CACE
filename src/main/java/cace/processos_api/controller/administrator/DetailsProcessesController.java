@@ -139,7 +139,8 @@ public class DetailsProcessesController {
         LocalDateTime inicio = localDate.atStartOfDay();
         LocalDateTime fim = localDate.atTime(LocalTime.MAX);
 
-        return detailsProcessesRepository.findByDataHoraCriacaoBetween(inicio, fim)
+        return detailsProcessesRepository
+                .findByDataHoraCriacaoBetweenOrderByDataHoraAtualizacaoDesc(inicio, fim)
                 .stream()
                 .findFirst()
                 .map(DetailsProcessesDTO::new)
