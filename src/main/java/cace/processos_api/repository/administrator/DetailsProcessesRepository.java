@@ -12,7 +12,6 @@ public interface DetailsProcessesRepository extends JpaRepository<DetailsProcess
 
     List<DetailsProcesses> findByDataHoraCriacaoBetween(LocalDateTime start, LocalDateTime end);
 
-    List<DetailsProcesses> findByDataHoraCriacaoBetweenOrderByDataHoraAtualizacaoDesc(LocalDateTime inicio, LocalDateTime fim);
 
 }
 

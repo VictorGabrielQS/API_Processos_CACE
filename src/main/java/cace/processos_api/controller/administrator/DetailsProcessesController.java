@@ -140,14 +140,13 @@ public class DetailsProcessesController {
         LocalDateTime fim = localDate.atTime(LocalTime.MAX);
 
         return detailsProcessesRepository
-                .findByDataHoraCriacaoBetweenOrderByDataHoraAtualizacaoDesc(inicio, fim)
+                .findByDataHoraCriacaoBetween(inicio, fim)
                 .stream()
                 .findFirst()
                 .map(DetailsProcessesDTO::new)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.noContent().build());
     }
-
 
 
 }
