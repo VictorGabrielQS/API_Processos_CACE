@@ -149,4 +149,25 @@ public class DetailsProcessesController {
     }
 
 
+
+    //Filtros :
+
+    //✅ 1. Filtrar por intervalo de datas
+    //Objetivo: retornar todos os registros entre duas datas, útil para análises históricas.
+
+    @GetMapping("/periodo")
+    public List<DetailsProcessesDTO> buscarPorPeriodo(
+            @RequestParam String inicio,
+            @RequestParam String fim
+    ){
+
+        LocalDateTime dataInicio = LocalDate.parse(inicio).atStartOfDay();
+        LocalDateTime dataFim = LocalDate.parse(fim).atTime(LocalTime.MAX);
+
+        List<DetailsProcesses> resultados = detailsProcessesRepository.findByDataHoraCriacaoBetween(dataInicio, dataFim);
+
+
+        return resultados.stream().map(DetailsProcessesDTO::new).toList();
+    }
+
 }
