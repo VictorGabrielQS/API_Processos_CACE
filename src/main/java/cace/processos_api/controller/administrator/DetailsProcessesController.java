@@ -13,6 +13,8 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 
 @RestController
@@ -147,6 +149,57 @@ public class DetailsProcessesController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.noContent().build());
     }
+
+
+
+    //Editar detalhes de um processo específico
+    @PatchMapping("/{id}/quantidades")
+    public ResponseEntity<DetailsProcessesDTO> atualizarQuantidades(
+            @PathVariable Long id,
+            @RequestBody Map<String, Object> camposAtualizados) {
+
+        Optional<DetailsProcesses> optional = detailsProcessesRepository.findById(id);
+
+        if (optional.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        DetailsProcesses details = optional.get();
+
+        if (camposAtualizados.containsKey("processosVerificar")) {
+            details.setProcessosVerificar((Integer) camposAtualizados.get("processosVerificar"));
+        }
+
+        if (camposAtualizados.containsKey("processosRenajud")) {
+            details.setProcessosRenajud((Integer) camposAtualizados.get("processosRenajud"));
+        }
+
+        if (camposAtualizados.containsKey("processosInfojud")) {
+            details.setProcessosInfojud((Integer) camposAtualizados.get("processosInfojud"));
+        }
+
+        if (camposAtualizados.containsKey("processosErroCertidao")) {
+            details.setProcessosErroCertidao((Integer) camposAtualizados.get("processosErroCertidao"));
+        }
+
+        if (camposAtualizados.containsKey("processosTotais")) {
+            details.setProcessosTotais((Integer) camposAtualizados.get("processosTotais"));
+        }
+
+        if (camposAtualizados.containsKey("percentualErros")) {
+            Object valor = camposAtualizados.get("percentualErros");
+            if (valor instanceof Number) {
+                details.setPercentualErros(((Number) valor).doubleValue());
+            }
+        }
+
+        details.setDataHoraAtualizacao(LocalDateTime.now());
+
+        DetailsProcesses atualizado = detailsProcessesRepository.save(details);
+
+        return ResponseEntity.ok(new DetailsProcessesDTO(atualizado));
+    }
+
 
 
 
