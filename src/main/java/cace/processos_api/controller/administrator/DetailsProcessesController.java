@@ -152,7 +152,7 @@ public class DetailsProcessesController {
 
 
 
-    //Editar detalhes de um processo específico
+    //Editar detalhes de um processo específico por id
     @PatchMapping("/{id}/quantidades")
     public ResponseEntity<DetailsProcessesDTO> atualizarQuantidades(
             @PathVariable Long id,
