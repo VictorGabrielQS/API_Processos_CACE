@@ -2,6 +2,7 @@ package cace.processos_api.service;
 
 import cace.processos_api.dto.PoloDTO;
 import cace.processos_api.dto.PoloDetalhadoDTO;
+import cace.processos_api.dto.ResponseDTO;
 import cace.processos_api.exception.UserNotFoundException;
 import cace.processos_api.model.process.PoloAtivo;
 import cace.processos_api.repository.PoloAtivoRepository;
@@ -39,12 +40,12 @@ public class PoloAtivoService extends PoloService {
 
 
     //Filtra polo ativo por cpf/cnpj
-    public PoloDTO getPoloAtivoByCpfCnpj(String cpfCnpj){
+    public ResponseDTO<PoloDTO> getPoloAtivoByCpfCnpj(String cpfCnpj) {
         String cpfCnpjLimpo = CpfCnpjUtil.limpar(cpfCnpj);
 
-        PoloAtivo poloAtivo = poloAtivoRepository.findByCpfCnpj(cpfCnpjLimpo)
-                .orElseThrow(() -> new UserNotFoundException("Polo Ativo não encontrado com CPF/CNPJ: " + cpfCnpj));
-        return convertToDTO(poloAtivo);
+        return poloAtivoRepository.findByCpfCnpj(cpfCnpjLimpo)
+                .map(polo -> new ResponseDTO<>(true, convertToDTO(polo), "Polo encontrado"))
+                .orElse(new ResponseDTO<>(false, null, "Polo não encontrado"));
     }
 
 
