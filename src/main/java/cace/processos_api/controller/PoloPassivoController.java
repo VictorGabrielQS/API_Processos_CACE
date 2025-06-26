@@ -1,6 +1,7 @@
 package cace.processos_api.controller;
 
 import cace.processos_api.dto.PoloDTO;
+import cace.processos_api.dto.ResponseDTO;
 import cace.processos_api.service.PoloPassivoService;
 import cace.processos_api.util.AuthUtil;
 import org.springframework.http.HttpStatus;
@@ -34,9 +35,9 @@ public class PoloPassivoController {
     }
 
     @GetMapping("/cpf-cnpj")
-    public ResponseEntity<PoloDTO> getPoloPassivoByCpfCnpj(@RequestParam String cpfCnpj ){
-           PoloDTO polo = poloPassivoService.getPoloPassivoByCpfCnpj(cpfCnpj);
-           return ResponseEntity.ok(polo);
+    public ResponseEntity<ResponseDTO<PoloDTO>> getPoloPassivoByCpfCnpj(@RequestParam String cpfCnpj) {
+        ResponseDTO<PoloDTO> resposta = poloPassivoService.getPoloPassivoByCpfCnpj(cpfCnpj);
+        return ResponseEntity.ok(resposta);
     }
 
 
