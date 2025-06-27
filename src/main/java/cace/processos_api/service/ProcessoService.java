@@ -8,6 +8,7 @@ import cace.processos_api.model.process.Processo;
 import cace.processos_api.repository.PoloAtivoRepository;
 import cace.processos_api.repository.PoloPassivoRepository;
 import cace.processos_api.repository.ProcessoRepository;
+import cace.processos_api.util.CpfCnpjUtil;
 import cace.processos_api.util.NumeroProcessoUtil;
 import org.springframework.stereotype.Service;
 
@@ -31,19 +32,27 @@ public class ProcessoService {
     }
 
     public ProcessoDTO createProcesso(ProcessoDTO processoDTO) {
-        PoloAtivo poloAtivo = poloAtivoRepository.findByCpfCnpj(
-                        processoDTO.getPoloAtivoCpfCnpj().replaceAll("[^\\d]", ""))
-                .orElseThrow(() -> new ResourceNotFoundException("Polo Ativo não encontrado com cpf/cnpj: " + processoDTO.getPoloAtivoCpfCnpj()));
+        String cpfCnpjAtivo = CpfCnpjUtil.limpar(processoDTO.getPoloAtivoCpfCnpj());
+        String cpfCnpjPassivo = CpfCnpjUtil.limpar(processoDTO.getPoloPassivoCpfCnpj());
 
-        PoloPassivo poloPassivo = poloPassivoRepository.findByCpfCnpj(
-                        processoDTO.getPoloPassivoCpfCnpj().replaceAll("[^\\d]", ""))
-                .orElseThrow(() -> new ResourceNotFoundException("Polo Passivo não encontrado com cpf/cnpj: " + processoDTO.getPoloPassivoCpfCnpj()));
+        PoloAtivo poloAtivo = null;
+        PoloPassivo poloPassivo = null;
+
+        if (cpfCnpjAtivo != null && !cpfCnpjAtivo.isEmpty()) {
+            poloAtivo = poloAtivoRepository.findByCpfCnpj(cpfCnpjAtivo)
+                    .orElseThrow(() -> new ResourceNotFoundException("Polo Ativo não encontrado com cpf/cnpj: " + cpfCnpjAtivo));
+        }
+
+        if (cpfCnpjPassivo != null && !cpfCnpjPassivo.isEmpty()) {
+            poloPassivo = poloPassivoRepository.findByCpfCnpj(cpfCnpjPassivo)
+                    .orElseThrow(() -> new ResourceNotFoundException("Polo Passivo não encontrado com cpf/cnpj: " + cpfCnpjPassivo));
+        }
 
         Processo processo = new Processo();
         processo.setNumeroCompleto(NumeroProcessoUtil.limparCompleto(processoDTO.getNumeroCompleto()));
         processo.setNumeroCurto(NumeroProcessoUtil.limparCurto(processoDTO.getNumeroCurto()));
-        processo.setPoloAtivo(poloAtivo);
-        processo.setPoloPassivo(poloPassivo);
+        processo.setPoloAtivo(poloAtivo); // pode ser null
+        processo.setPoloPassivo(poloPassivo); // pode ser null
         processo.setServentia(processoDTO.getServentia());
         processo.setStatus(processoDTO.getStatus());
         processo.setResponsavel(processoDTO.getResponsavel());
@@ -54,6 +63,7 @@ public class ProcessoService {
         Processo savedProcesso = processoRepository.save(processo);
         return convertToDTO(savedProcesso);
     }
+
 
 
     //Métodos de Get Processo
