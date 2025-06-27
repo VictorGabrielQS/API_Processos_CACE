@@ -237,10 +237,10 @@ public class ProcessoService {
     private ProcessoDTO convertToDTO(Processo processo) {
         return new ProcessoDTO(
                 processo.getId(),
-                NumeroProcessoUtil.formatarNumeroCompleto(processo.getNumeroCompleto()), // formatado
-                NumeroProcessoUtil.formatarNumeroCurto(processo.getNumeroCurto()),       // formatado
-                processo.getPoloAtivo().getCpfCnpj(),
-                processo.getPoloPassivo().getCpfCnpj(),
+                NumeroProcessoUtil.formatarNumeroCompleto(processo.getNumeroCompleto()),
+                NumeroProcessoUtil.formatarNumeroCurto(processo.getNumeroCurto()),
+                processo.getPoloAtivo() != null ? processo.getPoloAtivo().getCpfCnpj() : null,
+                processo.getPoloPassivo() != null ? processo.getPoloPassivo().getCpfCnpj() : null,
                 processo.getServentia(),
                 processo.getStatus(),
                 processo.getResponsavel(),
@@ -251,7 +251,6 @@ public class ProcessoService {
                 ProcessoDTO.formatarData(processo.getDataAtualizacao())
         );
     }
-
 
 
 }
