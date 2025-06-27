@@ -23,7 +23,9 @@ public class PoloPassivoService extends PoloService {
     }
 
     public PoloDTO createPoloPassivo(PoloDTO poloDTO) {
-        poloDTO.setCpfCnpj(CpfCnpjUtil.limpar(poloDTO.getCpfCnpj()));
+        if (poloDTO.getCpfCnpj() != null) {
+            poloDTO.setCpfCnpj(CpfCnpjUtil.limpar(poloDTO.getCpfCnpj()));
+        }
         return super.createPolo(poloDTO, PoloPassivo.class);
     }
 
