@@ -39,6 +39,7 @@ public class Processo {
 
 
 
+
     @Column(nullable = false)
     private String serventia; //
 
