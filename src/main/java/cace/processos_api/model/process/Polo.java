@@ -30,7 +30,8 @@ public abstract class Polo {
     private String nome;
 
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = true, unique = false)
     private String cpfCnpj;
+
 
 }
