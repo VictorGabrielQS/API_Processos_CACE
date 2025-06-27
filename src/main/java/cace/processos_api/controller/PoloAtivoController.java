@@ -47,9 +47,9 @@ public class PoloAtivoController {
 
 
     @GetMapping("/nome")
-    public ResponseEntity<PoloDTO> getPoloAtivoByNome(@RequestParam String nome ) {
-          PoloDTO polo = poloAtivoService.getPoloAtivoByNome(nome);
-        return ResponseEntity.ok(polo);
+    public ResponseEntity<ResponseDTO<PoloDTO>> getPoloAtivoByNome(@RequestParam String nome) {
+        ResponseDTO<PoloDTO> response = poloAtivoService.getPoloAtivoByNome(nome);
+        return ResponseEntity.ok(response);
     }
 
 

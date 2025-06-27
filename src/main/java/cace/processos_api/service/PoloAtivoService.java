@@ -44,19 +44,19 @@ public class PoloAtivoService extends PoloService {
         String cpfCnpjLimpo = CpfCnpjUtil.limpar(cpfCnpj);
 
         return poloAtivoRepository.findByCpfCnpj(cpfCnpjLimpo)
-                .map(polo -> new ResponseDTO<>(true, convertToDTO(polo), "Polo encontrado"))
-                .orElse(new ResponseDTO<>(false, null, "Polo não encontrado"));
+                .map(polo -> new ResponseDTO<>(true, convertToDTO(polo), "Polo Ativo encontrado"))
+                .orElse(new ResponseDTO<>(false, null, "Polo Ativo não encontrado"));
     }
 
 
 
     //Filtra polo ativo por nome
-    public PoloDTO getPoloAtivoByNome(String nome){
-        PoloAtivo poloAtivo = poloAtivoRepository.findByNome(nome)
-                .orElseThrow(() -> new UserNotFoundException("Polo Ativo não encontrado com nome : " + nome));
-        return convertToDTO(poloAtivo); // aproveita o mesmo conversor do Polo
-
+    public ResponseDTO<PoloDTO> getPoloAtivoByNome(String nome) {
+        return poloAtivoRepository.findByNome(nome.trim())
+                .map(polo -> new ResponseDTO<>(true, convertToDTO(polo), "Polo Ativo encontrado"))
+                .orElseGet(() -> new ResponseDTO<>(false, null, "Polo Ativo não encontrado"));
     }
+
 
 
 
