@@ -26,9 +26,10 @@ public class PoloAtivoService extends PoloService {
 
 
     public PoloDTO createPoloAtivo(PoloDTO poloDTO) {
-        poloDTO.setCpfCnpj(poloDTO.getCpfCnpj().replaceAll("[^\\d]", ""));
+        poloDTO.setCpfCnpj(CpfCnpjUtil.limpar(poloDTO.getCpfCnpj()));
         return super.createPolo(poloDTO, PoloAtivo.class);
     }
+
 
 
     //Retorna todos os polos Ativos

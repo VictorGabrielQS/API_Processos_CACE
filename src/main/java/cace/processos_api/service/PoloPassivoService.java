@@ -22,10 +22,11 @@ public class PoloPassivoService extends PoloService {
         this.poloPassivoRepository = poloPassivoRepository;
     }
 
-    public PoloDTO createPoloPassivo(PoloDTO poloDTO){
-        poloDTO.setCpfCnpj(poloDTO.getCpfCnpj().replaceAll("[^\\d]", ""));
-        return super.createPolo(poloDTO , PoloPassivo.class);
+    public PoloDTO createPoloPassivo(PoloDTO poloDTO) {
+        poloDTO.setCpfCnpj(CpfCnpjUtil.limpar(poloDTO.getCpfCnpj()));
+        return super.createPolo(poloDTO, PoloPassivo.class);
     }
+
 
     public List<PoloDTO> getAllPolosPassivos() {
         return poloPassivoRepository.findAll().stream()
