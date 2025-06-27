@@ -42,8 +42,8 @@ public class ProcessoDTO {
                 processo.getId(),
                 processo.getNumeroCompleto(),
                 processo.getNumeroCurto(),
-                processo.getPoloAtivo().getCpfCnpj(),
-                processo.getPoloPassivo().getCpfCnpj(),
+                processo.getPoloAtivo() != null ? processo.getPoloAtivo().getCpfCnpj() : null,
+                processo.getPoloPassivo() != null ? processo.getPoloPassivo().getCpfCnpj() : null,
                 processo.getServentia(),
                 processo.getStatus(),
                 processo.getResponsavel(),
@@ -54,5 +54,6 @@ public class ProcessoDTO {
                 formatarData(processo.getDataAtualizacao())
         );
     }
+
 
 }

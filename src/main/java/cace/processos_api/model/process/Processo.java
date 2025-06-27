@@ -30,13 +30,13 @@ public class Processo {
 
 
     @ManyToOne
-    @JoinColumn(name = "polo_passivo_id" , nullable = false )
+    @JoinColumn(name = "polo_ativo_id", nullable = false)
     private PoloAtivo poloAtivo;
 
-
     @ManyToOne
-    @JoinColumn(name = "polo_ativo_id" , nullable =  false)
+    @JoinColumn(name = "polo_passivo_id", nullable = false)
     private PoloPassivo poloPassivo;
+
 
 
     @Column(nullable = false)
