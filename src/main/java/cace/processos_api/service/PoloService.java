@@ -196,15 +196,19 @@ protected PoloDetalhadoDTO convertToDetalhadoDTO(Polo polo) {
     // =======================
 // Formata o cpf e o cnpj
 // =======================
-private String formatarCpfCnpj(String cpfCnpj) {
+    private String formatarCpfCnpj(String cpfCnpj) {
+        if (cpfCnpj == null || cpfCnpj.isBlank()) {
+            return null; // ou retornar "" se preferir
+        }
+
         if (cpfCnpj.length() == 11) {
             return cpfCnpj.replaceFirst("(\\d{3})(\\d{3})(\\d{3})(\\d{2})", "$1.$2.$3-$4");
         } else if (cpfCnpj.length() == 14) {
             return cpfCnpj.replaceFirst("(\\d{2})(\\d{3})(\\d{3})(\\d{4})(\\d{2})", "$1.$2.$3/$4-$5");
         }
-        return cpfCnpj; // Retorna como está se não tiver o tamanho esperado
-    }
 
+        return cpfCnpj;
+    }
 
 
 }
