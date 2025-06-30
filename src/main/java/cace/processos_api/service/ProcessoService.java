@@ -35,42 +35,42 @@ public class ProcessoService {
         String numeroCurtoLimpo = NumeroProcessoUtil.limparCurto(processoDTO.getNumeroCurto());
 
         // Verifica se já existe processo com esse numeroCurto
-        boolean existe = processoRepository.findByNumeroCurto(numeroCurtoLimpo).isPresent();
-        if (existe) {
-            throw new IllegalArgumentException("Já existe processo cadastrado com numeroCurto: " + numeroCurtoLimpo);
-        }
+        return processoRepository.findByNumeroCurto(numeroCurtoLimpo)
+                .map(this::convertToDTO) // retorna o processo existente, não insere outro
+                .orElseGet(() -> {
+                    String cpfCnpjAtivo = CpfCnpjUtil.limpar(processoDTO.getPoloAtivoCpfCnpj());
+                    String cpfCnpjPassivo = CpfCnpjUtil.limpar(processoDTO.getPoloPassivoCpfCnpj());
 
-        String cpfCnpjAtivo = CpfCnpjUtil.limpar(processoDTO.getPoloAtivoCpfCnpj());
-        String cpfCnpjPassivo = CpfCnpjUtil.limpar(processoDTO.getPoloPassivoCpfCnpj());
+                    PoloAtivo poloAtivo = null;
+                    PoloPassivo poloPassivo = null;
 
-        PoloAtivo poloAtivo = null;
-        PoloPassivo poloPassivo = null;
+                    if (cpfCnpjAtivo != null && !cpfCnpjAtivo.isEmpty()) {
+                        poloAtivo = poloAtivoRepository.findByCpfCnpj(cpfCnpjAtivo)
+                                .orElseThrow(() -> new ResourceNotFoundException("Polo Ativo não encontrado com cpf/cnpj: " + cpfCnpjAtivo));
+                    }
 
-        if (cpfCnpjAtivo != null && !cpfCnpjAtivo.isEmpty()) {
-            poloAtivo = poloAtivoRepository.findByCpfCnpj(cpfCnpjAtivo)
-                    .orElseThrow(() -> new ResourceNotFoundException("Polo Ativo não encontrado com cpf/cnpj: " + cpfCnpjAtivo));
-        }
+                    if (cpfCnpjPassivo != null && !cpfCnpjPassivo.isEmpty()) {
+                        poloPassivo = poloPassivoRepository.findByCpfCnpj(cpfCnpjPassivo)
+                                .orElseThrow(() -> new ResourceNotFoundException("Polo Passivo não encontrado com cpf/cnpj: " + cpfCnpjPassivo));
+                    }
 
-        if (cpfCnpjPassivo != null && !cpfCnpjPassivo.isEmpty()) {
-            poloPassivo = poloPassivoRepository.findByCpfCnpj(cpfCnpjPassivo)
-                    .orElseThrow(() -> new ResourceNotFoundException("Polo Passivo não encontrado com cpf/cnpj: " + cpfCnpjPassivo));
-        }
+                    Processo processo = new Processo();
+                    processo.setNumeroCompleto(NumeroProcessoUtil.limparCompleto(processoDTO.getNumeroCompleto()));
+                    processo.setNumeroCurto(numeroCurtoLimpo);
+                    processo.setPoloAtivo(poloAtivo); // pode ser null
+                    processo.setPoloPassivo(poloPassivo); // pode ser null
+                    processo.setServentia(processoDTO.getServentia());
+                    processo.setStatus(processoDTO.getStatus());
+                    processo.setResponsavel(processoDTO.getResponsavel());
+                    processo.setDescricao(processoDTO.getDescricao());
+                    processo.setTipoCertidao(processoDTO.getCertidao());
+                    processo.setUrlProcessoProjudi(processoDTO.getUrlProcessoProjudi());
 
-        Processo processo = new Processo();
-        processo.setNumeroCompleto(NumeroProcessoUtil.limparCompleto(processoDTO.getNumeroCompleto()));
-        processo.setNumeroCurto(numeroCurtoLimpo);
-        processo.setPoloAtivo(poloAtivo); // pode ser null
-        processo.setPoloPassivo(poloPassivo); // pode ser null
-        processo.setServentia(processoDTO.getServentia());
-        processo.setStatus(processoDTO.getStatus());
-        processo.setResponsavel(processoDTO.getResponsavel());
-        processo.setDescricao(processoDTO.getDescricao());
-        processo.setTipoCertidao(processoDTO.getCertidao());
-        processo.setUrlProcessoProjudi(processoDTO.getUrlProcessoProjudi());
-
-        Processo savedProcesso = processoRepository.save(processo);
-        return convertToDTO(savedProcesso);
+                    Processo savedProcesso = processoRepository.save(processo);
+                    return convertToDTO(savedProcesso);
+                });
     }
+
 
 
     //Métodos de Get Processo
