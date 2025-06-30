@@ -32,6 +32,14 @@ public class ProcessoService {
     }
 
     public ProcessoDTO createProcesso(ProcessoDTO processoDTO) {
+        String numeroCurtoLimpo = NumeroProcessoUtil.limparCurto(processoDTO.getNumeroCurto());
+
+        // Verifica se já existe processo com esse numeroCurto
+        boolean existe = processoRepository.findByNumeroCurto(numeroCurtoLimpo).isPresent();
+        if (existe) {
+            throw new IllegalArgumentException("Já existe processo cadastrado com numeroCurto: " + numeroCurtoLimpo);
+        }
+
         String cpfCnpjAtivo = CpfCnpjUtil.limpar(processoDTO.getPoloAtivoCpfCnpj());
         String cpfCnpjPassivo = CpfCnpjUtil.limpar(processoDTO.getPoloPassivoCpfCnpj());
 
@@ -50,7 +58,7 @@ public class ProcessoService {
 
         Processo processo = new Processo();
         processo.setNumeroCompleto(NumeroProcessoUtil.limparCompleto(processoDTO.getNumeroCompleto()));
-        processo.setNumeroCurto(NumeroProcessoUtil.limparCurto(processoDTO.getNumeroCurto()));
+        processo.setNumeroCurto(numeroCurtoLimpo);
         processo.setPoloAtivo(poloAtivo); // pode ser null
         processo.setPoloPassivo(poloPassivo); // pode ser null
         processo.setServentia(processoDTO.getServentia());
@@ -63,7 +71,6 @@ public class ProcessoService {
         Processo savedProcesso = processoRepository.save(processo);
         return convertToDTO(savedProcesso);
     }
-
 
 
     //Métodos de Get Processo
