@@ -44,21 +44,20 @@ public class ProcessoService {
                     PoloAtivo poloAtivo = null;
                     PoloPassivo poloPassivo = null;
 
-                    if (cpfCnpjAtivo != null && !cpfCnpjAtivo.isEmpty()) {
+                    if (cpfCnpjAtivo != null && !cpfCnpjAtivo.isEmpty() && !cpfCnpjAtivo.equalsIgnoreCase("Não encontrado")) {
                         poloAtivo = poloAtivoRepository.findByCpfCnpj(cpfCnpjAtivo)
                                 .orElseThrow(() -> new ResourceNotFoundException("Polo Ativo não encontrado com cpf/cnpj: " + cpfCnpjAtivo));
                     }
 
-                    if (cpfCnpjPassivo != null && !cpfCnpjPassivo.isEmpty()) {
-                        poloPassivo = poloPassivoRepository.findByCpfCnpj(cpfCnpjPassivo)
-                                .orElseThrow(() -> new ResourceNotFoundException("Polo Passivo não encontrado com cpf/cnpj: " + cpfCnpjPassivo));
+                    if (cpfCnpjPassivo != null && !cpfCnpjPassivo.isEmpty() && !cpfCnpjPassivo.equalsIgnoreCase("Não encontrado")) {
+                        poloPassivo = poloPassivoRepository.findByCpfCnpj(cpfCnpjPassivo).orElse(null); // não lança exceção
                     }
 
                     Processo processo = new Processo();
                     processo.setNumeroCompleto(NumeroProcessoUtil.limparCompleto(processoDTO.getNumeroCompleto()));
                     processo.setNumeroCurto(numeroCurtoLimpo);
                     processo.setPoloAtivo(poloAtivo); // pode ser null
-                    processo.setPoloPassivo(poloPassivo); // pode ser null
+                    processo.setPoloPassivo(poloPassivo); // agora também pode ser null
                     processo.setServentia(processoDTO.getServentia());
                     processo.setStatus(processoDTO.getStatus());
                     processo.setResponsavel(processoDTO.getResponsavel());
@@ -70,8 +69,6 @@ public class ProcessoService {
                     return convertToDTO(savedProcesso);
                 });
     }
-
-
 
     //Métodos de Get Processo
 

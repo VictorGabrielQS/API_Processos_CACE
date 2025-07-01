@@ -1,11 +1,13 @@
 package cace.processos_api.service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import cace.processos_api.dto.PoloDetalhadoDTO;
 import cace.processos_api.model.process.PoloAtivo;
 import cace.processos_api.model.process.PoloPassivo;
+import cace.processos_api.util.CpfCnpjUtil;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -31,24 +33,34 @@ public class PoloService {
 // =======================
 public PoloDTO createPolo(PoloDTO poloDTO, Class<? extends Polo> poloClass) {
     try {
-        // Cria uma nova instância da classe Polo (pode ser PoloAtivo ou PoloPassivo)
-        Polo polo = poloClass.getDeclaredConstructor().newInstance();
+        String nome = poloDTO.getNome().trim();
+        String cpfCnpj = poloDTO.getCpfCnpj() != null ? CpfCnpjUtil.limpar(poloDTO.getCpfCnpj()) : null;
 
-        // Seta os dados vindos do DTO no novo objeto Polo
-        polo.setNome(poloDTO.getNome());
-        polo.setCpfCnpj(poloDTO.getCpfCnpj());
+        // Verifica se já existe um polo com esse nome
+        Optional<Polo> poloExistente = poloRepository.findByNome(nome);
 
-        // Salva o Polo no banco de dados
-        Polo savedPolo = poloRepository.save(polo);
+        // Se não achou pelo nome, tenta pelo CPF/CNPJ (se fornecido)
+        if (poloExistente.isEmpty() && cpfCnpj != null && !cpfCnpj.isEmpty()) {
+            poloExistente = poloRepository.findByCpfCnpj(cpfCnpj);
+        }
 
-        // Converte o Polo salvo de volta para DTO e retorna
-        return convertToDTO(savedPolo);
+        if (poloExistente.isPresent()) {
+            // Retorna o existente sem lançar exceção
+            return convertToDTO(poloExistente.get());
+        }
+
+        // Cria nova instância da subclasse
+        Polo novoPolo = poloClass.getDeclaredConstructor().newInstance();
+        novoPolo.setNome(nome);
+        novoPolo.setCpfCnpj(cpfCnpj);
+
+        Polo salvo = poloRepository.save(novoPolo);
+        return convertToDTO(salvo);
+
     } catch (Exception e) {
-        // Caso ocorra qualquer erro, lança uma RuntimeException
         throw new RuntimeException("Erro ao criar polo", e);
     }
-
-  }
+}
 
 
 
