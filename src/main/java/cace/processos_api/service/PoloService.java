@@ -36,20 +36,24 @@ public PoloDTO createPolo(PoloDTO poloDTO, Class<? extends Polo> poloClass) {
         String nome = poloDTO.getNome().trim();
         String cpfCnpj = poloDTO.getCpfCnpj() != null ? CpfCnpjUtil.limpar(poloDTO.getCpfCnpj()) : null;
 
-        // Verifica se já existe um polo com esse nome
-        Optional<Polo> poloExistente = poloRepository.findByNome(nome);
+        Optional<Polo> poloExistente = Optional.empty();
 
-        // Se não achou pelo nome, tenta pelo CPF/CNPJ (se fornecido)
-        if (poloExistente.isEmpty() && cpfCnpj != null && !cpfCnpj.isEmpty()) {
+        // 1. Tenta buscar por CPF/CNPJ primeiro (caso informado)
+        if (cpfCnpj != null && !cpfCnpj.isEmpty()) {
             poloExistente = poloRepository.findByCpfCnpj(cpfCnpj);
         }
 
+        // 2. Se não achou por CPF/CNPJ, tenta por nome
+        if (poloExistente.isEmpty()) {
+            poloExistente = poloRepository.findByNome(nome);
+        }
+
+        // 3. Se já existir, retorna o existente
         if (poloExistente.isPresent()) {
-            // Retorna o existente sem lançar exceção
             return convertToDTO(poloExistente.get());
         }
 
-        // Cria nova instância da subclasse
+        // 4. Cria nova instância da subclasse
         Polo novoPolo = poloClass.getDeclaredConstructor().newInstance();
         novoPolo.setNome(nome);
         novoPolo.setCpfCnpj(cpfCnpj);
