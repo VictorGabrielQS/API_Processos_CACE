@@ -15,10 +15,12 @@ public interface PoloPassivoRepository extends JpaRepository<PoloPassivo, Long> 
     Optional<PoloPassivo> findByNome(String nome);
 
     @Query(value = """
-    SELECT pp.* FROM polo_passivo pp
+    SELECT pp.*, p.nome, p.cpf_cnpj
+    FROM polo_passivo pp
     JOIN polo p ON pp.id = p.id
     WHERE unaccent(lower(p.nome)) LIKE unaccent(lower(concat('%', :nome, '%')))
     """, nativeQuery = true)
     List<PoloPassivo> searchByNomeAproximado(@Param("nome") String nome);
+
 
 }

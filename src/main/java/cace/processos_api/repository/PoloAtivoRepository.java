@@ -16,7 +16,8 @@ public interface PoloAtivoRepository extends JpaRepository <PoloAtivo , Long>{
     Optional<PoloAtivo> findByNome(String nome);
 
     @Query(value = """
-    SELECT pa.* FROM polo_ativo pa
+    SELECT pa.*, p.nome, p.cpf_cnpj
+    FROM polo_ativo pa
     JOIN polo p ON pa.id = p.id
     WHERE unaccent(lower(p.nome)) LIKE unaccent(lower(concat('%', :nome, '%')))
     """, nativeQuery = true)
