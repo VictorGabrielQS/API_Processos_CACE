@@ -45,19 +45,18 @@ public class ProcessoService {
                     PoloPassivo poloPassivo = null;
 
                     if (cpfCnpjAtivo != null && !cpfCnpjAtivo.isEmpty() && !cpfCnpjAtivo.equalsIgnoreCase("Não encontrado")) {
-                        poloAtivo = poloAtivoRepository.findByCpfCnpj(cpfCnpjAtivo)
-                                .orElseThrow(() -> new ResourceNotFoundException("Polo Ativo não encontrado com cpf/cnpj: " + cpfCnpjAtivo));
+                        poloAtivo = poloAtivoRepository.findByCpfCnpj(cpfCnpjAtivo).orElse(null); // ❌ NÃO lança exceção
                     }
 
                     if (cpfCnpjPassivo != null && !cpfCnpjPassivo.isEmpty() && !cpfCnpjPassivo.equalsIgnoreCase("Não encontrado")) {
-                        poloPassivo = poloPassivoRepository.findByCpfCnpj(cpfCnpjPassivo).orElse(null); // não lança exceção
+                        poloPassivo = poloPassivoRepository.findByCpfCnpj(cpfCnpjPassivo).orElse(null);
                     }
 
                     Processo processo = new Processo();
                     processo.setNumeroCompleto(NumeroProcessoUtil.limparCompleto(processoDTO.getNumeroCompleto()));
                     processo.setNumeroCurto(numeroCurtoLimpo);
                     processo.setPoloAtivo(poloAtivo); // pode ser null
-                    processo.setPoloPassivo(poloPassivo); // agora também pode ser null
+                    processo.setPoloPassivo(poloPassivo); // pode ser null
                     processo.setServentia(processoDTO.getServentia());
                     processo.setStatus(processoDTO.getStatus());
                     processo.setResponsavel(processoDTO.getResponsavel());
