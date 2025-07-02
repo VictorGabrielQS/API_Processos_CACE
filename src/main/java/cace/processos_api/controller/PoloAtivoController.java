@@ -47,10 +47,11 @@ public class PoloAtivoController {
 
 
     @GetMapping("/nome")
-    public ResponseEntity<ResponseDTO<PoloDTO>> getPoloAtivoByNome(@RequestParam String nome) {
-        ResponseDTO<PoloDTO> response = poloAtivoService.getPoloAtivoByNome(nome);
+    public ResponseEntity<ResponseDTO<List<PoloDTO>>> getPoloAtivoByNome(@RequestParam String nome) {
+        ResponseDTO<List<PoloDTO>> response = poloAtivoService.getPoloAtivoByNome(nome);
         return ResponseEntity.ok(response);
     }
+
 
 
     @PutMapping("updateByCpfCnpj/{cpfCnpj}")

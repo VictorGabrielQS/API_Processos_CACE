@@ -49,10 +49,18 @@ public class PoloPassivoService extends PoloService {
 
 
     //Filtra polo Passivo por nome
-    public ResponseDTO<PoloDTO> getPoloPassivoByNome(String nome) {
-        return poloPassivoRepository.findByNome(nome.trim())
-                .map(polo -> new ResponseDTO<>(true, convertToDTO(polo), "Polo Passivo encontrado"))
-                .orElseGet(() -> new ResponseDTO<>(false, null, "Polo Passivo não encontrado"));
+    public ResponseDTO<List<PoloDTO>> getPoloPassivoByNome(String nome) {
+        List<PoloPassivo> polos = poloPassivoRepository.searchByNomeAproximado(nome.trim());
+
+        if (!polos.isEmpty()) {
+            List<PoloDTO> dtoList = polos.stream()
+                    .map(this::convertToDTO)
+                    .toList();
+
+            return new ResponseDTO<>(true, dtoList, "Polo(s) Passivo(s) encontrado(s)");
+        } else {
+            return new ResponseDTO<>(false, null, "Nenhum polo passivo parecido encontrado");
+        }
     }
 
 

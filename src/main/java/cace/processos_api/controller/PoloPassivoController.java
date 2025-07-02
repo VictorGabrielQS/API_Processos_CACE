@@ -42,10 +42,11 @@ public class PoloPassivoController {
 
 
     @GetMapping("/nome")
-    public ResponseEntity<ResponseDTO<PoloDTO>> getPoloPassivoByNome(@RequestParam String nome) {
-        ResponseDTO<PoloDTO> response = poloPassivoService.getPoloPassivoByNome(nome);
+    public ResponseEntity<ResponseDTO<List<PoloDTO>>> getPoloPassivoByNome(@RequestParam String nome) {
+        ResponseDTO<List<PoloDTO>> response = poloPassivoService.getPoloPassivoByNome(nome);
         return ResponseEntity.ok(response);
     }
+
 
 
 

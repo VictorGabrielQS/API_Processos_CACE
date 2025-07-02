@@ -54,11 +54,20 @@ public class PoloAtivoService extends PoloService {
 
 
     //Filtra polo ativo por nome
-    public ResponseDTO<PoloDTO> getPoloAtivoByNome(String nome) {
-        return poloAtivoRepository.findByNome(nome.trim())
-                .map(polo -> new ResponseDTO<>(true, convertToDTO(polo), "Polo Ativo encontrado"))
-                .orElseGet(() -> new ResponseDTO<>(false, null, "Polo Ativo não encontrado"));
+    public ResponseDTO<List<PoloDTO>> getPoloAtivoByNome(String nome) {
+        List<PoloAtivo> polos = poloAtivoRepository.searchByNomeAproximado(nome.trim());
+
+        if (!polos.isEmpty()) {
+            List<PoloDTO> dtoList = polos.stream()
+                    .map(this::convertToDTO)
+                    .toList();
+
+            return new ResponseDTO<>(true, dtoList, "Polo(s) Ativo(s) encontrado(s)");
+        } else {
+            return new ResponseDTO<>(false, null, "Nenhum polo ativo parecido encontrado");
+        }
     }
+
 
 
 
