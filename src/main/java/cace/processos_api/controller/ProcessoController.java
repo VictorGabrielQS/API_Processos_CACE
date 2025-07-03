@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/processos")
@@ -64,31 +65,29 @@ public class ProcessoController {
 
 
 
-    // Rota para Buscar Todos os Processos com um determinado PoloAtivo pelo cpf/cnpj
-    @GetMapping("/por-polo-ativo/{cpfCnpj}")
-    public ResponseEntity<List<ProcessoDTO>> getProcessosByPoloAtivo(@PathVariable String cpfCnpj){
-        List<ProcessoDTO> processos = processoService.getProcessosByPoloAtivoCpfCnpj(cpfCnpj);
+    // Rota para Buscar Todos os Processos com um determinado PoloAtivo pelo cpf/cnpj ou pelo Nome do polo ativo
+    @GetMapping("/por-polo-ativo/{identificador}")
+    public ResponseEntity<Map<String, List<ProcessoDTO>>> getProcessosByPoloAtivo(@PathVariable String identificador) {
+        Map<String, List<ProcessoDTO>> resultado = processoService.getProcessosByCpfCnpjOuNomeAproximadoPoloAtivo(identificador);
 
-        if(processos.isEmpty()) {
+        if (resultado.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
 
-        return ResponseEntity.ok(processos);
-
+        return ResponseEntity.ok(resultado);
     }
 
 
-    // Rota para Buscar Todos os Processos com um determinado PoloPassivo pelo cpf/cnpj
+    // Rota para Buscar Todos os Processos com um determinado PoloPassivo pelo cpf/cnpj ou pelo Nome do polo passivo
     @GetMapping("/por-polo-passivo/{cpfCnpj}")
-    public ResponseEntity<List<ProcessoDTO>> getProcessosByPoloPassivo(@PathVariable String cpfCnpj){
-        List<ProcessoDTO> processos = processoService.getProcessosByPoloPassivoCpfCnpj(cpfCnpj);
+    public ResponseEntity<Map<String, List<ProcessoDTO>>> getProcessosPorPoloPassivoOuNome(@PathVariable String identificador) {
+        Map<String, List<ProcessoDTO>> resultado = processoService.getProcessosByCpfCnpjOuNomeAproximadoPassivo(identificador);
 
-        if(processos.isEmpty()) {
+        if (resultado.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
 
-        return ResponseEntity.ok(processos);
-
+        return ResponseEntity.ok(resultado);
     }
 
 

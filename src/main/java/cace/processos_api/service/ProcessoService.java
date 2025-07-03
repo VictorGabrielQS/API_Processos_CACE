@@ -16,7 +16,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -100,6 +102,64 @@ public class ProcessoService {
         return convertToDTO(processo);
 
     }
+
+
+
+
+    //Buscar Todos os Processos com um determinado PoloAtivo pelo cpf/cnpj ou pelo Nome do polo ativo
+    public Map<String, List<ProcessoDTO>> getProcessosByCpfCnpjOuNomeAproximadoPoloAtivo(String identificador) {
+        Map<String, List<ProcessoDTO>> resultado = new LinkedHashMap<>();
+
+        if (identificador.matches("\\d+")) {
+            // É CPF ou CNPJ
+            List<Processo> processos = processoRepository.findAllProcessosByPoloAtivoCpfCnpj(identificador);
+            if (!processos.isEmpty()) {
+                resultado.put(identificador, processos.stream().map(this::convertToDTO).toList());
+            }
+        } else {
+            // É nome ou parte do nome
+            List<PoloAtivo> polosEncontrados = poloAtivoRepository.searchByNomeAproximado(identificador);
+
+            for (PoloAtivo polo : polosEncontrados) {
+                List<Processo> processos = processoRepository.findAllProcessosByPoloAtivoCpfCnpj(polo.getCpfCnpj());
+                if (!processos.isEmpty()) {
+                    resultado.put(polo.getNome(), processos.stream().map(this::convertToDTO).toList());
+                }
+            }
+        }
+
+        return resultado;
+    }
+
+
+    //Buscar Todos os Processos com um determinado PoloPassivo pelo cpf/cnpj ou pelo Nome do polo passivo
+    public Map<String, List<ProcessoDTO>> getProcessosByCpfCnpjOuNomeAproximadoPassivo(String identificador) {
+        Map<String, List<ProcessoDTO>> resultado = new LinkedHashMap<>();
+
+        if (identificador.matches("\\d+")) {
+            // É CPF/CNPJ
+            List<Processo> processos = processoRepository.findAllProcessosByPoloPassivoCpfCnpj(identificador);
+            if (!processos.isEmpty()) {
+                resultado.put(identificador, processos.stream().map(this::convertToDTO).toList());
+            }
+        } else {
+            // É nome ou parte do nome
+            List<PoloPassivo> polosEncontrados = poloPassivoRepository.searchByNomeAproximado(identificador);
+
+            for (PoloPassivo polo : polosEncontrados) {
+                List<Processo> processos = processoRepository.findAllProcessosByPoloPassivoCpfCnpj(polo.getCpfCnpj());
+                if (!processos.isEmpty()) {
+                    resultado.put(polo.getNome(), processos.stream().map(this::convertToDTO).toList());
+                }
+            }
+        }
+
+        return resultado;
+    }
+
+
+
+
 
     public  List<ProcessoDTO> getProcessosByPoloAtivoCpfCnpj(String cpfCnpj){
         List<Processo> processos = processoRepository.findAllProcessosByPoloAtivoCpfCnpj(cpfCnpj);

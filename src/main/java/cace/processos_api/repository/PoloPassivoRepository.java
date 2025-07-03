@@ -23,4 +23,5 @@ public interface PoloPassivoRepository extends JpaRepository<PoloPassivo, Long> 
     List<PoloPassivo> searchByNomeAproximado(@Param("nome") String nome);
 
 
+
 }
