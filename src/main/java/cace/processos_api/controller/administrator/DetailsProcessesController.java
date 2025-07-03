@@ -4,6 +4,10 @@ import cace.processos_api.dto.administrator.DetailsProcessesDTO;
 import cace.processos_api.model.administrator.DetailsProcesses;
 import cace.processos_api.repository.administrator.DetailsProcessesRepository;
 import cace.processos_api.service.administrator.DetailsProcessesService;
+import java.io.IOException;
+import com.itextpdf.layout.properties.TextAlignment;
+import com.itextpdf.layout.properties.UnitValue;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +19,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+
+//Itext PDF imports
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.layout.Document;
+import com.itextpdf.layout.element.Paragraph;
+import com.itextpdf.layout.element.Table;
+
 
 
 @RestController
@@ -205,9 +218,8 @@ public class DetailsProcessesController {
 
     //Filtros :
 
-    //✅ 1. Filtrar por intervalo de datas
-    //Objetivo: retornar todos os registros entre duas datas, útil para análises históricas.
 
+    //✅ 1. Filtrar por intervalo de dataa - retornar todos os registros entre duas datas, útil para análises históricas.
     @GetMapping("/periodo")
     public List<DetailsProcessesDTO> buscarPorPeriodo(
             @RequestParam String inicio,
@@ -222,5 +234,70 @@ public class DetailsProcessesController {
 
         return resultados.stream().map(DetailsProcessesDTO::new).toList();
     }
+
+
+    @GetMapping("/relatorio-pdf")
+    public void gerarRelatorioPdfPorPeriodo(
+            @RequestParam String inicio,
+            @RequestParam String fim,
+            HttpServletResponse response
+    ) throws IOException {
+
+        LocalDateTime dataInicio = LocalDate.parse(inicio).atStartOfDay();
+        LocalDateTime dataFim = LocalDate.parse(fim).atTime(LocalTime.MAX);
+
+        List<DetailsProcesses> registros = detailsProcessesRepository.findByDataHoraCriacaoBetween(dataInicio, dataFim);
+
+        // Define o tipo de conteúdo do PDF
+        response.setContentType("application/pdf");
+        response.setHeader("Content-Disposition", "attachment; filename=relatorio-processos.pdf");
+
+        try (PdfWriter writer = new PdfWriter(response.getOutputStream());
+             PdfDocument pdf = new PdfDocument(writer);
+             Document document = new Document(pdf)) {
+
+            // Título
+            Paragraph titulo = new Paragraph("📊 Relatório de Processos")
+                    .setTextAlignment(TextAlignment.CENTER)
+                    .setBold()
+                    .setFontSize(18);
+            document.add(titulo);
+
+            Paragraph periodo = new Paragraph("Período: " + inicio + " até " + fim)
+                    .setTextAlignment(TextAlignment.CENTER)
+                    .setFontSize(12)
+                    .setMarginBottom(20);
+            document.add(periodo);
+
+            // Tabela
+            float[] columnWidths = {100F, 100F, 100F, 100F, 100F, 100F, 100F};
+            Table table = new Table(columnWidths);
+            table.setWidth(UnitValue.createPercentValue(100));
+
+            // Cabeçalho
+            table.addHeaderCell("Data");
+            table.addHeaderCell("Verificar");
+            table.addHeaderCell("Renajud");
+            table.addHeaderCell("Infojud");
+            table.addHeaderCell("Erro Certidão");
+            table.addHeaderCell("Totais");
+            table.addHeaderCell("Erro (%)");
+
+            // Dados
+            for (DetailsProcesses dp : registros) {
+                table.addCell(dp.getDataHoraCriacao().toLocalDate().toString());
+                table.addCell(String.valueOf(dp.getProcessosVerificar()));
+                table.addCell(String.valueOf(dp.getProcessosRenajud()));
+                table.addCell(String.valueOf(dp.getProcessosInfojud()));
+                table.addCell(String.valueOf(dp.getProcessosErroCertidao()));
+                table.addCell(String.valueOf(dp.getProcessosTotais()));
+                table.addCell(String.format("%.2f%%", dp.getPercentualErros()));
+            }
+
+            document.add(table);
+        }
+    }
+
+
 
 }
