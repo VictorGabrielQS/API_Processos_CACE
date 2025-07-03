@@ -67,10 +67,14 @@ public class ProcessoController {
 
     // Rota para Buscar Todos os Processos com um determinado PoloAtivo pelo cpf/cnpj ou pelo Nome do polo ativo
     @GetMapping("/por-polo-ativo/{identificador}")
-    public ResponseEntity<Map<String, List<ProcessoDTO>>> getProcessosByPoloAtivo(@PathVariable String identificador) {
-        Map<String, List<ProcessoDTO>> resultado = processoService.getProcessosByCpfCnpjOuNomeAproximadoPoloAtivo(identificador);
+    public ResponseEntity<?> getProcessosByPoloAtivo(@PathVariable String identificador) {
+        Object resultado = processoService.getProcessosByCpfCnpjOuNomeAproximadoPoloAtivo(identificador);
 
-        if (resultado.isEmpty()) {
+        if (resultado instanceof List && ((List<?>) resultado).isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+
+        if (resultado instanceof Map && ((Map<?, ?>) resultado).isEmpty()) {
             return ResponseEntity.noContent().build();
         }
 
@@ -80,10 +84,14 @@ public class ProcessoController {
 
     // Rota para Buscar Todos os Processos com um determinado PoloPassivo pelo cpf/cnpj ou pelo Nome do polo passivo
     @GetMapping("/por-polo-passivo/{cpfCnpj}")
-    public ResponseEntity<Map<String, List<ProcessoDTO>>> getProcessosPorPoloPassivoOuNome(@PathVariable String identificador) {
-        Map<String, List<ProcessoDTO>> resultado = processoService.getProcessosByCpfCnpjOuNomeAproximadoPassivo(identificador);
+    public ResponseEntity<?> getProcessosPorPoloPassivoOuNome(@PathVariable String identificador) {
+        Object resultado = processoService.getProcessosByCpfCnpjOuNomeAproximadoPoloPassivo(identificador);
 
-        if (resultado.isEmpty()) {
+        if (resultado instanceof List && ((List<?>) resultado).isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+
+        if (resultado instanceof Map && ((Map<?, ?>) resultado).isEmpty()) {
             return ResponseEntity.noContent().build();
         }
 

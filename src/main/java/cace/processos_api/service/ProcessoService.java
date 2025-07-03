@@ -107,17 +107,15 @@ public class ProcessoService {
 
 
     //Buscar Todos os Processos com um determinado PoloAtivo pelo cpf/cnpj ou pelo Nome do polo ativo
-    public Map<String, List<ProcessoDTO>> getProcessosByCpfCnpjOuNomeAproximadoPoloAtivo(String identificador) {
-        Map<String, List<ProcessoDTO>> resultado = new LinkedHashMap<>();
+    public Object getProcessosByCpfCnpjOuNomeAproximadoPoloAtivo(String identificador) {
 
         if (identificador.matches("\\d+")) {
-            // É CPF ou CNPJ
+            // CPF/CNPJ: retorna apenas a lista direta
             List<Processo> processos = processoRepository.findAllProcessosByPoloAtivoCpfCnpj(identificador);
-            if (!processos.isEmpty()) {
-                resultado.put(identificador, processos.stream().map(this::convertToDTO).toList());
-            }
+            return processos.stream().map(this::convertToDTO).toList();
         } else {
-            // É nome ou parte do nome
+            // Nome: retorna agrupado por nome aproximado
+            Map<String, List<ProcessoDTO>> resultado = new LinkedHashMap<>();
             List<PoloAtivo> polosEncontrados = poloAtivoRepository.searchByNomeAproximado(identificador);
 
             for (PoloAtivo polo : polosEncontrados) {
@@ -126,24 +124,22 @@ public class ProcessoService {
                     resultado.put(polo.getNome(), processos.stream().map(this::convertToDTO).toList());
                 }
             }
-        }
 
-        return resultado;
+            return resultado;
+        }
     }
 
 
     //Buscar Todos os Processos com um determinado PoloPassivo pelo cpf/cnpj ou pelo Nome do polo passivo
-    public Map<String, List<ProcessoDTO>> getProcessosByCpfCnpjOuNomeAproximadoPassivo(String identificador) {
-        Map<String, List<ProcessoDTO>> resultado = new LinkedHashMap<>();
+    public Object getProcessosByCpfCnpjOuNomeAproximadoPoloPassivo(String identificador) {
 
         if (identificador.matches("\\d+")) {
-            // É CPF/CNPJ
+            // CPF/CNPJ: retorna apenas a lista direta
             List<Processo> processos = processoRepository.findAllProcessosByPoloPassivoCpfCnpj(identificador);
-            if (!processos.isEmpty()) {
-                resultado.put(identificador, processos.stream().map(this::convertToDTO).toList());
-            }
+            return processos.stream().map(this::convertToDTO).toList();
         } else {
-            // É nome ou parte do nome
+            // Nome: retorna agrupado por nome aproximado
+            Map<String, List<ProcessoDTO>> resultado = new LinkedHashMap<>();
             List<PoloPassivo> polosEncontrados = poloPassivoRepository.searchByNomeAproximado(identificador);
 
             for (PoloPassivo polo : polosEncontrados) {
@@ -152,11 +148,10 @@ public class ProcessoService {
                     resultado.put(polo.getNome(), processos.stream().map(this::convertToDTO).toList());
                 }
             }
+
+            return resultado;
         }
-
-        return resultado;
     }
-
 
 
 
