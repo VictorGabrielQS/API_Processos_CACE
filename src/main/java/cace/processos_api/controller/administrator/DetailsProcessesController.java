@@ -5,8 +5,7 @@ import cace.processos_api.model.administrator.DetailsProcesses;
 import cace.processos_api.repository.administrator.DetailsProcessesRepository;
 import cace.processos_api.service.administrator.DetailsProcessesService;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 
 import com.itextpdf.html2pdf.HtmlConverter;
 import com.itextpdf.io.image.ImageData;
@@ -22,7 +21,6 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.OutputStream;
 import java.nio.file.Files;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -229,7 +227,7 @@ public class DetailsProcessesController {
     //Filtros :
 
 
-    //✅ 1. Filtrar por intervalo de dataa - retornar todos os registros entre duas datas, útil para análises históricas.
+    //✅ 1. Filtrar por intervalo de data - retornar todos os registros entre duas datas, útil para análises históricas.
     @GetMapping("/periodo")
     public List<DetailsProcessesDTO> buscarPorPeriodo(
             @RequestParam String inicio,
@@ -258,43 +256,73 @@ public class DetailsProcessesController {
 
         List<DetailsProcesses> registros = detailsProcessesRepository.findByDataHoraCriacaoBetween(dataInicio, dataFim);
 
-        // HTML String builder
-        StringBuilder html = new StringBuilder();
-        html.append("<html><head>");
-        html.append("<style>");
-        html.append("table { width: 100%; border-collapse: collapse; }");
-        html.append("th, td { border: 1px solid #000; padding: 8px; text-align: center; }");
-        html.append("th { background-color: #f2f2f2; }");
-        html.append("h1, h3 { text-align: center; }");
-        html.append("</style>");
-        html.append("</head><body>");
+        String logoBase64 = encodeImageToBase64("static/logo.png");
 
-        html.append("<img src='data:image/png;base64," + encodeImageToBase64("static/logo.png") + "' style='display: block; margin: auto; width: 150px;' />");
+        StringBuilder html = new StringBuilder();
+        html.append("""
+        <!DOCTYPE html>
+        <html><head>
+        <meta charset="UTF-8" />
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            padding: 40px;
+            color: #333;
+          }
+          h1, h3 {
+            text-align: center;
+          }
+          img.logo {
+            display: block;
+            margin: 0 auto 30px auto;
+            width: 150px;
+          }
+          table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 30px;
+          }
+          th, td {
+            border: 1px solid #000;
+            padding: 8px;
+            text-align: center;
+          }
+          th {
+            background-color: #f2f2f2;
+          }
+          tr:nth-child(even) {
+            background-color: #fafafa;
+          }
+        </style>
+        </head><body>
+    """);
+
+        html.append("<img src='data:image/png;base64,").append(logoBase64).append("' class='logo' />");
         html.append("<h1>Relatório de Execução de Processos</h1>");
         html.append("<h3>Recebidos pela CACE TI e Enviados aos Colaboradores</h3>");
-        html.append("<h3>Período: " + inicio + " até " + fim + "</h3>");
+        html.append("<h3>Período: ").append(inicio).append(" até ").append(fim).append("</h3>");
 
         html.append("<table>");
-        html.append("<tr>");
-        html.append("<th>Data</th><th>Verificar</th><th>Renajud</th><th>Infojud</th><th>Erro Certidão</th><th>Totais</th><th>Erro (%)</th>");
-        html.append("</tr>");
+        html.append("<thead><tr>");
+        html.append("<th>Data</th><th>Verificar</th><th>Renajud</th><th>Infojud</th>");
+        html.append("<th>Erro Certidão</th><th>Totais</th><th>Erro (%)</th>");
+        html.append("</tr></thead><tbody>");
 
         for (DetailsProcesses dp : registros) {
-            html.append("<tr>");
-            html.append("<td>").append(dp.getDataHoraCriacao().toLocalDate()).append("</td>");
-            html.append("<td>").append(dp.getProcessosVerificar()).append("</td>");
-            html.append("<td>").append(dp.getProcessosRenajud()).append("</td>");
-            html.append("<td>").append(dp.getProcessosInfojud()).append("</td>");
-            html.append("<td>").append(dp.getProcessosErroCertidao()).append("</td>");
-            html.append("<td>").append(dp.getProcessosTotais()).append("</td>");
-            html.append("<td>").append(String.format("%.2f%%", dp.getPercentualErros())).append("</td>");
-            html.append("</tr>");
+            html.append("<tr>")
+                    .append("<td>").append(dp.getDataHoraCriacao().toLocalDate()).append("</td>")
+                    .append("<td>").append(dp.getProcessosVerificar()).append("</td>")
+                    .append("<td>").append(dp.getProcessosRenajud()).append("</td>")
+                    .append("<td>").append(dp.getProcessosInfojud()).append("</td>")
+                    .append("<td>").append(dp.getProcessosErroCertidao()).append("</td>")
+                    .append("<td>").append(dp.getProcessosTotais()).append("</td>")
+                    .append("<td>").append(String.format("%.2f%%", dp.getPercentualErros())).append("</td>")
+                    .append("</tr>");
         }
 
-        html.append("</table>");
+        html.append("</tbody></table>");
         html.append("</body></html>");
 
-        // Gera PDF a partir do HTML
         response.setContentType("application/pdf");
         response.setHeader("Content-Disposition", "attachment; filename=relatorio-processos.pdf");
 
@@ -303,13 +331,13 @@ public class DetailsProcessesController {
         }
     }
 
-
-
-
     private String encodeImageToBase64(String path) throws IOException {
-        File file = new ClassPathResource(path).getFile();
-        byte[] bytes = Files.readAllBytes(file.toPath());
-        return Base64.getEncoder().encodeToString(bytes);
+        try (InputStream is = getClass().getClassLoader().getResourceAsStream(path)) {
+            if (is == null) throw new FileNotFoundException("Arquivo não encontrado no classpath: " + path);
+            byte[] bytes = is.readAllBytes();
+            return Base64.getEncoder().encodeToString(bytes);
+        }
     }
+
 
 }
