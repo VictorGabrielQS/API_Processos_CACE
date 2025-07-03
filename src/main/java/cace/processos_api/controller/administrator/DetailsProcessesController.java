@@ -4,26 +4,31 @@ import cace.processos_api.dto.administrator.DetailsProcessesDTO;
 import cace.processos_api.model.administrator.DetailsProcesses;
 import cace.processos_api.repository.administrator.DetailsProcessesRepository;
 import cace.processos_api.service.administrator.DetailsProcessesService;
+
+import java.io.File;
 import java.io.IOException;
 
+import com.itextpdf.html2pdf.HtmlConverter;
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
+import com.itextpdf.layout.element.AreaBreak;
 import com.itextpdf.layout.element.Image;
 import com.itextpdf.layout.properties.HorizontalAlignment;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.UnitValue;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.OutputStream;
+import java.nio.file.Files;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 
 //Itext PDF imports
@@ -242,81 +247,69 @@ public class DetailsProcessesController {
 
 
     @GetMapping("/relatorio-pdf")
-    public void gerarRelatorioPdfPorPeriodo(
+    public void gerarRelatorioPdfPorPeriodoComHtml(
             @RequestParam String inicio,
             @RequestParam String fim,
             HttpServletResponse response
-    ) throws java.io.IOException {
+    ) throws IOException {
 
         LocalDateTime dataInicio = LocalDate.parse(inicio).atStartOfDay();
         LocalDateTime dataFim = LocalDate.parse(fim).atTime(LocalTime.MAX);
 
         List<DetailsProcesses> registros = detailsProcessesRepository.findByDataHoraCriacaoBetween(dataInicio, dataFim);
 
+        // HTML String builder
+        StringBuilder html = new StringBuilder();
+        html.append("<html><head>");
+        html.append("<style>");
+        html.append("table { width: 100%; border-collapse: collapse; }");
+        html.append("th, td { border: 1px solid #000; padding: 8px; text-align: center; }");
+        html.append("th { background-color: #f2f2f2; }");
+        html.append("h1, h3 { text-align: center; }");
+        html.append("</style>");
+        html.append("</head><body>");
+
+        html.append("<img src='data:image/png;base64," + encodeImageToBase64("static/logo.png") + "' style='display: block; margin: auto; width: 150px;' />");
+        html.append("<h1>Relatório de Execução de Processos</h1>");
+        html.append("<h3>Recebidos pela CACE TI e Enviados aos Colaboradores</h3>");
+        html.append("<h3>Período: " + inicio + " até " + fim + "</h3>");
+
+        html.append("<table>");
+        html.append("<tr>");
+        html.append("<th>Data</th><th>Verificar</th><th>Renajud</th><th>Infojud</th><th>Erro Certidão</th><th>Totais</th><th>Erro (%)</th>");
+        html.append("</tr>");
+
+        for (DetailsProcesses dp : registros) {
+            html.append("<tr>");
+            html.append("<td>").append(dp.getDataHoraCriacao().toLocalDate()).append("</td>");
+            html.append("<td>").append(dp.getProcessosVerificar()).append("</td>");
+            html.append("<td>").append(dp.getProcessosRenajud()).append("</td>");
+            html.append("<td>").append(dp.getProcessosInfojud()).append("</td>");
+            html.append("<td>").append(dp.getProcessosErroCertidao()).append("</td>");
+            html.append("<td>").append(dp.getProcessosTotais()).append("</td>");
+            html.append("<td>").append(String.format("%.2f%%", dp.getPercentualErros())).append("</td>");
+            html.append("</tr>");
+        }
+
+        html.append("</table>");
+        html.append("</body></html>");
+
+        // Gera PDF a partir do HTML
         response.setContentType("application/pdf");
         response.setHeader("Content-Disposition", "attachment; filename=relatorio-processos.pdf");
 
-        PdfWriter writer = new PdfWriter(response.getOutputStream());
-        PdfDocument pdf = new PdfDocument(writer);
-        Document document = new Document(pdf);
-
-        // LOGO (ajuste o caminho conforme a pasta do projeto)
-        String caminhoLogo = "src/main/resources/static/logo.png";
-        ImageData imageData = ImageDataFactory.create(caminhoLogo);
-        Image logo = new Image(imageData).scaleToFit(80, 80).setHorizontalAlignment(HorizontalAlignment.CENTER);
-        document.add(logo);
-
-        // Nome da Central
-        Paragraph tituloCentral = new Paragraph("Central de Atos de Constrições Eletrônicas - CACE")
-                .setTextAlignment(TextAlignment.CENTER)
-                .setFontSize(12)
-                .setMarginBottom(20);
-        document.add(tituloCentral);
-
-        // Título do Relatório
-        Paragraph titulo = new Paragraph("RELATÓRIO " + inicio.toUpperCase() + " / " + fim.split("-")[0])
-                .setBold()
-                .setTextAlignment(TextAlignment.CENTER)
-                .setFontSize(16)
-                .setUnderline()
-                .setMarginBottom(20);
-        document.add(titulo);
-
-        // Resumo (simples)
-        int totalProcessos = registros.stream().mapToInt(DetailsProcesses::getProcessosTotais).sum();
-        Paragraph resumo = new Paragraph("📈 Total de Processos: " + totalProcessos)
-                .setFontSize(12)
-                .setTextAlignment(TextAlignment.LEFT)
-                .setMarginBottom(10);
-        document.add(resumo);
-
-        // Tabela
-        float[] columnWidths = {100F, 70F, 70F, 70F, 80F, 80F, 70F};
-        Table table = new Table(columnWidths);
-        table.setWidth(UnitValue.createPercentValue(100));
-
-        table.addHeaderCell("Data");
-        table.addHeaderCell("Verificar");
-        table.addHeaderCell("Renajud");
-        table.addHeaderCell("Infojud");
-        table.addHeaderCell("Erro Cert.");
-        table.addHeaderCell("Totais");
-        table.addHeaderCell("Erro (%)");
-
-        for (DetailsProcesses dp : registros) {
-            table.addCell(dp.getDataHoraCriacao().toLocalDate().toString());
-            table.addCell(String.valueOf(dp.getProcessosVerificar()));
-            table.addCell(String.valueOf(dp.getProcessosRenajud()));
-            table.addCell(String.valueOf(dp.getProcessosInfojud()));
-            table.addCell(String.valueOf(dp.getProcessosErroCertidao()));
-            table.addCell(String.valueOf(dp.getProcessosTotais()));
-            table.addCell(String.format("%.2f%%", dp.getPercentualErros()));
+        try (OutputStream out = response.getOutputStream()) {
+            HtmlConverter.convertToPdf(html.toString(), out);
         }
-
-        document.add(table);
-        document.close();
     }
 
 
+
+
+    private String encodeImageToBase64(String path) throws IOException {
+        File file = new ClassPathResource(path).getFile();
+        byte[] bytes = Files.readAllBytes(file.toPath());
+        return Base64.getEncoder().encodeToString(bytes);
+    }
 
 }
