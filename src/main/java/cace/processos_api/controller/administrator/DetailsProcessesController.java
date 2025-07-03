@@ -256,6 +256,7 @@ public class DetailsProcessesController {
 
         List<DetailsProcesses> registros = detailsProcessesRepository.findByDataHoraCriacaoBetween(dataInicio, dataFim);
 
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         String logoBase64 = encodeImageToBase64("static/logo.png");
 
         StringBuilder html = new StringBuilder();
@@ -265,42 +266,87 @@ public class DetailsProcessesController {
         <meta charset="UTF-8" />
         <style>
           body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             padding: 40px;
             color: #333;
+            background-color: #ffffff;
           }
-          h1, h3 {
-            text-align: center;
-          }
-          img.logo {
+
+          .logo {
             display: block;
             margin: 0 auto 30px auto;
-            width: 150px;
+            width: 160px;
           }
+
+          h1 {
+            text-align: center;
+            color: #004A99;
+            font-size: 26pt;
+            margin-bottom: 10px;
+          }
+
+          h3 {
+            text-align: center;
+            font-size: 14pt;
+            margin-top: 0;
+            color: #555;
+          }
+
+          .periodo {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 12pt;
+            color: #444;
+            font-weight: bold;
+          }
+
           table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 30px;
+            margin-top: 40px;
+            font-size: 10pt;
           }
-          th, td {
-            border: 1px solid #000;
+
+          th {
+            background-color: #004A99;
+            color: #fff;
+            padding: 10px;
+            border: 1px solid #ddd;
+          }
+
+          td {
             padding: 8px;
+            border: 1px solid #ccc;
             text-align: center;
           }
-          th {
-            background-color: #f2f2f2;
-          }
+
           tr:nth-child(even) {
-            background-color: #fafafa;
+            background-color: #f9f9f9;
           }
+
+          tr:hover {
+            background-color: #f1f1f1;
+          }
+
+          .footer {
+            text-align: center;
+            font-size: 9pt;
+            color: #888;
+            margin-top: 60px;
+          }
+
         </style>
         </head><body>
     """);
 
         html.append("<img src='data:image/png;base64,").append(logoBase64).append("' class='logo' />");
         html.append("<h1>Relatório de Execução de Processos</h1>");
-        html.append("<h3>Recebidos pela CACE TI e Enviados aos Colaboradores</h3>");
-        html.append("<h3>Período: ").append(inicio).append(" até ").append(fim).append("</h3>");
+        html.append("<h3>Recebidos Pela CACE TI e Enviados aos Colaboradores</h3>");
+        html.append("<div class='periodo'>Período: ")
+                .append(dataInicio.format(formatter))
+                .append(" até ")
+                .append(dataFim.format(formatter))
+                .append("</div>");
 
         html.append("<table>");
         html.append("<thead><tr>");
@@ -310,7 +356,7 @@ public class DetailsProcessesController {
 
         for (DetailsProcesses dp : registros) {
             html.append("<tr>")
-                    .append("<td>").append(dp.getDataHoraCriacao().toLocalDate()).append("</td>")
+                    .append("<td>").append(dp.getDataHoraCriacao().toLocalDate().format(formatter)).append("</td>")
                     .append("<td>").append(dp.getProcessosVerificar()).append("</td>")
                     .append("<td>").append(dp.getProcessosRenajud()).append("</td>")
                     .append("<td>").append(dp.getProcessosInfojud()).append("</td>")
@@ -321,6 +367,7 @@ public class DetailsProcessesController {
         }
 
         html.append("</tbody></table>");
+        html.append("<div class='footer'>Relatório gerado automaticamente por CACE TI</div>");
         html.append("</body></html>");
 
         response.setContentType("application/pdf");
@@ -338,6 +385,7 @@ public class DetailsProcessesController {
             return Base64.getEncoder().encodeToString(bytes);
         }
     }
+
 
 
 }
