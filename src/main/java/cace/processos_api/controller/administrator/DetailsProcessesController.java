@@ -249,7 +249,7 @@ public class DetailsProcessesController {
 
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        String logoBase64 = encodeImageToBase64("static/logo.png");
+        String logoSvgBase64 = encodeSvgToBase64("static/logo.svg");
 
         StringBuilder html = new StringBuilder();
         html.append("""
@@ -331,7 +331,7 @@ public class DetailsProcessesController {
         </head><body>
     """);
 
-        html.append("<img src='data:image/png;base64,").append(logoBase64).append("' class='logo' />");
+        html.append("<img src='data:image/svg+xml;base64,").append(logoSvgBase64).append("' class='logo' />");
         html.append("<h1>Relatório de Execução de Processos</h1>");
         html.append("<h3>Recebidos Pela CACE TI e Enviados aos Colaboradores</h3>");
         html.append("<div class='periodo'>Período: ")
@@ -370,13 +370,14 @@ public class DetailsProcessesController {
         }
     }
 
-    private String encodeImageToBase64(String path) throws IOException {
+    private String encodeSvgToBase64(String path) throws IOException {
         try (InputStream is = getClass().getClassLoader().getResourceAsStream(path)) {
-            if (is == null) throw new FileNotFoundException("Arquivo não encontrado no classpath: " + path);
+            if (is == null) throw new FileNotFoundException("SVG não encontrado no classpath: " + path);
             byte[] bytes = is.readAllBytes();
             return Base64.getEncoder().encodeToString(bytes);
         }
     }
+
 
 
 //
