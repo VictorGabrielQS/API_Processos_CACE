@@ -76,4 +76,5 @@ public interface ProcessoRepository extends JpaRepository <Processo , Long>{
 
     List<Processo> findByDataCriacaoBetween(LocalDateTime inicio, LocalDateTime fim);
 
+
 }

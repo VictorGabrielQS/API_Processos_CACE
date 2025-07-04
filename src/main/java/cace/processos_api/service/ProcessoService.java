@@ -312,14 +312,15 @@ public class ProcessoService {
 
 
     public List<ProcessoDTO> getProcessosPorData(String data) {
-        LocalDate localDate = LocalDate.parse(data); // valida se está no formato correto
-        LocalDateTime inicioDoDia = localDate.atStartOfDay();
-        LocalDateTime fimDoDia = localDate.atTime(LocalTime.MAX);
+        LocalDate localDate = LocalDate.parse(data); // yyyy-MM-dd
+        LocalDateTime inicio = localDate.atStartOfDay();
+        LocalDateTime fim = localDate.atTime(LocalTime.MAX);
 
-        return processoRepository.findByDataCriacaoBetween(inicioDoDia, fimDoDia)
-                .stream()
-                .map(this::convertToDTO)
-                .toList();
+        List<Processo> processos = processoRepository.findByDataCriacaoBetween(inicio, fim);
+
+        return processos.stream()
+                .map(ProcessoDTO::fromEntity)
+                .collect(Collectors.toList());
     }
 
 

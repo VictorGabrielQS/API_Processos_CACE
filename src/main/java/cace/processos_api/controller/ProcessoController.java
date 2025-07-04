@@ -49,14 +49,12 @@ public class ProcessoController {
 
     // Rota para Buscar Todos os Processos por uma determinada Data
     @GetMapping("/por-data")
-    public ResponseEntity<List<ProcessoDTO>> getProcessosPorData(
-            @RequestParam String data // formato esperado: yyyy-MM-dd
-    ) {
+    public ResponseEntity<List<ProcessoDTO>> getProcessosPorData(@RequestParam String data) {
         AuthUtil.validarAcesso(1); // Apenas usuários com nível 1 podem acessar
-
         List<ProcessoDTO> processos = processoService.getProcessosPorData(data);
         return processos.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(processos);
     }
+
 
 
 
