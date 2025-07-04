@@ -1,5 +1,6 @@
 package cace.processos_api.repository;
 
+import cace.processos_api.dto.administrator.RelatorioProcessoDTO;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -54,9 +55,22 @@ public interface ProcessoRepository extends JpaRepository <Processo , Long>{
 
     List<Processo> findAllProcessosByTipoCertidao(String tipoCertidao);
 
-    @EntityGraph(attributePaths = {"poloAtivo", "poloPassivo"})
-    List<Processo> findByDataCriacaoBetween(LocalDateTime inicio, LocalDateTime fim);
-
+    @Query("""
+    SELECT 
+      p.dataCriacao AS dataCriacao,
+      p.numeroCompleto AS numeroCompleto,
+      p.serventia AS serventia,
+      p.responsavel AS responsavel,
+      p.status AS status,
+      pa.nome AS poloAtivoNome,
+      pp.nome AS poloPassivoNome
+    FROM Processo p
+    LEFT JOIN p.poloAtivo pa
+    LEFT JOIN p.poloPassivo pp
+    WHERE p.dataCriacao BETWEEN :inicio AND :fim
+    ORDER BY p.dataCriacao ASC
+""")
+    List<RelatorioProcessoDTO> buscarRelatorioEntreDatas(LocalDateTime inicio, LocalDateTime fim);
 
 
 }

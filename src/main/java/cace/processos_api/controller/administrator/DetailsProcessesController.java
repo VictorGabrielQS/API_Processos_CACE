@@ -1,6 +1,8 @@
 package cace.processos_api.controller.administrator;
 
+import cace.processos_api.dto.ProcessoDTO;
 import cace.processos_api.dto.administrator.DetailsProcessesDTO;
+import cace.processos_api.dto.administrator.RelatorioProcessoDTO;
 import cace.processos_api.model.administrator.DetailsProcesses;
 import cace.processos_api.model.process.Processo;
 import cace.processos_api.repository.ProcessoRepository;
@@ -390,9 +392,9 @@ public class DetailsProcessesController {
         LocalDateTime dataInicio = LocalDate.parse(inicio).atStartOfDay();
         LocalDateTime dataFim = LocalDate.parse(fim).atTime(LocalTime.MAX);
 
-        List<Processo> processos = processoRepository.findByDataCriacaoBetween(dataInicio, dataFim);
+        List<RelatorioProcessoDTO> processos = processoRepository.buscarRelatorioEntreDatas(dataInicio, dataFim);
 
-        processos.sort(Comparator.comparing(Processo::getDataCriacao)); // ordena por data
+        processos.sort(Comparator.comparing(RelatorioProcessoDTO::getDataCriacao));// ordena por data
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         String logoSvgBase64 = encodeSvgToBase64("static/logo.svg");
@@ -481,12 +483,12 @@ public class DetailsProcessesController {
         html.append("<th>Serventia</th><th>Responsável</th><th>Status</th>");
         html.append("</tr></thead><tbody>");
 
-        for (Processo p : processos) {
+        for (RelatorioProcessoDTO p : processos) {
             html.append("<tr>")
                     .append("<td>").append(p.getDataCriacao() != null ? p.getDataCriacao().format(formatter) : "-").append("</td>")
                     .append("<td>").append(p.getNumeroCompleto()).append("</td>")
-                    .append("<td>").append(p.getPoloAtivo() != null ? p.getPoloAtivo().getNome() : "-").append("</td>")
-                    .append("<td>").append(p.getPoloPassivo() != null ? p.getPoloPassivo().getNome() : "-").append("</td>")
+                    .append("<td>").append(p.getPoloAtivoNome() != null ? p.getPoloAtivoNome() : "-").append("</td>")
+                    .append("<td>").append(p.getPoloPassivoNome() != null ? p.getPoloPassivoNome() : "-").append("</td>")
                     .append("<td>").append(p.getServentia()).append("</td>")
                     .append("<td>").append(p.getResponsavel()).append("</td>")
                     .append("<td>").append(p.getStatus()).append("</td>")
