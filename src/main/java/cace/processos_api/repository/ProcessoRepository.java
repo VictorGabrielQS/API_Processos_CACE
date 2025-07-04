@@ -1,5 +1,6 @@
 package cace.processos_api.repository;
 
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import cace.processos_api.model.process.Processo;
@@ -53,5 +54,9 @@ public interface ProcessoRepository extends JpaRepository <Processo , Long>{
 
     List<Processo> findAllProcessosByTipoCertidao(String tipoCertidao);
 
+    @EntityGraph(attributePaths = {"poloAtivo", "poloPassivo"})
     List<Processo> findByDataCriacaoBetween(LocalDateTime inicio, LocalDateTime fim);
+
+
+
 }
