@@ -29,11 +29,11 @@ public class Processo {
     private String numeroCurto; //
 
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "polo_ativo_id", nullable = false)
     private PoloAtivo poloAtivo;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "polo_passivo_id", nullable = false)
     private PoloPassivo poloPassivo;
 
