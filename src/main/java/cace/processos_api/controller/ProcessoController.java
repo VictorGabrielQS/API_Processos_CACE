@@ -2,6 +2,7 @@ package cace.processos_api.controller;
 
 
 import cace.processos_api.dto.ProcessoDTO;
+import cace.processos_api.dto.administrator.ProcessoResumoDTO;
 import cace.processos_api.service.ProcessoService;
 import cace.processos_api.util.AuthUtil;
 import org.springframework.http.HttpStatus;
@@ -48,12 +49,13 @@ public class ProcessoController {
 
 
     // Rota para Buscar Todos os Processos por uma determinada Data
-    @GetMapping("/por-data")
-    public ResponseEntity<List<ProcessoDTO>> getProcessosPorData(@RequestParam String data) {
-        AuthUtil.validarAcesso(1); // Apenas usuários com nível 1 podem acessar
-        List<ProcessoDTO> processos = processoService.getProcessosPorData(data);
-        return processos.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(processos);
+    @GetMapping("/resumo-por-data")
+    public ResponseEntity<List<ProcessoResumoDTO>> getResumoPorData(@RequestParam String data) {
+        AuthUtil.validarAcesso(1);
+        List<ProcessoResumoDTO> resumo = processoService.getResumoPorData(data);
+        return resumo.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(resumo);
     }
+
 
 
 

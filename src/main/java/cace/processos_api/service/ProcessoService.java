@@ -1,6 +1,7 @@
 package cace.processos_api.service;
 
 import cace.processos_api.dto.ProcessoDTO;
+import cace.processos_api.dto.administrator.ProcessoResumoDTO;
 import cace.processos_api.exception.ResourceNotFoundException;
 import cace.processos_api.model.process.PoloAtivo;
 import cace.processos_api.model.process.PoloPassivo;
@@ -311,17 +312,14 @@ public class ProcessoService {
     }
 
 
-    public List<ProcessoDTO> getProcessosPorData(String data) {
+    public List<ProcessoResumoDTO> getResumoPorData(String data) {
         LocalDate localDate = LocalDate.parse(data); // yyyy-MM-dd
         LocalDateTime inicio = localDate.atStartOfDay();
         LocalDateTime fim = localDate.atTime(LocalTime.MAX);
 
-        List<Processo> processos = processoRepository.findByDataCriacaoBetween(inicio, fim);
-
-        return processos.stream()
-                .map(ProcessoDTO::fromEntity)
-                .collect(Collectors.toList());
+        return processoRepository.buscarResumoPorData(inicio, fim);
     }
+
 
 
 

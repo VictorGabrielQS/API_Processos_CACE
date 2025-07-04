@@ -1,7 +1,7 @@
 package cace.processos_api.repository;
 
-import cace.processos_api.dto.administrator.RelatorioProcessoDTO;
-import org.springframework.data.jpa.repository.EntityGraph;
+import cace.processos_api.dto.administrator.ProcessoResumoDTO;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import cace.processos_api.model.process.Processo;
@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -57,24 +57,18 @@ public interface ProcessoRepository extends JpaRepository <Processo , Long>{
     List<Processo> findAllProcessosByTipoCertidao(String tipoCertidao);
 
     @Query("""
-    SELECT 
-      p.dataCriacao AS dataCriacao,
-      p.numeroCompleto AS numeroCompleto,
-      p.serventia AS serventia,
-      p.responsavel AS responsavel,
-      p.status AS status,
-      pa.nome AS poloAtivoNome,
-      pp.nome AS poloPassivoNome
-    FROM Processo p
-    LEFT JOIN p.poloAtivo pa
-    LEFT JOIN p.poloPassivo pp
-    WHERE p.dataCriacao BETWEEN :inicio AND :fim
-    ORDER BY p.dataCriacao ASC
-""")
-    List<RelatorioProcessoDTO> buscarRelatorioEntreDatas(LocalDateTime inicio, LocalDateTime fim);
-
-
-    List<Processo> findByDataCriacaoBetween(LocalDateTime inicio, LocalDateTime fim);
+        SELECT 
+            p.numeroCurto AS numeroCurto,
+            p.status AS status,
+            pa.cpfCnpj AS poloAtivoCpfCnpj,
+            pp.cpfCnpj AS poloPassivoCpfCnpj,
+            p.dataCriacao AS dataCriacao
+        FROM Processo p
+        JOIN p.poloAtivo pa
+        JOIN p.poloPassivo pp
+        WHERE p.dataCriacao BETWEEN :inicio AND :fim
+    """)
+    List<ProcessoResumoDTO> buscarResumoPorData(LocalDateTime inicio, LocalDateTime fim);
 
 
 }
