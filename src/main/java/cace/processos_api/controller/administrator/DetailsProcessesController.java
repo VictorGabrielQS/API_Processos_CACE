@@ -504,7 +504,13 @@ public class DetailsProcessesController {
 
         try (OutputStream out = response.getOutputStream()) {
             HtmlConverter.convertToPdf(html.toString(), out);
+            System.out.println("✅ PDF gerado com sucesso!");
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().write("Erro ao gerar PDF: " + e.getMessage());
         }
+
     }
 
 
