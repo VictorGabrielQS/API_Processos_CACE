@@ -2,7 +2,6 @@ package cace.processos_api.controller.administrator;
 
 import cace.processos_api.dto.ProcessoDTO;
 import cace.processos_api.dto.administrator.DetailsProcessesDTO;
-import cace.processos_api.dto.administrator.RelatorioProcessoDTO;
 import cace.processos_api.model.administrator.DetailsProcesses;
 import cace.processos_api.model.process.Processo;
 import cace.processos_api.repository.ProcessoRepository;
@@ -381,6 +380,7 @@ public class DetailsProcessesController {
     }
 
 
+/*
 
     @GetMapping("/relatorio-processos-pdf")
     public void gerarRelatorioDeProcessosPdf(
@@ -513,6 +513,7 @@ public class DetailsProcessesController {
 
     }
 
+*/
 
 
 
