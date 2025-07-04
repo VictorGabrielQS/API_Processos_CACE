@@ -244,6 +244,8 @@ public class DetailsProcessesController {
         LocalDateTime dataFim = LocalDate.parse(fim).atTime(LocalTime.MAX);
 
         List<DetailsProcesses> registros = detailsProcessesRepository.findByDataHoraCriacaoBetween(dataInicio, dataFim);
+        registros.sort(Comparator.comparing((DetailsProcesses dp) -> dp.getDataHoraCriacao().toLocalDate()).reversed());
+
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         String logoBase64 = encodeImageToBase64("static/logo.png");
