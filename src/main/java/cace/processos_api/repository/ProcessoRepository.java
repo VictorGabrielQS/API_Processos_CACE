@@ -52,4 +52,6 @@ public interface ProcessoRepository extends JpaRepository <Processo , Long>{
     List<Processo> findAllProcessosByServentia(String serventia);
 
     List<Processo> findAllProcessosByTipoCertidao(String tipoCertidao);
+
+    List<Processo> findByDataCriacaoBetween(LocalDateTime inicio, LocalDateTime fim);
 }

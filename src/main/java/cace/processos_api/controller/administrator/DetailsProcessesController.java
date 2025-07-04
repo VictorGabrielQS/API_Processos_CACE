@@ -2,6 +2,8 @@ package cace.processos_api.controller.administrator;
 
 import cace.processos_api.dto.administrator.DetailsProcessesDTO;
 import cace.processos_api.model.administrator.DetailsProcesses;
+import cace.processos_api.model.process.Processo;
+import cace.processos_api.repository.ProcessoRepository;
 import cace.processos_api.repository.administrator.DetailsProcessesRepository;
 import cace.processos_api.service.administrator.DetailsProcessesService;
 
@@ -38,6 +40,10 @@ public class DetailsProcessesController {
 
     @Autowired
     private DetailsProcessesService service;
+
+    @Autowired
+    private ProcessoRepository processoRepository;
+
 
 
     @GetMapping
@@ -244,7 +250,9 @@ public class DetailsProcessesController {
         LocalDateTime dataFim = LocalDate.parse(fim).atTime(LocalTime.MAX);
 
         List<DetailsProcesses> registros = detailsProcessesRepository.findByDataHoraCriacaoBetween(dataInicio, dataFim);
-        registros.sort(Comparator.comparing((DetailsProcesses dp) -> dp.getDataHoraCriacao().toLocalDate()).reversed());
+
+        // ORDENA por data de criação ASCENDENTE (mais antiga primeiro)
+        registros.sort(Comparator.comparing(DetailsProcesses::getDataHoraCriacao));
 
 
 
@@ -370,6 +378,141 @@ public class DetailsProcessesController {
         }
     }
 
+
+
+    @GetMapping("/relatorio-processos-pdf")
+    public void gerarRelatorioDeProcessosPdf(
+            @RequestParam String inicio,
+            @RequestParam String fim,
+            HttpServletResponse response
+    ) throws IOException {
+
+        LocalDateTime dataInicio = LocalDate.parse(inicio).atStartOfDay();
+        LocalDateTime dataFim = LocalDate.parse(fim).atTime(LocalTime.MAX);
+
+        List<Processo> processos = processoRepository.findByDataCriacaoBetween(dataInicio, dataFim);
+
+        processos.sort(Comparator.comparing(Processo::getDataCriacao)); // ordena por data
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        String logoSvgBase64 = encodeSvgToBase64("static/logo.svg");
+
+        StringBuilder html = new StringBuilder();
+        html.append("""
+    <!DOCTYPE html>
+    <html><head>
+    <meta charset="UTF-8" />
+    <style>
+      body {
+        font-family: sans-serif;
+        padding: 40px;
+        color: #333;
+        background-color: #ffffff;
+      }
+      .logo {
+        display: block;
+        margin: 0 auto 30px auto;
+        width: 160px;
+      }
+      h1 {
+        text-align: center;
+        color: #004A99;
+        font-size: 26pt;
+        margin-bottom: 10px;
+      }
+      h3 {
+        text-align: center;
+        font-size: 14pt;
+        margin-top: 0;
+        color: #555;
+      }
+      .periodo {
+        text-align: center;
+        margin-top: 20px;
+        font-size: 12pt;
+        color: #444;
+        font-weight: bold;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 40px;
+        font-size: 10pt;
+      }
+      th {
+        background-color: #004A99;
+        color: #fff;
+        padding: 10px;
+        border: 1px solid #ddd;
+      }
+      td {
+        padding: 8px;
+        border: 1px solid #ccc;
+        text-align: center;
+      }
+      tr:nth-child(even) {
+        background-color: #f9f9f9;
+      }
+      tr:hover {
+        background-color: #f1f1f1;
+      }
+      .footer {
+        text-align: center;
+        font-size: 9pt;
+        color: #888;
+        margin-top: 60px;
+      }
+    </style>
+    </head><body>
+    """);
+
+        html.append("<img src='data:image/svg+xml;base64,").append(logoSvgBase64).append("' class='logo' />");
+        html.append("<h1>Relatório de Processos Judiciais</h1>");
+        html.append("<h3>Gerado pela API - CACE TI</h3>");
+        html.append("<div class='periodo'>Período: ")
+                .append(dataInicio.format(formatter))
+                .append(" até ")
+                .append(dataFim.format(formatter))
+                .append("</div>");
+
+        html.append("<table>");
+        html.append("<thead><tr>");
+        html.append("<th>Data</th><th>Nº Processo</th><th>Polo Ativo</th><th>Polo Passivo</th>");
+        html.append("<th>Serventia</th><th>Responsável</th><th>Status</th>");
+        html.append("</tr></thead><tbody>");
+
+        for (Processo p : processos) {
+            html.append("<tr>")
+                    .append("<td>").append(p.getDataCriacao() != null ? p.getDataCriacao().format(formatter) : "-").append("</td>")
+                    .append("<td>").append(p.getNumeroCompleto()).append("</td>")
+                    .append("<td>").append(p.getPoloAtivo() != null ? p.getPoloAtivo().getNome() : "-").append("</td>")
+                    .append("<td>").append(p.getPoloPassivo() != null ? p.getPoloPassivo().getNome() : "-").append("</td>")
+                    .append("<td>").append(p.getServentia()).append("</td>")
+                    .append("<td>").append(p.getResponsavel()).append("</td>")
+                    .append("<td>").append(p.getStatus()).append("</td>")
+                    .append("</tr>");
+        }
+
+        html.append("</tbody></table>");
+        html.append("<div class='footer'>Relatório gerado automaticamente por CACE TI</div>");
+        html.append("</body></html>");
+
+        response.setContentType("application/pdf");
+        response.setHeader("Content-Disposition", "attachment; filename=relatorio-processos.pdf");
+
+        try (OutputStream out = response.getOutputStream()) {
+            HtmlConverter.convertToPdf(html.toString(), out);
+        }
+    }
+
+
+
+
+
+
+
+
+
     private String encodeSvgToBase64(String path) throws IOException {
         try (InputStream is = getClass().getClassLoader().getResourceAsStream(path)) {
             if (is == null) throw new FileNotFoundException("SVG não encontrado no classpath: " + path);
@@ -377,6 +520,8 @@ public class DetailsProcessesController {
             return Base64.getEncoder().encodeToString(bytes);
         }
     }
+
+
 
 
 
