@@ -83,7 +83,7 @@ public class ProcessoController {
 
 
     // Rota para Buscar Todos os Processos com um determinado PoloPassivo pelo cpf/cnpj ou pelo Nome do polo passivo
-    @GetMapping("/por-polo-passivo/{cpfCnpj}")
+    @GetMapping("/por-polo-passivo/{identificador}")
     public ResponseEntity<?> getProcessosPorPoloPassivoOuNome(@PathVariable String identificador) {
         Object resultado = processoService.getProcessosByCpfCnpjOuNomeAproximadoPoloPassivo(identificador);
 
