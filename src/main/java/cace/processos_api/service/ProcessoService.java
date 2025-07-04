@@ -311,4 +311,18 @@ public class ProcessoService {
     }
 
 
+    public List<ProcessoDTO> getProcessosPorData(String data) {
+        LocalDate localDate = LocalDate.parse(data); // valida se está no formato correto
+        LocalDateTime inicioDoDia = localDate.atStartOfDay();
+        LocalDateTime fimDoDia = localDate.atTime(LocalTime.MAX);
+
+        return processoRepository.findByDataCriacaoBetween(inicioDoDia, fimDoDia)
+                .stream()
+                .map(this::convertToDTO)
+                .toList();
+    }
+
+
+
+
 }
