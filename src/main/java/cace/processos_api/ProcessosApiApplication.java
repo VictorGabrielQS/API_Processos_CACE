@@ -29,5 +29,12 @@ public class ProcessosApiApplication {
 		System.out.println("==== DATABASE_URL ====");
 		System.out.println("spring.datasource.url: " + dbUrl);
 		System.out.println("======================");
+		System.out.println("==== Redis ENV ====");
+		System.out.println("Host: " + System.getenv("SPRING_REDIS_HOST"));
+		System.out.println("Port: " + System.getenv("SPRING_REDIS_PORT"));
+		System.out.println("Username: " + System.getenv("SPRING_REDIS_USERNAME"));
+		System.out.println("Password: " + (System.getenv("SPRING_REDIS_PASSWORD") != null ? "OK" : "NULO"));
+		System.out.println("SSL Enabled: " + System.getenv("SPRING_REDIS_SSL_ENABLED"));
+		System.out.println("===================");
 	}
 }
