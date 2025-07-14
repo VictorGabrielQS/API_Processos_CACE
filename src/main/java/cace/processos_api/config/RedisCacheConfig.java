@@ -14,7 +14,7 @@ public class RedisCacheConfig {
     @Bean
     public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory) {
         RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
-                .entryTtl(Duration.ofMinutes(30)) // TTL global de 30 minutos
+                .entryTtl(Duration.ofMinutes(30))
                 .disableCachingNullValues();
 
         return RedisCacheManager.builder(connectionFactory)
@@ -22,3 +22,4 @@ public class RedisCacheConfig {
                 .build();
     }
 }
+
