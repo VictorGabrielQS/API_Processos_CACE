@@ -11,6 +11,7 @@ import cace.processos_api.repository.PoloPassivoRepository;
 import cace.processos_api.repository.ProcessoRepository;
 import cace.processos_api.util.CpfCnpjUtil;
 import cace.processos_api.util.NumeroProcessoUtil;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -108,16 +109,18 @@ public class ProcessoService {
 
 
     //Buscar Todos os Processos com um determinado PoloAtivo pelo cpf/cnpj ou pelo Nome do polo ativo
-    public Object getProcessosByCpfCnpjOuNomeAproximadoPoloAtivo(String identificador) {
+    @Cacheable(value = "buscaProcessosPorNome", key = "#identificador + '-' + #offset + '-' + #limit")
+    public Object getProcessosByCpfCnpjOuNomeAproximadoPoloAtivo(String identificador, int offset, int limit) {
 
         if (identificador.matches("\\d+")) {
             // CPF/CNPJ: retorna apenas a lista direta
             List<Processo> processos = processoRepository.findAllProcessosByPoloAtivoCpfCnpj(identificador);
             return processos.stream().map(this::convertToDTO).toList();
         } else {
-            // Nome: retorna agrupado por nome aproximado
+            // Nome: retorna paginado
+            List<PoloAtivo> polosEncontrados = poloAtivoRepository.searchByNomeAproximadoPaged(identificador, limit, offset);
+
             Map<String, List<ProcessoDTO>> resultado = new LinkedHashMap<>();
-            List<PoloAtivo> polosEncontrados = poloAtivoRepository.searchByNomeAproximado(identificador);
 
             for (PoloAtivo polo : polosEncontrados) {
                 List<Processo> processos = processoRepository.findAllProcessosByPoloAtivoCpfCnpj(polo.getCpfCnpj());
@@ -132,7 +135,8 @@ public class ProcessoService {
 
 
     //Buscar Todos os Processos com um determinado PoloPassivo pelo cpf/cnpj ou pelo Nome do polo passivo
-    public Object getProcessosByCpfCnpjOuNomeAproximadoPoloPassivo(String identificador) {
+    @Cacheable(value = "buscaProcessosPorPoloPassivo", key = "#identificador + '-' + #offset + '-' + #limit")
+    public Object getProcessosByCpfCnpjOuNomeAproximadoPoloPassivo(String identificador, int offset, int limit) {
 
         if (identificador.matches("\\d+")) {
             // CPF/CNPJ: retorna apenas a lista direta
@@ -140,8 +144,8 @@ public class ProcessoService {
             return processos.stream().map(this::convertToDTO).toList();
         } else {
             // Nome: retorna agrupado por nome aproximado
+            List<PoloPassivo> polosEncontrados = poloPassivoRepository.searchByNomeAproximadoPaged(identificador, limit, offset);
             Map<String, List<ProcessoDTO>> resultado = new LinkedHashMap<>();
-            List<PoloPassivo> polosEncontrados = poloPassivoRepository.searchByNomeAproximado(identificador);
 
             for (PoloPassivo polo : polosEncontrados) {
                 List<Processo> processos = processoRepository.findAllProcessosByPoloPassivoCpfCnpj(polo.getCpfCnpj());

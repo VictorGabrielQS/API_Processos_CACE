@@ -7,12 +7,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication
 @EntityScan(basePackages = "cace.processos_api.model")
 @OpenAPIDefinition(info = @Info(title = "API-Processos" , version = "1" , description = "API que gerencia todos os processos que estão sobre o controle da CACE"))
 @EnableJpaRepositories(basePackages = "cace.processos_api.repository")
+@EnableCaching
 public class ProcessosApiApplication {
 
 	@Value("${spring.datasource.url:NOT_DEFINED}")

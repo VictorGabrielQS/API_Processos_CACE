@@ -55,7 +55,7 @@ public class PoloAtivoService extends PoloService {
 
     //Filtra polo ativo por nome
     public ResponseDTO<List<PoloDTO>> getPoloAtivoByNome(String nome) {
-        List<PoloAtivo> polos = poloAtivoRepository.searchByNomeAproximado(nome.trim());
+        List<PoloAtivo> polos = poloAtivoRepository.searchByNomeAproximadoPaged(nome.trim(),10,0);
 
         if (!polos.isEmpty()) {
             List<PoloDTO> dtoList = polos.stream()
