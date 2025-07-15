@@ -147,6 +147,13 @@
 		</dependency>
 
 
+		<!-- Cliente Lettuce (usado por padrão com Spring) -->
+		<dependency>
+			<groupId>io.lettuce</groupId>
+			<artifactId>lettuce-core</artifactId>
+		</dependency>
+
+
 
 
 
