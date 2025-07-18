@@ -261,16 +261,24 @@ public class AuthController {
 
     // ✅ 3. Redefinir senha primeiro Acesso
     @PostMapping("/first-access")
-    public ResponseEntity<?> firstAccess(@RequestBody FirstAccessRequest request){
-        String token = request.getToken();
-        String senhaAtual = request.getSenhaAtual();
-        String novaSenha = request.getNovaSenha();
+    public ResponseEntity<?> firstAccess(
+            HttpServletRequest request,
+            @RequestBody FirstAccessRequest accessRequest) {
+
+        String jwtToken = jwtService.extractTokenFromRequest(request);
+
+        if (jwtToken == null || jwtToken.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token JWT não encontrado.");
+        }
+
+        String senhaAtual = accessRequest.getSenhaAtual();
+        String novaSenha = accessRequest.getNovaSenha();
 
         // Extrai o username do token JWT
-        String username = jwtService.extractUsername(token);
+        String username = jwtService.extractUsername(jwtToken);
         UserDetails userDetails = usuarioDetailsService.loadUserByUsername(username);
 
-        if (!jwtService.isTokenValid(token, userDetails)) {
+        if (!jwtService.isTokenValid(jwtToken, userDetails)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Token inválido ou expirado.");
         }
 
@@ -294,7 +302,6 @@ public class AuthController {
                     .body("A nova senha não pode conter caracteres especiais.");
         }
 
-
         if (usuario.getNivelAcesso() != 3) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("O usuário não possui nível 3 para acesso.");
@@ -303,18 +310,16 @@ public class AuthController {
         // Atualiza a senha
         usuario.setPassword(passwordEncoder.encode(novaSenha));
 
-         // Se for um usuário de teste, mantém nível 3
         if ("senha".equalsIgnoreCase(usuario.getUsername())) {
             usuarioRepository.save(usuario);
             return ResponseEntity.ok("Usuário de teste detectado. Senha atualizada, mas nível mantido.");
         }
 
-        // Caso contrário, libera o acesso (nível 2)
         usuario.setNivelAcesso(2);
         usuarioRepository.save(usuario);
         return ResponseEntity.ok("Senha redefinida com sucesso. Acesso liberado.");
-
     }
+
 
 
     // Retorna o Nível do Usuario atraves do seu UserName gerado pelo token JWT
