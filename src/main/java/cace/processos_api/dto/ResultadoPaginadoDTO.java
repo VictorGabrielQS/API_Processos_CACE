@@ -1,6 +1,11 @@
 package cace.processos_api.dto;
 
-public class ResultadoPaginadoDTO {
+import java.io.Serializable;
+
+public class ResultadoPaginadoDTO implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
     private Object dados;
     private int quantidadeRestante;
 
@@ -15,5 +20,13 @@ public class ResultadoPaginadoDTO {
 
     public int getQuantidadeRestante() {
         return quantidadeRestante;
+    }
+
+    public void setDados(Object dados) {
+        this.dados = dados;
+    }
+
+    public void setQuantidadeRestante(int quantidadeRestante) {
+        this.quantidadeRestante = quantidadeRestante;
     }
 }
