@@ -27,4 +27,11 @@ public interface PoloPassivoRepository extends JpaRepository<PoloPassivo, Long> 
             @Param("offset") int offset
     );
 
+    @Query(value = """
+    SELECT COUNT(*) FROM polo_passivo pp
+    JOIN polo p ON pp.id = p.id
+    WHERE unaccent(lower(p.nome)) LIKE unaccent(lower(concat('%', :nome, '%')))
+""", nativeQuery = true)
+    int countByNomeAproximado(@Param("nome") String nome);
+
 }

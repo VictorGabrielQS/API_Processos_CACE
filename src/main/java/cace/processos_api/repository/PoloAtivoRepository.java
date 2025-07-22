@@ -24,5 +24,15 @@ public interface PoloAtivoRepository extends JpaRepository <PoloAtivo , Long>{
     """, nativeQuery = true)
     List<PoloAtivo> searchByNomeAproximadoPaged(@Param("nome") String nome, @Param("limit") int limit, @Param("offset") int offset);
 
+    @Query(value = """
+    SELECT COUNT(*) FROM polo_ativo pp
+    JOIN polo p ON pp.id = p.id
+    WHERE unaccent(lower(p.nome)) LIKE unaccent(lower(concat('%', :nome, '%')))
+""", nativeQuery = true)
+    int countByNomeAproximado(@Param("nome") String nome);
+
+
+
+
 }
  

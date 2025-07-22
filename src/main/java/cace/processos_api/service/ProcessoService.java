@@ -1,6 +1,7 @@
 package cace.processos_api.service;
 
 import cace.processos_api.dto.ProcessoDTO;
+import cace.processos_api.dto.ResultadoPaginadoDTO;
 import cace.processos_api.dto.administrator.ProcessoResumoDTO;
 import cace.processos_api.exception.ResourceNotFoundException;
 import cace.processos_api.model.process.PoloAtivo;
@@ -114,13 +115,13 @@ public class ProcessoService {
             key = "#identificador + '-' + #offset + '-' + #limit"
     )
     public Object getProcessosByCpfCnpjOuNomeAproximadoPoloAtivo(String identificador, int offset, int limit) {
-
         if (identificador.matches("\\d+")) {
-            // CPF/CNPJ: retorna apenas a lista direta
             List<Processo> processos = processoRepository.findAllProcessosByPoloAtivoCpfCnpj(identificador);
             return processos.stream().map(this::convertToDTO).toList();
         } else {
-            // Nome: retorna paginado
+            // Total sem paginação
+            int totalEncontrados = poloAtivoRepository.countByNomeAproximado(identificador);
+
             List<PoloAtivo> polosEncontrados = poloAtivoRepository.searchByNomeAproximadoPaged(identificador, limit, offset);
 
             Map<String, List<ProcessoDTO>> resultado = new LinkedHashMap<>();
@@ -132,7 +133,8 @@ public class ProcessoService {
                 }
             }
 
-            return resultado;
+            int quantidadeRestante = Math.max(0, totalEncontrados - (offset + limit));
+            return new ResultadoPaginadoDTO(resultado, quantidadeRestante);
         }
     }
 
@@ -146,11 +148,12 @@ public class ProcessoService {
         System.out.println(">>> Consulta executada (NÃO cache)");
 
         if (identificador.matches("\\d+")) {
-            // CPF/CNPJ: retorna apenas a lista direta
             List<Processo> processos = processoRepository.findAllProcessosByPoloPassivoCpfCnpj(identificador);
             return processos.stream().map(this::convertToDTO).toList();
         } else {
-            // Nome: retorna agrupado por nome aproximado
+            // Total de polos passivos semelhantes
+            int totalEncontrados = poloPassivoRepository.countByNomeAproximado(identificador);
+
             List<PoloPassivo> polosEncontrados = poloPassivoRepository.searchByNomeAproximadoPaged(identificador, limit, offset);
             Map<String, List<ProcessoDTO>> resultado = new LinkedHashMap<>();
 
@@ -161,10 +164,10 @@ public class ProcessoService {
                 }
             }
 
-            return resultado;
+            int quantidadeRestante = Math.max(0, totalEncontrados - (offset + limit));
+            return new ResultadoPaginadoDTO(resultado, quantidadeRestante);
         }
     }
-
 
 
 
