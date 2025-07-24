@@ -112,7 +112,7 @@ public class ProcessoService {
     //Buscar Todos os Processos com um determinado PoloAtivo pelo cpf/cnpj ou pelo Nome do polo ativo
     @Cacheable(
             value = "buscaProcessosPorPoloAtivo",
-            key = "#identificador + '-' + #offset + '-' + #limit"
+            key = "T(String).format('%s-%d-%d', #identificador, #offset, #limit)"
     )
     public Object getProcessosByCpfCnpjOuNomeAproximadoPoloAtivo(String identificador, int offset, int limit) {
         if (identificador.matches("\\d+")) {
@@ -142,7 +142,7 @@ public class ProcessoService {
     //Buscar Todos os Processos com um determinado PoloPassivo pelo cpf/cnpj ou pelo Nome do polo passivo
     @Cacheable(
             value = "buscaProcessosPorPoloPassivo",
-            key = "#identificador + '-' + #offset + '-' + #limit"
+            key = "T(String).format('%s-%d-%d', #identificador, #offset, #limit)"
     )
     public Object getProcessosByCpfCnpjOuNomeAproximadoPoloPassivo(String identificador, int offset, int limit) {
         System.out.println(">>> Consulta executada (NÃO cache)");
