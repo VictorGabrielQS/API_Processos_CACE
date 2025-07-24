@@ -84,7 +84,7 @@ public class ProcessoController {
     public ResponseEntity<?> getProcessosByPoloAtivo(
             @PathVariable String identificador,
             @RequestParam(defaultValue = "0") int offset,
-            @RequestParam(defaultValue = "10") int limit
+            @RequestParam(defaultValue = "30") int limit
     ) {
         Object resultado = processoService.getProcessosByCpfCnpjOuNomeAproximadoPoloAtivo(identificador , offset, limit);
 
@@ -105,7 +105,7 @@ public class ProcessoController {
     public ResponseEntity<?> getProcessosPorPoloPassivoOuNome(
             @PathVariable String identificador,
             @RequestParam(defaultValue = "0") int offset,
-            @RequestParam(defaultValue = "10") int limit
+            @RequestParam(defaultValue = "30") int limit
     ) {
         Object resultado = processoService.getProcessosByCpfCnpjOuNomeAproximadoPoloPassivo(identificador, offset, limit);
 
