@@ -79,48 +79,6 @@ public class ProcessoController {
 
 
 
-    // Rota para Buscar Todos os Processos com um determinado PoloAtivo pelo cpf/cnpj ou pelo Nome do polo ativo
-    @GetMapping("/por-polo-ativo/{identificador}")
-    public ResponseEntity<?> getProcessosByPoloAtivo(
-            @PathVariable String identificador,
-            @RequestParam(defaultValue = "0") int offset,
-            @RequestParam(defaultValue = "30") int limit
-    ) {
-        Object resultado = processoService.getProcessosByCpfCnpjOuNomeAproximadoPoloAtivo(identificador , offset, limit);
-
-        if (resultado instanceof List && ((List<?>) resultado).isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
-
-        if (resultado instanceof Map && ((Map<?, ?>) resultado).isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
-
-        return ResponseEntity.ok(resultado);
-    }
-
-
-    // Rota para Buscar Todos os Processos com um determinado PoloPassivo pelo cpf/cnpj ou pelo Nome do polo passivo
-    @GetMapping("/por-polo-passivo/{identificador}")
-    public ResponseEntity<?> getProcessosPorPoloPassivoOuNome(
-            @PathVariable String identificador,
-            @RequestParam(defaultValue = "0") int offset,
-            @RequestParam(defaultValue = "30") int limit
-    ) {
-        Object resultado = processoService.getProcessosByCpfCnpjOuNomeAproximadoPoloPassivo(identificador, offset, limit);
-
-        if (resultado instanceof List && ((List<?>) resultado).isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
-
-        if (resultado instanceof Map && ((Map<?, ?>) resultado).isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
-
-        return ResponseEntity.ok(resultado);
-    }
-
-
 
     //Atualizar Processo :
 

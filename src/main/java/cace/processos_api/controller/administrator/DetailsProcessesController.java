@@ -479,7 +479,6 @@ public class DetailsProcessesController {
 
         html.append("<table>");
         html.append("<thead><tr>");
-        html.append("<th>Data</th><th>Nº Processo</th><th>Polo Ativo</th><th>Polo Passivo</th>");
         html.append("<th>Serventia</th><th>Responsável</th><th>Status</th>");
         html.append("</tr></thead><tbody>");
 
@@ -487,8 +486,6 @@ public class DetailsProcessesController {
             html.append("<tr>")
                     .append("<td>").append(p.getDataCriacao() != null ? p.getDataCriacao().format(formatter) : "-").append("</td>")
                     .append("<td>").append(p.getNumeroCompleto()).append("</td>")
-                    .append("<td>").append(p.getPoloAtivoNome() != null ? p.getPoloAtivoNome() : "-").append("</td>")
-                    .append("<td>").append(p.getPoloPassivoNome() != null ? p.getPoloPassivoNome() : "-").append("</td>")
                     .append("<td>").append(p.getServentia()).append("</td>")
                     .append("<td>").append(p.getResponsavel()).append("</td>")
                     .append("<td>").append(p.getStatus()).append("</td>")

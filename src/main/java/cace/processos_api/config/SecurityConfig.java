@@ -45,9 +45,7 @@ public class SecurityConfig {
                         ).permitAll()
                         .requestMatchers(
                                 "/api/processos/**",
-                                "/api/admin/**",
-                                "/api/polos-ativos/**",
-                                "/api/polos-passivos/**"
+                                "/api/admin/**"
                         ).authenticated()
                         .anyRequest().authenticated()
                 )

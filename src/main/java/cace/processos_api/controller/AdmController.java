@@ -1,13 +1,10 @@
 package cace.processos_api.controller;
 
-import cace.processos_api.dto.PoloDetalhadoDTO;
 import cace.processos_api.dto.ProcessoDTO;
 import cace.processos_api.exception.ApiResponseException;
 import cace.processos_api.model.process.Usuario;
 import cace.processos_api.repository.UsuarioRepository;
 import cace.processos_api.util.AuthUtil;
-import cace.processos_api.service.PoloAtivoService;
-import cace.processos_api.service.PoloPassivoService;
 import cace.processos_api.service.ProcessoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -32,8 +29,7 @@ public class AdmController {
 
     private final UsuarioRepository usuarioRepository;
     private final ProcessoService processoService;
-    private  final PoloPassivoService poloPassivoService;
-    private final PoloAtivoService poloAtivoService;
+
 
 
 
@@ -268,90 +264,6 @@ public class AdmController {
 
 
 
-    //Polo Passivo :
-
-
-    // Rota deleta polo passivo por cpf/cnpj
-    @Operation(
-            summary = "Deleta um Polo Passivo por CPF/CNPJ.",
-            description = "Remove permanentemente um polo passivo identificado por CPF ou CNPJ. Requer nível de acesso 1.",
-            method = "DELETE",
-            responses = {
-                    @ApiResponse(responseCode = "204", description = "Polo passivo deletado com sucesso"),
-                    @ApiResponse(responseCode = "403", description = "Acesso negado"),
-                    @ApiResponse(responseCode = "404", description = "Polo passivo não encontrado")
-            }
-    )
-    @DeleteMapping("/delete-poloPassivoCpfCnpj/{cpfCnpj}")
-    public ResponseEntity<Void> deletePoloPassivo(@PathVariable String cpfCnpj ){
-        AuthUtil.validarAcesso(1); // Apenas usuários com nível 1 podem acessar
-        poloPassivoService.deletePolo(cpfCnpj);
-        return ResponseEntity.noContent().build();
-    }
-
-
-    // Rota deleta polo passivo por id
-    @Operation(
-            summary = "Deleta um Polo Passivo por ID.",
-            description = "Remove permanentemente um polo passivo identificado pelo ID. Requer nível de acesso 1.",
-            method = "DELETE",
-            responses = {
-                    @ApiResponse(responseCode = "204", description = "Polo passivo deletado com sucesso"),
-                    @ApiResponse(responseCode = "403", description = "Acesso negado"),
-                    @ApiResponse(responseCode = "404", description = "Polo passivo não encontrado")
-            }
-    )
-    @DeleteMapping("/delete-poloPassivoId/{id}")
-    public ResponseEntity<Void> deletePoloPassivo(@PathVariable Long id ){
-        AuthUtil.validarAcesso(1); // Apenas usuários com nível 1 podem acessar
-        poloPassivoService.deletePoloId(id);
-        return ResponseEntity.noContent().build();
-    }
-
-
-
-
-    //Polo Ativo :
-
-
-    // Rota deleta polo Ativo por cpf/cnpj
-    @Operation(
-            summary = "Deleta um Polo Ativo por CPF/CNPJ.",
-            description = "Remove permanentemente um polo ativo identificado por CPF ou CNPJ. Requer nível de acesso 1.",
-            method = "DELETE",
-            responses = {
-                    @ApiResponse(responseCode = "204", description = "Polo ativo deletado com sucesso"),
-                    @ApiResponse(responseCode = "403", description = "Acesso negado"),
-                    @ApiResponse(responseCode = "404", description = "Polo ativo não encontrado")
-            }
-    )
-    @DeleteMapping("/delete-poloAtivoCpfCnpj/{cpfCnpj}")
-    public ResponseEntity<Void> deletePoloAtivo(@PathVariable String cpfCnpj){
-        AuthUtil.validarAcesso(1); // Apenas usuários com nível 1 podem acessar
-        poloAtivoService.deletePolo(cpfCnpj);
-        return ResponseEntity.noContent().build();
-    }
-
-
-
-    // Rota deleta polo Ativo por id
-    @Operation(
-            summary = "Deleta um Polo Ativo por ID.",
-            description = "Remove permanentemente um polo ativo identificado pelo ID. Requer nível de acesso 1.",
-            method = "DELETE",
-            responses = {
-                    @ApiResponse(responseCode = "204", description = "Polo ativo deletado com sucesso"),
-                    @ApiResponse(responseCode = "403", description = "Acesso negado"),
-                    @ApiResponse(responseCode = "404", description = "Polo ativo não encontrado")
-            }
-    )
-    @DeleteMapping("/delete-poloAtivoId/{id}")
-    public  ResponseEntity<Void> deletePoloAtivoId(@PathVariable Long id ){
-        AuthUtil.validarAcesso(1); // Apenas usuários com nível 1 podem acessar
-        poloAtivoService.deletePoloId(id);
-        return ResponseEntity.noContent().build();
-    }
-
 
 
 
@@ -455,149 +367,6 @@ public class AdmController {
 
 
 
-    //Polo ativo detalhado
-
-    // Buscar Polo Ativo detalhado por CPF/CNPJ
-    @Operation(
-            summary = "Buscar Polo Ativo detalhado por CPF/CNPJ",
-            description = "Retorna os dados detalhados do polo ativo com o CPF/CNPJ informado. Requer nível de acesso 1 ou 2.",
-            method = "GET",
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "Polo encontrado com sucesso"),
-                    @ApiResponse(responseCode = "403", description = "Acesso negado")
-            }
-    )
-    @GetMapping("/polo-ativo/detalhado/byCpfCnpj")
-    public ResponseEntity<PoloDetalhadoDTO> getDetalhadoAtivoByCpfCnpj(@RequestParam String cpfCnpj) {
-        AuthUtil.validarAcesso(1,2); // Apenas usuários com nível 1 e 2 podem acessar
-        return ResponseEntity.ok(poloAtivoService.getDetalhadoByCpfCnpj(cpfCnpj));
-    }
-
-
-    // Buscar Todos Polo Ativo detalhados
-    @Operation(
-            summary = "Listar todos os Polos Ativos detalhados",
-            description = "Retorna uma lista completa dos polos ativos detalhados. Requer nível de acesso 1.",
-            method = "GET",
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "Lista retornada com sucesso"),
-                    @ApiResponse(responseCode = "403", description = "Acesso negado")
-            }
-    )
-    @GetMapping("/polo-ativo/detalhado/todos")
-    public ResponseEntity<List<PoloDetalhadoDTO>> getAllPoloAtivoDetalhado() {
-        AuthUtil.validarAcesso(1); // Apenas usuários com nível 1 e 2 podem acessar
-        List<PoloDetalhadoDTO> polosDetalhados = poloAtivoService.getTodosPolosDetalhados();
-        return ResponseEntity.ok(polosDetalhados);
-    }
-
-
-    // Buscar Polo Ativo detalhado por Id
-    @Operation(
-            summary = "Buscar Polo Ativo detalhado por ID",
-            description = "Retorna os dados detalhados do polo ativo com base no ID informado. Requer nível de acesso 1.",
-            method = "GET",
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "Polo encontrado com sucesso"),
-                    @ApiResponse(responseCode = "403", description = "Acesso negado")
-            }
-    )
-    @GetMapping("/polo-ativo/detalhado/byId")
-    public ResponseEntity<PoloDetalhadoDTO> getDetalhadoAtivoById(@RequestParam Long id) {
-        AuthUtil.validarAcesso(1); // Apenas usuários com nível 1 podem acessar
-        return ResponseEntity.ok(poloAtivoService.getDetalhadoById(id));
-    }
-
-
-    // Atualizar Polo Ativo detalhado por Id
-    @Operation(
-            summary = "Atualizar Polo Ativo detalhado por ID",
-            description = "Atualiza os dados detalhados do polo ativo com base no ID. Requer nível de acesso 1.",
-            method = "PUT",
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "Polo atualizado com sucesso"),
-                    @ApiResponse(responseCode = "403", description = "Acesso negado")
-            }
-    )
-    @PutMapping("/detalhado-ativo/{id}")
-    public ResponseEntity<PoloDetalhadoDTO> atualizarPoloAtivo(@PathVariable Long id, @RequestBody PoloDetalhadoDTO dto) {
-        AuthUtil.validarAcesso(1); // Apenas usuários com nível 1 podem acessar
-        PoloDetalhadoDTO atualizado = poloAtivoService.updatePoloAtivo(id, dto);
-        return ResponseEntity.ok(atualizado);
-    }
-
-
-    //Polo Passivo
-
-    // Buscar Todos Polo Passivo detalhados
-    @Operation(
-            summary = "Listar todos os Polos Passivos detalhados",
-            description = "Retorna uma lista completa dos polos passivos detalhados. Requer nível de acesso 1.",
-            method = "GET",
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "Lista retornada com sucesso"),
-                    @ApiResponse(responseCode = "403", description = "Acesso negado")
-            }
-    )
-    @GetMapping("/polo-passivo/detalhado/todos")
-    public ResponseEntity<List<PoloDetalhadoDTO>> getAllPoloPassivoDetalhado() {
-        AuthUtil.validarAcesso(1); // Apenas usuários com nível 1 podem acessar
-        List<PoloDetalhadoDTO> poloDetalhadoDTOS = poloPassivoService.getTodosPolosDetalhados();
-        return ResponseEntity.ok(poloDetalhadoDTOS);
-    }
-
-
-
-    // Buscar Polo Passivo detalhado por CPF/CNPJ
-    @Operation(
-            summary = "Buscar Polo Passivo detalhado por CPF/CNPJ",
-            description = "Retorna os dados detalhados do polo passivo com o CPF/CNPJ informado. Requer nível de acesso 1 ou 2.",
-            method = "GET",
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "Polo encontrado com sucesso"),
-                    @ApiResponse(responseCode = "403", description = "Acesso negado")
-            }
-    )
-    @GetMapping("/polo-passivo/detalhado/byCpfCnpj")
-    public ResponseEntity<PoloDetalhadoDTO> getDetalhadoPassivoByCpfCnpj(@RequestParam String cpfCnpj) {
-        AuthUtil.validarAcesso(1,2); // Apenas usuários com nível 1 e 2 podem acessar
-        return ResponseEntity.ok(poloPassivoService.getDetalhadoByCpfCnpj(cpfCnpj));
-    }
-
-
-    // Buscar Polo Passivo detalhado por Id
-    @Operation(
-            summary = "Buscar Polo Passivo detalhado por ID",
-            description = "Retorna os dados detalhados do polo passivo com base no ID informado. Requer nível de acesso 1.",
-            method = "GET",
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "Polo encontrado com sucesso"),
-                    @ApiResponse(responseCode = "403", description = "Acesso negado")
-            }
-    )
-    @GetMapping("/polo-passivo/detalhado/byId")
-    public ResponseEntity<PoloDetalhadoDTO> getDetalhadoPassivoById(@RequestParam Long id) {
-        AuthUtil.validarAcesso(1); // Apenas usuários com nível 1 podem acessar
-        return ResponseEntity.ok(poloPassivoService.getDetalhadoById(id));
-    }
-
-
-    // Atualizar Polo Passivo detalhado por Id
-    @Operation(
-            summary = "Atualizar Polo Passivo detalhado por ID",
-            description = "Atualiza os dados detalhados do polo passivo com base no ID. Requer nível de acesso 1.",
-            method = "PUT",
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "Polo atualizado com sucesso"),
-                    @ApiResponse(responseCode = "403", description = "Acesso negado")
-            }
-    )
-    @PutMapping("/detalhado-passivo/{id}")
-    public ResponseEntity<PoloDetalhadoDTO> atualizarPoloPassivo(@PathVariable Long id, @RequestBody PoloDetalhadoDTO dto) {
-        AuthUtil.validarAcesso(1); // Apenas usuários com nível 1 podem acessar
-        PoloDetalhadoDTO atualizado = poloPassivoService.updatePoloPassivo(id, dto);
-        return ResponseEntity.ok(atualizado);
-    }
 
 
 

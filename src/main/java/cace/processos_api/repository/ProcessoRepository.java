@@ -34,15 +34,6 @@ public interface ProcessoRepository extends JpaRepository <Processo , Long>{
     void deleteByNumeroCompleto(String numeroCompleto);
 
 
-    //Retorna todos os processos com o PoloAtivo
-    @Query("SELECT p FROM Processo p WHERE p.poloAtivo.cpfCnpj = :cpfCnpj")
-    List<Processo> findAllProcessosByPoloAtivoCpfCnpj(@Param("cpfCnpj") String cpfCnpj);
-
-
-    //Retorna todos os processos com o PoloPassivo
-    @Query("SELECT p FROM Processo p WHERE p.poloPassivo.cpfCnpj = :cpfCnpj")
-    List<Processo> findAllProcessosByPoloPassivoCpfCnpj(@Param("cpfCnpj") String cpfCnpj);
-
 
     //Retorna todos os processos com o determinado Responsavel
     List<Processo> findAllProcessosByResponsavel(String responsavel);
@@ -60,12 +51,8 @@ public interface ProcessoRepository extends JpaRepository <Processo , Long>{
         SELECT 
             p.numeroCurto AS numeroCurto,
             p.status AS status,
-            pa.cpfCnpj AS poloAtivoCpfCnpj,
-            pp.cpfCnpj AS poloPassivoCpfCnpj,
             p.dataCriacao AS dataCriacao
         FROM Processo p
-        JOIN p.poloAtivo pa
-        JOIN p.poloPassivo pp
         WHERE p.dataCriacao BETWEEN :inicio AND :fim
     """)
     List<ProcessoResumoDTO> buscarResumoPorData(LocalDateTime inicio, LocalDateTime fim);

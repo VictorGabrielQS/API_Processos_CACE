@@ -18,8 +18,6 @@ public class ProcessoDTO implements Serializable {
     private Long id;
     private String numeroCompleto;
     private String numeroCurto;
-    private String poloAtivoCpfCnpj;
-    private String poloPassivoCpfCnpj;
     private String serventia;
     private String status;
     private String responsavel;
@@ -45,8 +43,6 @@ public class ProcessoDTO implements Serializable {
                 processo.getId(),
                 processo.getNumeroCompleto(),
                 processo.getNumeroCurto(),
-                processo.getPoloAtivo() != null ? processo.getPoloAtivo().getCpfCnpj() : null,
-                processo.getPoloPassivo() != null ? processo.getPoloPassivo().getCpfCnpj() : null,
                 processo.getServentia(),
                 processo.getStatus(),
                 processo.getResponsavel(),
