@@ -9,20 +9,16 @@ import org.springframework.stereotype.Component;
 public class AuthUtil {
     public static Usuario getUsuarioLogado() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (authentication == null) {
+        if (authentication == null || !authentication.isAuthenticated()) {
             return null;
         }
-
         Object principal = authentication.getPrincipal();
-
         if (principal instanceof Usuario) {
             return (Usuario) principal;
-        } else {
-            // Pode ser String "anonymousUser" ou outro tipo
-            return null;
         }
+        return null;
     }
+
 
 
     public  static  void validarAcesso(Integer... nivelRequerido){
