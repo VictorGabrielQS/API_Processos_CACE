@@ -7,9 +7,21 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class AuthUtil {
-    public static Usuario getUsuarioLogado(){
+    public static Usuario getUsuarioLogado() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return (Usuario) authentication.getPrincipal();
+
+        if (authentication == null) {
+            return null;
+        }
+
+        Object principal = authentication.getPrincipal();
+
+        if (principal instanceof Usuario) {
+            return (Usuario) principal;
+        } else {
+            // Pode ser String "anonymousUser" ou outro tipo
+            return null;
+        }
     }
 
 
@@ -29,6 +41,10 @@ public class AuthUtil {
 
 
         Usuario usuario = getUsuarioLogado();
+        if (usuario == null) {
+            throw new RuntimeException("Acesso negado: usuário não autenticado.");
+        }
+
         for (Integer nivel : nivelRequerido) {
             if (usuario.getNivelAcesso() == nivel) return;
         }
