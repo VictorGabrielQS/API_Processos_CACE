@@ -25,6 +25,13 @@ public class ProcessoService {
 
     }
 
+    public List<ProcessoDTO> createProcessos(List<ProcessoDTO> processosDTO) {
+        return processosDTO.stream()
+                .map(this::createProcesso)
+                .toList();
+    }
+
+
     public ProcessoDTO createProcesso(ProcessoDTO processoDTO) {
         String numeroCurtoLimpo = NumeroProcessoUtil.limparCurto(processoDTO.getNumeroCurto());
 
