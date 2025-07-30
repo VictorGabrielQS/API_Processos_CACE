@@ -7,6 +7,9 @@ import cace.processos_api.repository.administrator.DetailsProcessesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -16,6 +19,7 @@ public class DetailsProcessesService {
 
     @Autowired
     private DetailsProcessesRepository detailsProcessesRepository;
+
 
 
     private DetailsProcessesDTO toDTO(DetailsProcesses entity){
@@ -54,23 +58,49 @@ public class DetailsProcessesService {
     }
 
 
-    public DetailsProcessesDTO salvar(DetailsProcessesDTO dto) {
-        DetailsProcesses entity;
+    public List<DetailsProcessesDTO> salvarLote(List<DetailsProcessesDTO> listaDTO) {
+        return listaDTO.stream()
+                .map(this::salvar)
+                .toList();
+    }
 
-        if(dto.getId() != null) {
-            entity = detailsProcessesRepository.findById(dto.getId())
-                    .orElse(new DetailsProcesses());
+
+
+    public DetailsProcessesDTO salvar(DetailsProcessesDTO dto) {
+        LocalDate dataCriacao = dto.getDataHoraCriacao() != null
+                ? dto.getDataHoraCriacao().toLocalDate()
+                : LocalDate.now();
+
+        LocalDateTime startOfDay = dataCriacao.atStartOfDay();
+        LocalDateTime endOfDay = dataCriacao.atTime(LocalTime.MAX);
+
+        List<DetailsProcesses> listaRegistros = detailsProcessesRepository.findByDataHoraCriacaoBetween(startOfDay, endOfDay);
+
+        DetailsProcesses detailsProcesses;
+
+        if (!listaRegistros.isEmpty()) {
+            detailsProcesses = listaRegistros.get(0); // Atualiza existente
         } else {
-            entity = new DetailsProcesses();
+            detailsProcesses = new DetailsProcesses();
+            detailsProcesses.setDataHoraCriacao(dto.getDataHoraCriacao() != null
+                    ? dto.getDataHoraCriacao()
+                    : LocalDateTime.now());
         }
 
-        entity.setProcessosVerificar(dto.getProcessosVerificar());
-        entity.setProcessosRenajud(dto.getProcessosRenajud());
-        entity.setProcessosInfojud(dto.getProcessosInfojud());
-        entity.setProcessosErroCertidao(dto.getProcessosErroCertidao());
+        // Atualiza dados
+        detailsProcesses.setProcessosVerificar(dto.getProcessosVerificar());
+        detailsProcesses.setProcessosRenajud(dto.getProcessosRenajud());
+        detailsProcesses.setProcessosInfojud(dto.getProcessosInfojud());
+        detailsProcesses.setProcessosErroCertidao(dto.getProcessosErroCertidao());
+        detailsProcesses.setProcessosTotais(dto.getProcessosTotais());
+        detailsProcesses.setPercentualErros(dto.getPercentualErros());
+        detailsProcesses.setDataHoraAtualizacao(LocalDateTime.now());
 
-        return toDTO(detailsProcessesRepository.save(entity));
+        DetailsProcesses salvo = detailsProcessesRepository.save(detailsProcesses);
+
+        return new DetailsProcessesDTO(salvo);
     }
+
 
 
     public void deletar(Long id) {

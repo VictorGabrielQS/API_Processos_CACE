@@ -10,6 +10,7 @@ import cace.processos_api.service.administrator.DetailsProcessesService;
 
 import java.io.*;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itextpdf.html2pdf.HtmlConverter;
 
 import jakarta.servlet.http.HttpServletResponse;
@@ -45,6 +46,9 @@ public class DetailsProcessesController {
     @Autowired
     private ProcessoRepository processoRepository;
 
+    @Autowired
+    private DetailsProcessesService detailsProcessesService;
+
 
 
     @GetMapping
@@ -61,89 +65,26 @@ public class DetailsProcessesController {
 
 
     @PostMapping
-    public DetailsProcessesDTO salvar(@RequestBody DetailsProcessesDTO detailsProcessesDTO) {
-        LocalDate dataCriacao = detailsProcessesDTO.getDataHoraCriacao() != null
-                ? detailsProcessesDTO.getDataHoraCriacao().toLocalDate()
-                : LocalDate.now();
+    public ResponseEntity<?> salvar(@RequestBody Object payload) {
+        if (payload instanceof Map) {
+            // Um único objeto
+            DetailsProcessesDTO dto = new ObjectMapper().convertValue(payload, DetailsProcessesDTO.class);
+            DetailsProcessesDTO salvo = detailsProcessesService.salvar(dto);
+            return ResponseEntity.ok(salvo);
+        } else if (payload instanceof List) {
+            // Lista de objetos
+            List<?> rawList = (List<?>) payload;
+            List<DetailsProcessesDTO> listaDTO = rawList.stream()
+                    .map(item -> new ObjectMapper().convertValue(item, DetailsProcessesDTO.class))
+                    .toList();
 
-        LocalDateTime startOfDay = dataCriacao.atStartOfDay();
-        LocalDateTime endOfDay = dataCriacao.atTime(LocalTime.MAX);
-
-        List<DetailsProcesses> listaRegistros = detailsProcessesRepository.findByDataHoraCriacaoBetween(startOfDay, endOfDay);
-
-        DetailsProcesses detailsProcesses;
-
-        if (!listaRegistros.isEmpty()) {
-            // Atualiza o primeiro registro encontrado do dia
-            detailsProcesses = listaRegistros.get(0);
+            List<DetailsProcessesDTO> salvos = detailsProcessesService.salvarLote(listaDTO);
+            return ResponseEntity.ok(salvos);
         } else {
-            // Cria novo registro
-            detailsProcesses = new DetailsProcesses();
-            LocalDateTime dataHoraCriacao = detailsProcessesDTO.getDataHoraCriacao() != null
-                    ? detailsProcessesDTO.getDataHoraCriacao()
-                    : LocalDateTime.now();
-            detailsProcesses.setDataHoraCriacao(dataHoraCriacao);
+            return ResponseEntity.badRequest().body("Formato de payload inválido");
         }
-
-        // Atualiza dados
-        detailsProcesses.setProcessosVerificar(detailsProcessesDTO.getProcessosVerificar());
-        detailsProcesses.setProcessosRenajud(detailsProcessesDTO.getProcessosRenajud());
-        detailsProcesses.setProcessosInfojud(detailsProcessesDTO.getProcessosInfojud());
-        detailsProcesses.setProcessosErroCertidao(detailsProcessesDTO.getProcessosErroCertidao());
-        detailsProcesses.setProcessosTotais(detailsProcessesDTO.getProcessosTotais());
-        detailsProcesses.setPercentualErros(detailsProcessesDTO.getPercentualErros());
-        detailsProcesses.setDataHoraAtualizacao(LocalDateTime.now());
-
-        DetailsProcesses salvo = detailsProcessesRepository.save(detailsProcesses);
-
-        return new DetailsProcessesDTO(salvo);
     }
 
-
-    @PostMapping("/salvar-lote")
-    public List<DetailsProcessesDTO> salvarLote(@RequestBody List<DetailsProcessesDTO> listaDTO) {
-        List<DetailsProcessesDTO> salvos = new ArrayList<>();
-
-        for (DetailsProcessesDTO dto : listaDTO) {
-            LocalDate dataCriacao = dto.getDataHoraCriacao() != null
-                    ? dto.getDataHoraCriacao().toLocalDate()
-                    : LocalDate.now();
-
-            LocalDateTime startOfDay = dataCriacao.atStartOfDay();
-            LocalDateTime endOfDay = dataCriacao.atTime(LocalTime.MAX);
-
-            List<DetailsProcesses> listaRegistros = detailsProcessesRepository.findByDataHoraCriacaoBetween(startOfDay, endOfDay);
-
-            DetailsProcesses detailsProcesses;
-
-            if (!listaRegistros.isEmpty()) {
-                // Atualiza o primeiro registro encontrado do dia
-                detailsProcesses = listaRegistros.get(0);
-            } else {
-                // Cria novo registro
-                detailsProcesses = new DetailsProcesses();
-                LocalDateTime dataHoraCriacao = dto.getDataHoraCriacao() != null
-                        ? dto.getDataHoraCriacao()
-                        : LocalDateTime.now();
-                detailsProcesses.setDataHoraCriacao(dataHoraCriacao);
-            }
-
-            // Atualiza os dados
-            detailsProcesses.setProcessosVerificar(dto.getProcessosVerificar());
-            detailsProcesses.setProcessosRenajud(dto.getProcessosRenajud());
-            detailsProcesses.setProcessosInfojud(dto.getProcessosInfojud());
-            detailsProcesses.setProcessosErroCertidao(dto.getProcessosErroCertidao());
-            detailsProcesses.setProcessosTotais(dto.getProcessosTotais());
-            detailsProcesses.setPercentualErros(dto.getPercentualErros());
-            detailsProcesses.setDataHoraAtualizacao(LocalDateTime.now());
-
-            // Salva e adiciona à lista de retorno
-            DetailsProcesses salvo = detailsProcessesRepository.save(detailsProcesses);
-            salvos.add(new DetailsProcessesDTO(salvo));
-        }
-
-        return salvos;
-    }
 
 
     @DeleteMapping("/{id}")
