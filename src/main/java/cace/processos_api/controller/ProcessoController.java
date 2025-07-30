@@ -28,13 +28,18 @@ public class ProcessoController {
     //Criar Processo :
 
     // Rota para Criar Processo
+
 // Rota para criar uma lista de processos
-    @PostMapping
-    public ResponseEntity<List<ProcessoDTO>> createProcessos(@RequestBody List<ProcessoDTO> processosDTO) {
-        AuthUtil.validarAcesso(1); // Apenas usuários com nível 1 podem acessar
-        List<ProcessoDTO> createdProcessos = processoService.createProcessos(processosDTO);
-        return new ResponseEntity<>(createdProcessos, HttpStatus.CREATED);
-    }
+@PostMapping
+public ResponseEntity<List<ProcessoDTO>> createProcessos(@RequestBody List<ProcessoDTO> processosDTO) {
+    AuthUtil.validarAcesso(1); // Apenas usuários com nível 1 podem acessar
+
+    // ALTERE ESTA LINHA:
+    // List<ProcessoDTO> createdProcessos = processoService.createProcessos(processosDTO);
+    List<ProcessoDTO> createdProcessos = processoService.createProcessosBatch(processosDTO);
+
+    return new ResponseEntity<>(createdProcessos, HttpStatus.CREATED);
+}
 
 
 

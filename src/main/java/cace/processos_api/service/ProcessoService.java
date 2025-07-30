@@ -14,6 +14,9 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.Set;
+import java.util.HashSet;
 
 @Service
 public class ProcessoService {
@@ -55,6 +58,64 @@ public class ProcessoService {
                     return convertToDTO(savedProcesso);
                 });
     }
+
+
+    public List<ProcessoDTO> createProcessosBatch(List<ProcessoDTO> processosDTO) {
+        // 1. Extrair todos os números curtos limpos
+        List<String> numerosCurtos = processosDTO.stream()
+                .map(dto -> NumeroProcessoUtil.limparCurto(dto.getNumeroCurto()))
+                .toList();
+
+        // 2. Buscar todos os processos existentes de uma vez
+        List<Processo> processosExistentes = processoRepository.findByNumeroCurtoIn(numerosCurtos);
+
+        // 3. Criar um Set com os números curtos que já existem
+        Set<String> numerosExistentes = processosExistentes.stream()
+                .map(Processo::getNumeroCurto)
+                .collect(Collectors.toSet());
+
+        // 4. Filtrar apenas os processos que NÃO existem
+        List<Processo> novosProcessos = processosDTO.stream()
+                .filter(dto -> !numerosExistentes.contains(NumeroProcessoUtil.limparCurto(dto.getNumeroCurto())))
+                .map(this::convertDTOToEntity)
+                .toList();
+
+        // 5. Salvar todos os novos processos de uma vez (BATCH INSERT)
+        List<Processo> processosSalvos = new ArrayList<>();
+        if (!novosProcessos.isEmpty()) {
+            processosSalvos = processoRepository.saveAll(novosProcessos);
+        }
+
+        // 6. Combinar processos existentes + novos salvos e retornar DTOs
+        List<ProcessoDTO> resultado = new ArrayList<>();
+
+        // Adicionar os existentes
+        resultado.addAll(processosExistentes.stream()
+                .map(this::convertToDTO)
+                .toList());
+
+        // Adicionar os novos salvos
+        resultado.addAll(processosSalvos.stream()
+                .map(this::convertToDTO)
+                .toList());
+
+        return resultado;
+    }
+
+
+    private Processo convertDTOToEntity(ProcessoDTO processoDTO) {
+        Processo processo = new Processo();
+        processo.setNumeroCompleto(NumeroProcessoUtil.limparCompleto(processoDTO.getNumeroCompleto()));
+        processo.setNumeroCurto(NumeroProcessoUtil.limparCurto(processoDTO.getNumeroCurto()));
+        processo.setServentia(processoDTO.getServentia());
+        processo.setStatus(processoDTO.getStatus());
+        processo.setResponsavel(processoDTO.getResponsavel());
+        processo.setDescricao(processoDTO.getDescricao());
+        processo.setTipoCertidao(processoDTO.getCertidao());
+        processo.setUrlProcessoProjudi(processoDTO.getUrlProcessoProjudi());
+        return processo;
+    }
+
 
     //Métodos de Get Processo
 

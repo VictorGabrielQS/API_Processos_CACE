@@ -18,6 +18,9 @@ public interface ProcessoRepository extends JpaRepository <Processo , Long>{
     // Busca por número curto
     Optional<Processo> findByNumeroCurto(String numeroCurto);
 
+    // ADICIONE ESTE MÉTODO:
+    List<Processo> findByNumeroCurtoIn(List<String> numerosCurtos);
+
     // Busca por número completo
     Optional<Processo> findByNumeroCompleto(String numeroCompleto);
 
