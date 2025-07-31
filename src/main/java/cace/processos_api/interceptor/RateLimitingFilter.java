@@ -65,11 +65,7 @@ public class RateLimitingFilter implements Filter {
                             bucket.getAvailableTokens());
                     chain.doFilter(request, response);
                 } else {
-                    logger.warn("LIMITE EXCEDIDO | Usuário: {} | Nível: {} | IP: {} | Path: {}",
-                            usuario.getUsername(),
-                            usuario.getNivelAcesso(),
-                            request.getRemoteAddr(),
-                            path);
+                    logger.warn("LIMITE EXCEDIDO");
                     HttpServletResponse httpResponse = (HttpServletResponse) response;
                     httpResponse.setStatus(429);
                     httpResponse.getWriter().write("Limite de requisições excedido. Tente novamente mais tarde.");
