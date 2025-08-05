@@ -1,9 +1,11 @@
 package cace.processos_api.model.process;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.GenericGenerator;
 
 @Entity
 @Getter
@@ -13,15 +15,11 @@ import lombok.*;
 @Table(name = "processo")
 public class Processo {
 
-    // MUDE APENAS ESTA PARTE:
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "processo_seq")
-    @SequenceGenerator(
-            name = "processo_seq",
-            sequenceName = "processo_seq",
-            allocationSize = 50  // Deve ser igual ao INCREMENT da sequence
-    )
-    private Long id;
+    @GeneratedValue(generator = "uuid")
+    @GenericGenerator(name = "uuid", strategy = "uuid2")
+    @Column(columnDefinition = "uuid", updatable = false, nullable = false)
+    private UUID id;
 
     // RESTO DA CLASSE PERMANECE IGUAL:
     @Column(nullable = false , unique = true , updatable = false)

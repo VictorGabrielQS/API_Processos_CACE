@@ -34,8 +34,7 @@ public class ProcessoController {
 public ResponseEntity<List<ProcessoDTO>> createProcessos(@RequestBody List<ProcessoDTO> processosDTO) {
     AuthUtil.validarAcesso(1); // Apenas usuários com nível 1 podem acessar
 
-    // ALTERE ESTA LINHA:
-    // List<ProcessoDTO> createdProcessos = processoService.createProcessos(processosDTO);
+
     List<ProcessoDTO> createdProcessos = processoService.createProcessosBatch(processosDTO);
 
     return new ResponseEntity<>(createdProcessos, HttpStatus.CREATED);

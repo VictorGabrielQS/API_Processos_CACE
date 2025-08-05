@@ -3,10 +3,10 @@ package cace.processos_api.dto;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.UUID;
 
 import cace.processos_api.model.process.Processo;
 import lombok.*;
-
 
 @Data
 @AllArgsConstructor
@@ -15,7 +15,8 @@ public class ProcessoDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private Long id;
+    private UUID id; // <--- ALTERADO
+
     private String numeroCompleto;
     private String numeroCurto;
     private String serventia;
@@ -25,18 +26,14 @@ public class ProcessoDTO implements Serializable {
     private String certidao;
     private String urlProcessoProjudi;
 
-    private String dataCriacao;  // Alterado para String
-    private String dataAtualizacao; // Alterado para String
+    private String dataCriacao;
+    private String dataAtualizacao;
 
-    // Adicione este método para formatar a data
     public static String formatarData(LocalDateTime data) {
-        if (data == null) {
-            return null;
-        }
+        if (data == null) return null;
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         return data.format(formatter);
     }
-
 
     public static ProcessoDTO fromEntity(Processo processo) {
         return new ProcessoDTO(
@@ -53,6 +50,4 @@ public class ProcessoDTO implements Serializable {
                 formatarData(processo.getDataAtualizacao())
         );
     }
-
-
 }
