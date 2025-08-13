@@ -11,6 +11,8 @@ import cace.processos_api.service.administrator.DetailsProcessesService;
 import java.io.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.itextpdf.html2pdf.HtmlConverter;
 
 import jakarta.servlet.http.HttpServletResponse;
@@ -66,16 +68,21 @@ public class DetailsProcessesController {
 
     @PostMapping
     public ResponseEntity<?> salvar(@RequestBody Object payload) {
+        // Cria e configura o ObjectMapper apenas uma vez
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
         if (payload instanceof Map) {
             // Um único objeto
-            DetailsProcessesDTO dto = new ObjectMapper().convertValue(payload, DetailsProcessesDTO.class);
+            DetailsProcessesDTO dto = mapper.convertValue(payload, DetailsProcessesDTO.class);
             DetailsProcessesDTO salvo = detailsProcessesService.salvar(dto);
             return ResponseEntity.ok(salvo);
         } else if (payload instanceof List) {
             // Lista de objetos
             List<?> rawList = (List<?>) payload;
             List<DetailsProcessesDTO> listaDTO = rawList.stream()
-                    .map(item -> new ObjectMapper().convertValue(item, DetailsProcessesDTO.class))
+                    .map(item -> mapper.convertValue(item, DetailsProcessesDTO.class))
                     .toList();
 
             List<DetailsProcessesDTO> salvos = detailsProcessesService.salvarLote(listaDTO);
@@ -84,6 +91,7 @@ public class DetailsProcessesController {
             return ResponseEntity.badRequest().body("Formato de payload inválido");
         }
     }
+
 
 
 
