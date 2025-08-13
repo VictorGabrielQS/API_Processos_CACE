@@ -66,21 +66,16 @@ public class DetailsProcessesController {
 
     @PostMapping
     public ResponseEntity<?> salvar(@RequestBody Object payload) {
-        // Cria e configura o ObjectMapper apenas uma vez
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new JavaTimeModule());
-        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-
         if (payload instanceof Map) {
             // Um único objeto
-            DetailsProcessesDTO dto = mapper.convertValue(payload, DetailsProcessesDTO.class);
+            DetailsProcessesDTO dto = new ObjectMapper().convertValue(payload, DetailsProcessesDTO.class);
             DetailsProcessesDTO salvo = detailsProcessesService.salvar(dto);
             return ResponseEntity.ok(salvo);
         } else if (payload instanceof List) {
             // Lista de objetos
             List<?> rawList = (List<?>) payload;
             List<DetailsProcessesDTO> listaDTO = rawList.stream()
-                    .map(item -> mapper.convertValue(item, DetailsProcessesDTO.class))
+                    .map(item -> new ObjectMapper().convertValue(item, DetailsProcessesDTO.class))
                     .toList();
 
             List<DetailsProcessesDTO> salvos = detailsProcessesService.salvarLote(listaDTO);
@@ -89,7 +84,6 @@ public class DetailsProcessesController {
             return ResponseEntity.badRequest().body("Formato de payload inválido");
         }
     }
-
 
 
 
@@ -302,6 +296,12 @@ public class DetailsProcessesController {
         html.append("<th>Erro Certidão</th><th>Totais</th><th>Erro (%)</th>");
         html.append("</tr></thead><tbody>");
 
+        long totalVerificar = 0;
+        long totalRenajud = 0;
+        long totalInfojud = 0;
+        long totalErroCertidao = 0;
+        long totaisGeral = 0;
+
         for (DetailsProcesses dp : registros) {
             html.append("<tr>")
                     .append("<td>").append(dp.getDataHoraCriacao().toLocalDate().format(formatter)).append("</td>")
@@ -312,7 +312,28 @@ public class DetailsProcessesController {
                     .append("<td>").append(dp.getProcessosTotais()).append("</td>")
                     .append("<td>").append(String.format("%.2f%%", dp.getPercentualErros())).append("</td>")
                     .append("</tr>");
+
+            // Acumula os totais dentro do loop
+            totalVerificar += dp.getProcessosVerificar();
+            totalRenajud += dp.getProcessosRenajud();
+            totalInfojud += dp.getProcessosInfojud();
+            totalErroCertidao += dp.getProcessosErroCertidao();
+            totaisGeral += dp.getProcessosTotais();
         }
+
+
+        // Calcula o percentual de erro total
+        double percentualErroTotal = (totaisGeral > 0) ? (double) totalErroCertidao / totaisGeral * 100 : 0.0;
+
+        html.append("<tr style='font-weight: bold; background-color: #e0e0e0;'>")
+                .append("<td>Total</td>")
+                .append("<td>").append(totalVerificar).append("</td>")
+                .append("<td>").append(totalRenajud).append("</td>")
+                .append("<td>").append(totalInfojud).append("</td>")
+                .append("<td>").append(totalErroCertidao).append("</td>")
+                .append("<td>").append(totaisGeral).append("</td>")
+                .append("<td>").append(String.format("%.2f%%", percentualErroTotal)).append("</td>")
+                .append("</tr>");
 
         html.append("</tbody></table>");
         html.append("<div class='footer'>Relatório gerado automaticamente por CACE TI</div>");
@@ -325,143 +346,6 @@ public class DetailsProcessesController {
             HtmlConverter.convertToPdf(html.toString(), out);
         }
     }
-
-
-/*
-
-    @GetMapping("/relatorio-processos-pdf")
-    public void gerarRelatorioDeProcessosPdf(
-            @RequestParam String inicio,
-            @RequestParam String fim,
-            HttpServletResponse response
-    ) throws IOException {
-
-        LocalDateTime dataInicio = LocalDate.parse(inicio).atStartOfDay();
-        LocalDateTime dataFim = LocalDate.parse(fim).atTime(LocalTime.MAX);
-
-        List<RelatorioProcessoDTO> processos = processoRepository.buscarRelatorioEntreDatas(dataInicio, dataFim);
-
-        processos.sort(Comparator.comparing(RelatorioProcessoDTO::getDataCriacao));// ordena por data
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        String logoSvgBase64 = encodeSvgToBase64("static/logo.svg");
-
-        StringBuilder html = new StringBuilder();
-        html.append("""
-    <!DOCTYPE html>
-    <html><head>
-    <meta charset="UTF-8" />
-    <style>
-      body {
-        font-family: sans-serif;
-        padding: 40px;
-        color: #333;
-        background-color: #ffffff;
-      }
-      .logo {
-        display: block;
-        margin: 0 auto 30px auto;
-        width: 160px;
-      }
-      h1 {
-        text-align: center;
-        color: #004A99;
-        font-size: 26pt;
-        margin-bottom: 10px;
-      }
-      h3 {
-        text-align: center;
-        font-size: 14pt;
-        margin-top: 0;
-        color: #555;
-      }
-      .periodo {
-        text-align: center;
-        margin-top: 20px;
-        font-size: 12pt;
-        color: #444;
-        font-weight: bold;
-      }
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 40px;
-        font-size: 10pt;
-      }
-      th {
-        background-color: #004A99;
-        color: #fff;
-        padding: 10px;
-        border: 1px solid #ddd;
-      }
-      td {
-        padding: 8px;
-        border: 1px solid #ccc;
-        text-align: center;
-      }
-      tr:nth-child(even) {
-        background-color: #f9f9f9;
-      }
-      tr:hover {
-        background-color: #f1f1f1;
-      }
-      .footer {
-        text-align: center;
-        font-size: 9pt;
-        color: #888;
-        margin-top: 60px;
-      }
-    </style>
-    </head><body>
-    """);
-
-        html.append("<img src='data:image/svg+xml;base64,").append(logoSvgBase64).append("' class='logo' />");
-        html.append("<h1>Relatório de Processos Judiciais</h1>");
-        html.append("<h3>Gerado pela API - CACE TI</h3>");
-        html.append("<div class='periodo'>Período: ")
-                .append(dataInicio.format(formatter))
-                .append(" até ")
-                .append(dataFim.format(formatter))
-                .append("</div>");
-
-        html.append("<table>");
-        html.append("<thead><tr>");
-        html.append("<th>Serventia</th><th>Responsável</th><th>Status</th>");
-        html.append("</tr></thead><tbody>");
-
-        for (RelatorioProcessoDTO p : processos) {
-            html.append("<tr>")
-                    .append("<td>").append(p.getDataCriacao() != null ? p.getDataCriacao().format(formatter) : "-").append("</td>")
-                    .append("<td>").append(p.getNumeroCompleto()).append("</td>")
-                    .append("<td>").append(p.getServentia()).append("</td>")
-                    .append("<td>").append(p.getResponsavel()).append("</td>")
-                    .append("<td>").append(p.getStatus()).append("</td>")
-                    .append("</tr>");
-        }
-
-        html.append("</tbody></table>");
-        html.append("<div class='footer'>Relatório gerado automaticamente por CACE TI</div>");
-        html.append("</body></html>");
-
-        response.setContentType("application/pdf");
-        response.setHeader("Content-Disposition", "attachment; filename=relatorio-processos.pdf");
-
-        try (OutputStream out = response.getOutputStream()) {
-            HtmlConverter.convertToPdf(html.toString(), out);
-            System.out.println("✅ PDF gerado com sucesso!");
-        } catch (Exception e) {
-            e.printStackTrace();
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.getWriter().write("Erro ao gerar PDF: " + e.getMessage());
-        }
-
-    }
-
-*/
-
-
-
-
 
 
 
@@ -473,9 +357,6 @@ public class DetailsProcessesController {
             return Base64.getEncoder().encodeToString(bytes);
         }
     }
-
-
-
 
 
 //
