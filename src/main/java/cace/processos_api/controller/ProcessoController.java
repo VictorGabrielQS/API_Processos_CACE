@@ -5,13 +5,13 @@ import cace.processos_api.dto.ProcessoDTO;
 import cace.processos_api.dto.administrator.ProcessoResumoDTO;
 import cace.processos_api.service.ProcessoService;
 import cace.processos_api.util.AuthUtil;
-import jakarta.websocket.server.PathParam;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
+
 
 @RestController
 @RequestMapping("/api/processos")

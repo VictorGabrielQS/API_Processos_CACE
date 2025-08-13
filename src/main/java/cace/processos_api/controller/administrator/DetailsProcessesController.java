@@ -1,9 +1,7 @@
 package cace.processos_api.controller.administrator;
 
-import cace.processos_api.dto.ProcessoDTO;
 import cace.processos_api.dto.administrator.DetailsProcessesDTO;
 import cace.processos_api.model.administrator.DetailsProcesses;
-import cace.processos_api.model.process.Processo;
 import cace.processos_api.repository.ProcessoRepository;
 import cace.processos_api.repository.administrator.DetailsProcessesRepository;
 import cace.processos_api.service.administrator.DetailsProcessesService;

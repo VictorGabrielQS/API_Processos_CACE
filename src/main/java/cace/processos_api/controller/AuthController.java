@@ -5,7 +5,6 @@ import cace.processos_api.config.WebConfig;
 import cace.processos_api.dto.*;
 import cace.processos_api.exception.ApiResponseException;
 import cace.processos_api.model.process.Usuario;
-import cace.processos_api.repository.PasswordResetTokenRepository;
 import cace.processos_api.repository.UsuarioRepository;
 import cace.processos_api.service.JwtService;
 import cace.processos_api.service.TokenBlacklistService;
@@ -33,8 +32,7 @@ import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 
 
 @RestController
