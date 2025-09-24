@@ -1,0 +1,15 @@
+package cace.processos_api.repository.deltaSap;
+
+import cace.processos_api.dto.deltaSap.VarasResponse;
+import cace.processos_api.model.deltaSap.Varas;
+import lombok.AllArgsConstructor;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.Optional;
+
+@Repository
+public interface VarasRepository extends JpaRepository<Varas,Integer> {
+
+    Optional<VarasResponse> findByNomeVara(String nomeVara);
+}
