@@ -12,10 +12,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class VarasRequest {
 
-    @NotNull
+    @NotBlank
     private String nomeVara;
 
     @NotNull
     private Long codigoVaraSisbajud;
+
 
 }

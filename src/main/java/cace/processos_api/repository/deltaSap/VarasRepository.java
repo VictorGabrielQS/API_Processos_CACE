@@ -13,4 +13,5 @@ public interface VarasRepository extends JpaRepository<Varas,Integer> {
 
     Optional<Varas> findByNomeVara(String nomeVara);
 
+
 }
