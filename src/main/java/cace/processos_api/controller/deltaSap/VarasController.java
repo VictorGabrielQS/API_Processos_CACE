@@ -2,9 +2,9 @@ package cace.processos_api.controller.deltaSap;
 
 import cace.processos_api.dto.deltaSap.VarasRequest;
 import cace.processos_api.dto.deltaSap.VarasResponse;
-import cace.processos_api.model.deltaSap.Varas;
+
 import cace.processos_api.service.deltaSap.VarasService;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -21,13 +21,14 @@ public class VarasController {
 
     // Criar Vara
     @PostMapping("/criar")
-    public ResponseEntity<VarasResponse> criarVara(@RequestBody VarasRequest varasRequest) {
+    public ResponseEntity<VarasResponse> criarVara(@Valid @RequestBody VarasRequest varasRequest) {
         return ResponseEntity.ok(varasService.criarVara(varasRequest));
     }
 
+
     // Criar Varas em lote
     @PostMapping("/criar-lote")
-    public ResponseEntity<List<VarasResponse>> salvarEmLote(@RequestBody List<VarasRequest> varasRequests) {
+    public ResponseEntity<List<VarasResponse>> salvarEmLote(@Valid @RequestBody List<VarasRequest> varasRequests) {
         return ResponseEntity.ok(varasService.criarVarasEmLote(varasRequests));
     }
 
