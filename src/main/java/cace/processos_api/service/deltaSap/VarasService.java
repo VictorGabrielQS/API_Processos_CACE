@@ -60,8 +60,8 @@ public class VarasService {
 
     // Buscar Vara por Nome
     public VarasResponse buscarVaraPorNome(String nomeVara) {
-        return varasRepository.findByNomeVara(nomeVara)
-                .orElseThrow(() -> new RuntimeException("Produto não encontrado"));
+        return varasMapper.toDTO(varasRepository.findByNomeVara(nomeVara)
+                .orElseThrow(() -> new RuntimeException("Produto não encontrado")));
     }
 
 

@@ -10,5 +10,5 @@ import lombok.NoArgsConstructor;
 public class VarasResponse {
     private Integer id;
     private String nomeVara;
-    private long codigoVaraSisbajud;
+    private Long codigoVaraSisbajud;
 }

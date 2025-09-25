@@ -16,6 +16,6 @@ public class VarasRequest {
     private String nomeVara;
 
     @NotNull
-    private long codigoVaraSisbajud;
+    private Long codigoVaraSisbajud;
 
 }
