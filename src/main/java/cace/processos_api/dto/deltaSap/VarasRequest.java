@@ -12,10 +12,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class VarasRequest {
 
-    @NotBlank
     @NotNull
     private String nomeVara;
-    @NotBlank
+
     @NotNull
     private long codigoVaraSisbajud;
 
