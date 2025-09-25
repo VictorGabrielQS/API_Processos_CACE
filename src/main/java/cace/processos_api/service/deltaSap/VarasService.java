@@ -7,17 +7,17 @@ import cace.processos_api.model.deltaSap.Varas;
 import cace.processos_api.repository.deltaSap.VarasRepository;
 import jakarta.transaction.Transactional;
 import lombok.Builder;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-@Builder
+@RequiredArgsConstructor
 public class VarasService {
 
     final private VarasRepository varasRepository;

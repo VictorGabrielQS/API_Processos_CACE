@@ -17,47 +17,42 @@ import java.util.List;
 @AllArgsConstructor
 public class VarasController {
 
-    private  final VarasService varasService;
+    private final VarasService varasService;
 
-
-    // Criar varas
-    @PostMapping("/criarVara")
-    public ResponseEntity<VarasResponse> criarVara(@RequestBody VarasRequest varasRequest){
+    // Criar Vara
+    @PostMapping("/criar")
+    public ResponseEntity<VarasResponse> criarVara(@RequestBody VarasRequest varasRequest) {
         return ResponseEntity.ok(varasService.criarVara(varasRequest));
     }
 
-
-    @PostMapping("criarVarasLote")
-    public List<VarasResponse> salvarEmLote(@RequestBody List<VarasRequest> varasRequests){
-        return varasService.criarVarasEmLote(varasRequests);
+    // Criar Varas em lote
+    @PostMapping("/criar-lote")
+    public ResponseEntity<List<VarasResponse>> salvarEmLote(@RequestBody List<VarasRequest> varasRequests) {
+        return ResponseEntity.ok(varasService.criarVarasEmLote(varasRequests));
     }
 
-
-    // Varas Paginadas
-    @GetMapping("/varasPaginada")
-    public ResponseEntity<Page<VarasResponse>> listarPaginaVaras(@RequestParam int page , @RequestParam int size){
-        return ResponseEntity.ok(varasService.listarVarasPaginada(page , size));
+    // Listar Varas paginadas
+    @GetMapping("/paginado")
+    public ResponseEntity<Page<VarasResponse>> listarPaginaVaras(@RequestParam int page, @RequestParam int size) {
+        return ResponseEntity.ok(varasService.listarVarasPaginada(page, size));
     }
 
-
-    // Buscar todas as Varas
-    @GetMapping
-    public ResponseEntity<List<VarasResponse>> listarVaras(){
+    // Listar todas as Varas
+    @GetMapping("/todas")
+    public ResponseEntity<List<VarasResponse>> listarVaras() {
         return ResponseEntity.ok(varasService.listarTodasAsVaras());
     }
 
-
-    // Listar vara por Nome
-    @GetMapping
-    public ResponseEntity<VarasResponse> listarVaraPorNome(@RequestParam String nomeVara){
+    // Buscar Vara por nome
+    @GetMapping("/buscar")
+    public ResponseEntity<VarasResponse> listarVaraPorNome(@RequestParam String nomeVara) {
         return ResponseEntity.ok(varasService.buscarVaraPorNome(nomeVara));
     }
 
-
-    // Deletar vara por ID
-    public ResponseEntity<Void> deletarVaraPorId(@PathVariable Integer id){
+    // Deletar Vara por ID
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletarVaraPorId(@PathVariable Integer id) {
         varasService.deletarVaraPorId(id);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
-
 }

@@ -16,21 +16,16 @@ import lombok.Setter;
 @Table(name = "varas")
 public class Varas {
 
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Integer id;
 
-
     @NotNull
-    @Column(name = "nomeVara", unique = true)
+    @Column(name = "nome_vara", unique = true)
     private String nomeVara;
 
-
     @NotNull
-    @Column(name = "codigoVaraSisbajud", unique = true)
-    private long codigoVaraSisbajud;
-
-
+    @Column(name = "codigo_vara_sisbajud", unique = true)
+    private Long codigoVaraSisbajud;
 }
