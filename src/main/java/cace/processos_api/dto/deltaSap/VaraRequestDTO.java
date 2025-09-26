@@ -9,10 +9,6 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class VaraRequestDTO {
-
-    @NotBlank(message = "O nome da vara é Obrigatório ...")
     private String nomeVara;
-
-    @NotNull(message = "O codigo da vara é Obrigatório ...")
     private Long codigoVaraSisbajud;
 }

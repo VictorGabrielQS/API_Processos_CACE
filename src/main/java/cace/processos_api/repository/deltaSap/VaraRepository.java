@@ -11,11 +11,7 @@ import java.util.Optional;
 @Repository
 public interface VaraRepository extends JpaRepository<Vara, Integer> {
 
-
-
-   Optional<Vara> findByNomeVara(String nomeVara);
-
+    Optional<Vara> findByNomeVara(String nomeVara);
     Optional<Vara> findByCodigoVaraSisbajud(Long codigoVaraSisbajud);
-
 
 }

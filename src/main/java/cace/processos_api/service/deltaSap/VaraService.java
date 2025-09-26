@@ -1,6 +1,5 @@
 package cace.processos_api.service.deltaSap;
 
-import cace.processos_api.dto.mapper.VaraMapper;
 import cace.processos_api.dto.deltaSap.VaraRequestDTO;
 import cace.processos_api.dto.deltaSap.VaraResponseDTO;
 import cace.processos_api.model.deltaSap.Vara;
@@ -14,75 +13,101 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class VaraService {
-
-    private final VaraMapper varaMapper;
     private final VaraRepository varaRepository;
 
 
+
     // Criar Vara
-    public VaraResponseDTO criarVara(VaraRequestDTO varaRequestDTO){
-        Vara vara = varaMapper.toEntity(varaRequestDTO);
-        vara = varaRepository.save(vara);
-        return varaMapper.toResponse(vara);
+    public VaraResponseDTO criarVara(VaraRequestDTO varaRequestDTO) {
+        Vara vara = new Vara();
+        vara.setNomeVara(varaRequestDTO.getNomeVara());
+        vara.setCodigoVaraSisbajud(varaRequestDTO.getCodigoVaraSisbajud());
+
+        Vara salvo = varaRepository.save(vara);
+        return toResponse(salvo);
     }
+
+
 
 
     // Criar Lista de Varas
-    public List<VaraResponseDTO> criarListaVara(List<VaraRequestDTO> varaRequestDTOS){
-        List<Vara> varas = varaMapper.toEntityList(varaRequestDTOS);
-        varas = varaRepository.saveAll(varas);
-        return varaMapper.toResponseList(varas);
+    public List<VaraResponseDTO> criarListaVara(List<VaraRequestDTO> varaRequestDTOS) {
+        List<Vara> varas = varaRequestDTOS.stream().map(req -> {
+            Vara v = new Vara();
+            v.setNomeVara(req.getNomeVara());
+            v.setCodigoVaraSisbajud(req.getCodigoVaraSisbajud());
+            return v;
+        }).collect(Collectors.toList());
+
+        List<Vara> salvos = varaRepository.saveAll(varas);
+        return salvos.stream().map(this::toResponse).collect(Collectors.toList());
     }
+
+
 
 
     // Listar Varas Paginadas
-    public Page<VaraResponseDTO> listarVarasPaginadas(int page , int size){
-        Pageable pageable = PageRequest.of(page , size);
-        Page<Vara> varas = varaRepository.findAll(pageable);
-        return  varas.map(varaMapper::toResponse);
+    public Page<VaraResponseDTO> listarVarasPaginadas(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return varaRepository.findAll(pageable).map(this::toResponse);
     }
+
+
 
 
     // Listar Vara por Nome
-    public VaraResponseDTO buscarVaraPorNome(String nomeVara){
-        Vara vara = varaRepository.findByNomeVara(nomeVara).orElseThrow(() -> new RuntimeException("Vara não encontrada com o nome: " + nomeVara));
-        return varaMapper.toResponse(vara);
+    public VaraResponseDTO buscarVaraPorNome(String nomeVara) {
+        Vara vara = varaRepository.findByNomeVara(nomeVara)
+                .orElseThrow(() -> new RuntimeException("Vara não encontrada com o nome: " + nomeVara));
+        return toResponse(vara);
     }
 
 
-    // Listar Vara por CodigoVara
-    public VaraResponseDTO buscarVaraPorCodigoVara(Long codigoVaraSisbajud){
+
+    // Listar Vara por Código
+    public VaraResponseDTO buscarVaraPorCodigoVara(Long codigoVaraSisbajud) {
         Vara vara = varaRepository.findByCodigoVaraSisbajud(codigoVaraSisbajud)
-                .orElseThrow(() -> new RuntimeException("Vara não encontrada com esse codigo : " + codigoVaraSisbajud));
-        return varaMapper.toResponse(vara);
+                .orElseThrow(() -> new RuntimeException("Vara não encontrada com esse código: " + codigoVaraSisbajud));
+        return toResponse(vara);
     }
 
 
-    // Deletar vara por id
+
+    // Deletar Vara por ID
     @Transactional
-    public void deletarVara(Integer id){
-        if (!varaRepository.existsById(id)){
-            throw  new RuntimeException("Vara com id " + id + " não encontrada.");
+    public void deletarVara(Integer id) {
+        if (!varaRepository.existsById(id)) {
+            throw new RuntimeException("Vara com id " + id + " não encontrada.");
         }
         varaRepository.deleteById(id);
     }
 
 
+
     // Atualizar Vara
-    public VaraResponseDTO atualizarVara(Integer id , VaraRequestDTO varaRequestDTO){
-        Vara varaExiste = varaRepository.findById(id)
+    public VaraResponseDTO atualizarVara(Integer id, VaraRequestDTO varaRequestDTO) {
+        Vara existente = varaRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Vara não encontrada com id " + id));
 
-        varaExiste.setNomeVara(varaRequestDTO.getNomeVara());
-        varaExiste.setCodigoVaraSisbajud(varaRequestDTO.getCodigoVaraSisbajud());
+        existente.setNomeVara(varaRequestDTO.getNomeVara());
+        existente.setCodigoVaraSisbajud(varaRequestDTO.getCodigoVaraSisbajud());
 
-        Vara varaSalva = (varaRepository.save(varaExiste));
-        return varaMapper.toResponse(varaSalva);
+        Vara salvo = varaRepository.save(existente);
+        return toResponse(salvo);
     }
 
 
+
+
+    // =====================
+    // Conversão manual
+    // =====================
+    private VaraResponseDTO toResponse(Vara vara) {
+        return new VaraResponseDTO(vara.getId(), vara.getNomeVara(), vara.getCodigoVaraSisbajud());
+    }
 }
