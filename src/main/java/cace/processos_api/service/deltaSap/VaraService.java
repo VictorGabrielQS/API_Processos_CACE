@@ -56,7 +56,7 @@ public class VaraService {
 
     // Listar Vara por CodigoVara
     public VaraResponseDTO buscarVaraPorCodigoVara(Long codigoVaraSisbajud){
-        Vara vara = varaRepository.findByCodigoVara(codigoVaraSisbajud)
+        Vara vara = varaRepository.findByCodigoVaraSisbajud(codigoVaraSisbajud)
                 .orElseThrow(() -> new RuntimeException("Vara não encontrada com esse codigo : " + codigoVaraSisbajud));
         return varaMapper.toResponse(vara);
     }
