@@ -5,6 +5,7 @@ import cace.processos_api.dto.deltaSap.VaraRequestDTO;
 import cace.processos_api.dto.deltaSap.VaraResponseDTO;
 import cace.processos_api.model.deltaSap.Vara;
 import cace.processos_api.repository.deltaSap.VaraRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -62,6 +63,7 @@ public class VaraService {
 
 
     // Deletar vara por id
+    @Transactional
     public void deletarVara(Integer id){
         if (!varaRepository.existsById(id)){
             throw  new RuntimeException("Vara com id " + id + " não encontrada.");
