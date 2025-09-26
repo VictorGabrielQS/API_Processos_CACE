@@ -1,4 +1,4 @@
-package cace.processos_api.dto.Mapper;
+package cace.processos_api.dto.mapper;
 
 import cace.processos_api.dto.deltaSap.VaraRequestDTO;
 import cace.processos_api.dto.deltaSap.VaraResponseDTO;

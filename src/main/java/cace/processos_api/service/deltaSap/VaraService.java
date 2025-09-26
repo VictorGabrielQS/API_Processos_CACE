@@ -1,6 +1,6 @@
 package cace.processos_api.service.deltaSap;
 
-import cace.processos_api.dto.Mapper.VaraMapper;
+import cace.processos_api.dto.mapper.VaraMapper;
 import cace.processos_api.dto.deltaSap.VaraRequestDTO;
 import cace.processos_api.dto.deltaSap.VaraResponseDTO;
 import cace.processos_api.model.deltaSap.Vara;
