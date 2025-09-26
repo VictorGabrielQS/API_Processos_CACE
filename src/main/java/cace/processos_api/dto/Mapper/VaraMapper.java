@@ -5,12 +5,16 @@ import cace.processos_api.dto.deltaSap.VaraRequestDTO;
 import cace.processos_api.dto.deltaSap.VaraResponseDTO;
 import cace.processos_api.model.deltaSap.Vara;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface VaraMapper {
 
+
+    @Mapping(source = "nomeVara", target = "nomeVara")
+    @Mapping(source = "codigoVaraSisbajud", target = "codigoVaraSisbajud")
     //DTORequest -> Entidade
     Vara toEntity(VaraRequestDTO varaRequestDTO);
 
