@@ -26,14 +26,10 @@ public class VarasService {
 
     // Criar Vara
     public VarasResponse criarVara(VarasRequest varasRequest) {
-        if(varasRequest.getNomeVara() == null || varasRequest.getNomeVara().isBlank()) {
-            throw new IllegalArgumentException("nomeVara é obrigatório");
-        }
-        if(varasRequest.getCodigoVaraSisbajud() == null) {
-            throw new IllegalArgumentException("codigoVaraSisbajud é obrigatório");
-        }
+        Varas varas = new Varas();
+        varas.setNomeVara(varasRequest.getNomeVara());
+        varas.setCodigoVaraSisbajud(varasRequest.getCodigoVaraSisbajud());
 
-        Varas varas = varasMapper.toEntity(varasRequest);
         varas = varasRepository.save(varas);
         return varasMapper.toDTO(varas);
     }
