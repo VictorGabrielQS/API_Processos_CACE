@@ -10,12 +10,12 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class VarasRequest {
+public class VaraRequestDTO {
 
-    @NotBlank
+    @NotBlank(message = "O nome da vara é Obrigatório ...")
     private String nomeVara;
 
-    @NotNull
+    @NotNull(message = "O codigo da vara é Obrigatório ...")
     private Long codigoVaraSisbajud;
 
 
