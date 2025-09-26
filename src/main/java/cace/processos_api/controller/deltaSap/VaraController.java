@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@RequestMapping("/varas")
 @RequiredArgsConstructor
 public class VaraController {
     private final VaraService varaService;
